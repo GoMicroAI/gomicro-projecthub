@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,6 +28,30 @@ export function useProjects() {
     },
     enabled: !!user,
   });
+
+  // Subscribe to realtime changes
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel("projects-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "projects",
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["projects"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient]);
 
   const createProject = useMutation({
     mutationFn: async (project: { name: string; description?: string; status?: ProjectStatus; image_url?: string | null }) => {

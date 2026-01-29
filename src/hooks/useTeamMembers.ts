@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,6 +26,30 @@ export function useTeamMembers() {
     },
     enabled: !!user,
   });
+
+  // Subscribe to realtime changes
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel("team-members-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "team_members",
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["teamMembers"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient]);
 
   const inviteTeamMember = useMutation({
     mutationFn: async ({ email, password, name, role }: { email: string; password: string; name: string; role: AppRole }) => {
