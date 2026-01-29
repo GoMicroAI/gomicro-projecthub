@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Play, Pause, CheckCircle, AlertCircle, X } from "lucide-react";
 import { useTasks } from "@/hooks/useTasks";
 import { useProjects } from "@/hooks/useProjects";
@@ -92,6 +92,7 @@ export const MemberTasksPanel = forwardRef<HTMLDivElement, MemberTasksPanelProps
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Avatar className="h-12 w-12">
+                <AvatarImage src={member.avatar_url || undefined} alt={member.name} />
                 <AvatarFallback className="text-lg bg-primary/10 text-primary">
                   {getInitials(member.name)}
                 </AvatarFallback>
