@@ -28,10 +28,9 @@ import {
 } from "@/components/ui/select";
 import type { Database } from "@/integrations/supabase/types";
 
-type AppRole = Database["public"]["Enums"]["app_role"];
-
 const inviteSchema = z.object({
   email: z.string().email("Invalid email address").max(255),
+  password: z.string().min(8, "Password must be at least 8 characters").max(100),
   name: z.string().min(1, "Name is required").max(100),
   role: z.enum(["admin", "viewer"]),
 });
@@ -51,6 +50,7 @@ export function InviteDialog({ open, onOpenChange, onSubmit }: InviteDialogProps
     resolver: zodResolver(inviteSchema),
     defaultValues: {
       email: "",
+      password: "",
       name: "",
       role: "viewer",
     },
@@ -89,6 +89,23 @@ export function InviteDialog({ open, onOpenChange, onSubmit }: InviteDialogProps
                     <Input
                       type="email"
                       placeholder="team@example.com"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Minimum 8 characters"
                       {...field}
                     />
                   </FormControl>
