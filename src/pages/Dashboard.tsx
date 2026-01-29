@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, FolderKanban, CheckSquare, Users, ArrowRight } from "lucide-react";
+import { Plus, FolderKanban, CheckSquare, Users, ArrowRight, Megaphone } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
@@ -13,6 +13,7 @@ import { TaskStatusBadge } from "@/components/tasks/TaskStatusBadge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { AnnouncementsFeed } from "@/components/announcements/AnnouncementsFeed";
 import type { Database } from "@/integrations/supabase/types";
 
 type Project = Database["public"]["Tables"]["projects"]["Row"];
@@ -258,6 +259,15 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Announcements Section */}
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <Megaphone className="h-5 w-5 text-primary" />
+              <h2 className="text-xl font-semibold">Announcements</h2>
+            </div>
+            <AnnouncementsFeed />
           </div>
         </div>
       )}
