@@ -43,9 +43,9 @@ export function ProjectCard({
   return (
     <Card className="group hover:shadow-md transition-shadow">
       <CardContent className="p-0">
-        <div className="flex">
+        <div className="flex flex-col sm:flex-row">
           {/* Image Section */}
-          <div className="w-32 h-28 shrink-0 bg-muted rounded-l-lg overflow-hidden flex items-center justify-center">
+          <div className="w-full sm:w-32 h-32 sm:h-28 shrink-0 bg-muted rounded-t-lg sm:rounded-l-lg sm:rounded-tr-none overflow-hidden flex items-center justify-center">
             {project.image_url ? (
               <img
                 src={project.image_url}

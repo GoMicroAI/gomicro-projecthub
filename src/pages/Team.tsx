@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, ArrowLeft } from "lucide-react";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useTasks } from "@/hooks/useTasks";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -42,27 +42,15 @@ export default function Team() {
     refetchAssignees();
   };
 
-  // Get current task for each member (for the list view)
-  const getMemberCurrentTask = (userId: string | null) => {
-    if (!userId) return null;
-    // Find task IDs assigned to this user
-    const assignedTaskIds = allAssignees
-      .filter((a) => a.user_id === userId)
-      .map((a) => a.task_id);
-    // Find in-progress task
-    return tasks.find(
-      (t) => assignedTaskIds.includes(t.id) && t.status === "in_progress"
-    );
-  };
-
   return (
     <AppLayout
       title="Team"
       onRefresh={handleRefresh}
       actions={
         isAdmin && (
-          <Button onClick={() => setInviteDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" /> Add Member
+          <Button onClick={() => setInviteDialogOpen(true)} size="sm" className="md:size-default">
+            <Plus className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Add Member</span>
           </Button>
         )
       }
@@ -72,11 +60,31 @@ export default function Team() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
       ) : (
-        <div className="h-[calc(100vh-140px)]">
-          <ResizablePanelGroup direction="horizontal" className="rounded-lg border">
-            {/* Team Member List */}
-            <ResizablePanel defaultSize={35} minSize={25}>
-              <div className="h-full p-4 overflow-auto">
+        <>
+          {/* Mobile View */}
+          <div className="md:hidden h-[calc(100vh-140px)]">
+            {selectedMember ? (
+              <div className="h-full flex flex-col">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedMemberId(null)}
+                  className="self-start mb-2"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Team
+                </Button>
+                <div className="flex-1 overflow-hidden">
+                  <MemberTasksPanel
+                    member={selectedMember}
+                    tasks={tasks}
+                    allAssignees={allAssignees}
+                    onClose={() => setSelectedMemberId(null)}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="h-full overflow-auto">
                 <h2 className="text-sm font-medium text-muted-foreground mb-3">
                   Team Members ({teamMembers.length})
                 </h2>
@@ -88,29 +96,50 @@ export default function Team() {
                   onSelectMember={setSelectedMemberId}
                 />
               </div>
-            </ResizablePanel>
+            )}
+          </div>
 
-            <ResizableHandle withHandle />
-
-            {/* Member Tasks Panel */}
-            <ResizablePanel defaultSize={65} minSize={40}>
-              <div className="h-full">
-                {selectedMember ? (
-                  <MemberTasksPanel
-                    member={selectedMember}
+          {/* Desktop View */}
+          <div className="hidden md:block h-[calc(100vh-140px)]">
+            <ResizablePanelGroup direction="horizontal" className="rounded-lg border">
+              {/* Team Member List */}
+              <ResizablePanel defaultSize={35} minSize={25}>
+                <div className="h-full p-4 overflow-auto">
+                  <h2 className="text-sm font-medium text-muted-foreground mb-3">
+                    Team Members ({teamMembers.length})
+                  </h2>
+                  <TeamMemberList
+                    members={teamMembers}
                     tasks={tasks}
                     allAssignees={allAssignees}
-                    onClose={() => setSelectedMemberId(null)}
+                    selectedMemberId={selectedMemberId}
+                    onSelectMember={setSelectedMemberId}
                   />
-                ) : (
-                  <div className="h-full flex items-center justify-center text-muted-foreground">
-                    <p>Select a team member to view their tasks</p>
-                  </div>
-                )}
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </div>
+                </div>
+              </ResizablePanel>
+
+              <ResizableHandle withHandle />
+
+              {/* Member Tasks Panel */}
+              <ResizablePanel defaultSize={65} minSize={40}>
+                <div className="h-full">
+                  {selectedMember ? (
+                    <MemberTasksPanel
+                      member={selectedMember}
+                      tasks={tasks}
+                      allAssignees={allAssignees}
+                      onClose={() => setSelectedMemberId(null)}
+                    />
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-muted-foreground">
+                      <p>Select a team member to view their tasks</p>
+                    </div>
+                  )}
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </div>
+        </>
       )}
 
       <InviteDialog
