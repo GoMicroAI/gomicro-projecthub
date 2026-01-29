@@ -5,6 +5,7 @@ import { Plus, ArrowLeft } from "lucide-react";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useTasks } from "@/hooks/useTasks";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useAuth } from "@/contexts/AuthContext";
 import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
 import { InviteDialog } from "@/components/team/InviteDialog";
 import { TeamMemberList } from "@/components/team/TeamMemberList";
@@ -21,11 +22,17 @@ export default function Team() {
   const { tasks, refetch: refetchTasks } = useTasks();
   const { allAssignees, refetch: refetchAssignees } = useAllTaskAssigneesGlobal();
   const { isAdmin } = useUserRole();
+  const { user } = useAuth();
 
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
   const selectedMember = teamMembers.find((m) => m.id === selectedMemberId);
+  
+  // For non-admins, check if they're viewing their own profile
+  const isViewingOwnProfile = selectedMember?.user_id === user?.id;
+  // Non-admins can only view task panel for themselves
+  const canViewTaskPanel = isAdmin || isViewingOwnProfile;
 
   const handleInvite = async (data: {
     email: string;
@@ -40,6 +47,15 @@ export default function Team() {
     refetch();
     refetchTasks();
     refetchAssignees();
+  };
+
+  const handleSelectMember = (memberId: string) => {
+    const member = teamMembers.find((m) => m.id === memberId);
+    // Non-admins can only select themselves
+    if (!isAdmin && member?.user_id !== user?.id) {
+      return; // Don't allow selection
+    }
+    setSelectedMemberId(memberId);
   };
 
   return (
@@ -63,7 +79,7 @@ export default function Team() {
         <>
           {/* Mobile View */}
           <div className="md:hidden h-[calc(100vh-140px)]">
-            {selectedMember ? (
+            {selectedMember && canViewTaskPanel ? (
               <div className="h-full flex flex-col">
                 <Button
                   variant="ghost"
@@ -93,7 +109,9 @@ export default function Team() {
                   tasks={tasks}
                   allAssignees={allAssignees}
                   selectedMemberId={selectedMemberId}
-                  onSelectMember={setSelectedMemberId}
+                  onSelectMember={handleSelectMember}
+                  isAdmin={isAdmin}
+                  currentUserId={user?.id}
                 />
               </div>
             )}
@@ -113,7 +131,9 @@ export default function Team() {
                     tasks={tasks}
                     allAssignees={allAssignees}
                     selectedMemberId={selectedMemberId}
-                    onSelectMember={setSelectedMemberId}
+                    onSelectMember={handleSelectMember}
+                    isAdmin={isAdmin}
+                    currentUserId={user?.id}
                   />
                 </div>
               </ResizablePanel>
@@ -123,7 +143,7 @@ export default function Team() {
               {/* Member Tasks Panel */}
               <ResizablePanel defaultSize={65} minSize={40}>
                 <div className="h-full">
-                  {selectedMember ? (
+                  {selectedMember && canViewTaskPanel ? (
                     <MemberTasksPanel
                       member={selectedMember}
                       tasks={tasks}
@@ -132,7 +152,11 @@ export default function Team() {
                     />
                   ) : (
                     <div className="h-full flex items-center justify-center text-muted-foreground">
-                      <p>Select a team member to view their tasks</p>
+                      <p>
+                        {isAdmin 
+                          ? "Select a team member to view their tasks" 
+                          : "Click on your name to view your tasks"}
+                      </p>
                     </div>
                   )}
                 </div>
