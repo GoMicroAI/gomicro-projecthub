@@ -43,10 +43,6 @@ export function ProjectCard({
       .slice(0, 2);
   };
 
-  const truncateMessage = (content: string | null, maxLength: number = 30) => {
-    if (!content) return "No messages yet";
-    return content.length > maxLength ? content.slice(0, maxLength) + "..." : content;
-  };
 
   return (
     <Card className="group hover:shadow-md transition-shadow overflow-hidden">
@@ -76,18 +72,6 @@ export function ProjectCard({
                 <p className="text-sm text-muted-foreground line-clamp-1">
                   {project.description || "No description"}
                 </p>
-                {/* Latest Message Preview */}
-                <div className="flex items-center gap-1.5 mt-1.5 text-xs text-muted-foreground">
-                  <MessageCircle className="h-3 w-3 shrink-0" />
-                  {latestMessage ? (
-                    <span className="truncate">
-                      <span className="font-medium">{latestMessage.sender_name}:</span>{" "}
-                      {truncateMessage(latestMessage.content)}
-                    </span>
-                  ) : (
-                    <span className="italic">No messages yet</span>
-                  )}
-                </div>
               </div>
               {isAdmin && (
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
@@ -147,6 +131,24 @@ export function ProjectCard({
                 </Link>
               </Button>
             </div>
+          </div>
+
+          {/* Latest Message Section - Right Side */}
+          <div className="hidden sm:flex w-52 shrink-0 border-l bg-muted/30 p-3 flex-col justify-center">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+              <MessageCircle className="h-3.5 w-3.5" />
+              <span className="font-medium">Latest Message</span>
+            </div>
+            {latestMessage ? (
+              <div className="text-sm">
+                <p className="font-medium text-foreground truncate">{latestMessage.sender_name}</p>
+                <p className="text-muted-foreground line-clamp-2 text-xs">
+                  {latestMessage.content || "Sent an attachment"}
+                </p>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground italic">No messages yet</p>
+            )}
           </div>
         </div>
       </CardContent>
