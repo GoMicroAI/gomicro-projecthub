@@ -79,14 +79,14 @@ export function UserManagement() {
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <CardTitle>User Management</CardTitle>
             <CardDescription>
               Add new team members, change roles, or remove existing ones.
             </CardDescription>
           </div>
-          <Button onClick={() => setInviteDialogOpen(true)} size="sm">
+          <Button onClick={() => setInviteDialogOpen(true)} size="sm" className="w-full sm:w-auto shrink-0">
             <Plus className="h-4 w-4 mr-2" />
             Add User
           </Button>
@@ -101,31 +101,32 @@ export function UserManagement() {
               teamMembers.map((member) => (
                 <div
                   key={member.id}
-                  className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors gap-3"
                 >
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Avatar className="h-10 w-10 shrink-0">
                       <AvatarImage src={member.avatar_url || undefined} alt={member.name} />
                       <AvatarFallback className="bg-primary/10 text-primary">
                         {getInitials(member.name)}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <p className="font-medium">
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">
                         {member.name}
                         {isCurrentUser(member) && (
                           <span className="text-xs text-muted-foreground ml-2">(You)</span>
                         )}
                       </p>
-                      <p className="text-sm text-muted-foreground">{member.email}</p>
+                      <p className="text-sm text-muted-foreground truncate">{member.email}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap justify-end sm:justify-start">
                     {/* Role selector - disabled for current user */}
                     {isCurrentUser(member) ? (
                       <Badge
                         variant="secondary"
                         className={cn(
+                          "shrink-0",
                           member.role === "admin" && "bg-status-active text-status-active-foreground"
                         )}
                       >
@@ -137,7 +138,7 @@ export function UserManagement() {
                         onValueChange={(value: AppRole) => handleRoleChange(member.id, value)}
                         disabled={updateTeamMember.isPending}
                       >
-                        <SelectTrigger className="w-24 h-8">
+                        <SelectTrigger className="w-24 h-8 shrink-0">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -149,6 +150,7 @@ export function UserManagement() {
                     <Badge
                       variant="outline"
                       className={cn(
+                        "shrink-0",
                         member.status === "active" 
                           ? "border-green-500 text-green-600" 
                           : "border-yellow-500 text-yellow-600"
@@ -162,7 +164,7 @@ export function UserManagement() {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDeleteClick(member)}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

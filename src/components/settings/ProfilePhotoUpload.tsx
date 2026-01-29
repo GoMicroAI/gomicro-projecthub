@@ -149,11 +149,11 @@ export function ProfilePhotoUpload() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center gap-6">
-          <div className="relative">
-            <Avatar className="h-24 w-24">
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+          <div className="relative shrink-0">
+            <Avatar className="h-20 w-20 sm:h-24 sm:w-24">
               <AvatarImage src={avatarUrl || undefined} alt={userName} />
-              <AvatarFallback className="text-2xl bg-primary/10 text-primary">
+              <AvatarFallback className="text-xl sm:text-2xl bg-primary/10 text-primary">
                 {getInitials(userName)}
               </AvatarFallback>
             </Avatar>
@@ -163,8 +163,8 @@ export function ProfilePhotoUpload() {
               </div>
             )}
           </div>
-          <div className="space-y-2">
-            <div className="flex gap-2">
+          <div className="space-y-2 text-center sm:text-left">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -178,6 +178,7 @@ export function ProfilePhotoUpload() {
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
+                className="w-full sm:w-auto"
               >
                 <Camera className="h-4 w-4 mr-2" />
                 {avatarUrl ? "Change Photo" : "Upload Photo"}
@@ -188,7 +189,7 @@ export function ProfilePhotoUpload() {
                   size="sm"
                   onClick={handleRemovePhoto}
                   disabled={isUploading}
-                  className="text-destructive hover:text-destructive"
+                  className="text-destructive hover:text-destructive w-full sm:w-auto"
                 >
                   <X className="h-4 w-4 mr-2" />
                   Remove
