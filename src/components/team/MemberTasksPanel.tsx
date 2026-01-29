@@ -102,126 +102,100 @@ export const MemberTasksPanel = forwardRef<HTMLDivElement, MemberTasksPanelProps
 
         <CardContent className="flex-1 p-0 overflow-hidden">
           <ScrollArea className="h-full">
-            <div className="p-4 space-y-4">
-              {/* Current Task Section */}
-              {currentTask && (
-                <div className="pb-4 border-b">
-                  <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                    Current Task
-                  </h3>
-                  <Card className="border-status-active bg-status-active/5">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium">{currentTask.title}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {getProjectName(currentTask.project_id)}
-                          </p>
-                        </div>
-                        {isAdmin && (
-                          <Select
-                            value={currentTask.status}
-                            onValueChange={(value) =>
-                              handleStatusChange(currentTask.id, value as TaskStatus)
-                            }
-                          >
-                            <SelectTrigger className="w-[130px]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="todo">To Do</SelectItem>
-                              <SelectItem value="in_progress">In Progress</SelectItem>
-                              <SelectItem value="blocked">Blocked</SelectItem>
-                              <SelectItem value="done">Done</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        )}
+            <div className="p-4 space-y-6">
+              {/* Group tasks by status */}
+              {(() => {
+                const tasksByStatus = {
+                  in_progress: memberTasks.filter((t) => t.status === "in_progress"),
+                  blocked: memberTasks.filter((t) => t.status === "blocked"),
+                  done: memberTasks.filter((t) => t.status === "done"),
+                  todo: memberTasks.filter((t) => t.status === "todo"),
+                };
+
+                const sections: { key: TaskStatus; title: string; emptyText: string; bgClass: string; borderClass: string }[] = [
+                  { key: "in_progress", title: "Current Tasks", emptyText: "No active tasks", bgClass: "bg-status-in-progress/10", borderClass: "border-status-in-progress" },
+                  { key: "blocked", title: "Blocked", emptyText: "No blocked tasks", bgClass: "bg-status-blocked/10", borderClass: "border-status-blocked" },
+                  { key: "done", title: "Done", emptyText: "No completed tasks", bgClass: "bg-status-done/10", borderClass: "border-status-done" },
+                  { key: "todo", title: "To Do (Assigned)", emptyText: "No pending tasks", bgClass: "bg-status-todo/10", borderClass: "border-status-todo" },
+                ];
+
+                return sections.map((section) => {
+                  const sectionTasks = tasksByStatus[section.key];
+                  const StatusIcon = statusConfig[section.key].icon;
+
+                  return (
+                    <div key={section.key} className={cn("rounded-lg border-l-4 p-3", section.bgClass, section.borderClass)}>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-semibold text-sm flex items-center gap-2">
+                          <StatusIcon className="h-4 w-4" />
+                          {section.title}
+                        </h3>
+                        <span className="text-xs text-muted-foreground bg-background px-2 py-0.5 rounded-full">
+                          {sectionTasks.length}
+                        </span>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
+
+                      {sectionTasks.length === 0 ? (
+                        <p className="text-xs text-muted-foreground italic">{section.emptyText}</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {sectionTasks.map((task) => (
+                            <Card key={task.id} className="bg-background">
+                              <CardContent className="p-3">
+                                <div className="flex items-start gap-3">
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-sm">{task.title}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {getProjectName(task.project_id)}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    {isAdmin && section.key !== "in_progress" && section.key !== "done" && (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleMakeCurrentTask(task.id)}
+                                        className="text-xs h-7"
+                                      >
+                                        <Play className="h-3 w-3 mr-1" />
+                                        Start
+                                      </Button>
+                                    )}
+                                    {isAdmin && (
+                                      <Select
+                                        value={task.status}
+                                        onValueChange={(value) =>
+                                          handleStatusChange(task.id, value as TaskStatus)
+                                        }
+                                      >
+                                        <SelectTrigger className="w-[110px] h-7 text-xs">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="todo">To Do</SelectItem>
+                                          <SelectItem value="in_progress">In Progress</SelectItem>
+                                          <SelectItem value="blocked">Blocked</SelectItem>
+                                          <SelectItem value="done">Done</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    )}
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                });
+              })()}
+
+              {memberTasks.length === 0 && (
+                <p className="text-center text-muted-foreground py-8">
+                  No tasks assigned to this member.
+                </p>
               )}
-
-              {/* All Assigned Tasks */}
-              <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                  All Assigned Tasks ({memberTasks.length})
-                </h3>
-
-                {memberTasks.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">
-                    No tasks assigned to this member.
-                  </p>
-                ) : (
-                  <div className="space-y-2">
-                    {memberTasks.map((task) => {
-                      const status = statusConfig[task.status];
-                      const StatusIcon = status.icon;
-                      const isCurrent = task.status === "in_progress";
-
-                      return (
-                        <Card
-                          key={task.id}
-                          className={cn(
-                            "transition-colors",
-                            isCurrent && "border-status-active"
-                          )}
-                        >
-                          <CardContent className="p-3">
-                            <div className="flex items-start gap-3">
-                              <div
-                                className={cn(
-                                  "mt-0.5 p-1.5 rounded-md",
-                                  status.className
-                                )}
-                              >
-                                <StatusIcon className="h-3.5 w-3.5" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-sm">{task.title}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {getProjectName(task.project_id)}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                {isAdmin && !isCurrent && task.status !== "done" && (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleMakeCurrentTask(task.id)}
-                                    className="text-xs h-7"
-                                  >
-                                    <Play className="h-3 w-3 mr-1" />
-                                    Start
-                                  </Button>
-                                )}
-                                {isAdmin && (
-                                  <Select
-                                    value={task.status}
-                                    onValueChange={(value) =>
-                                      handleStatusChange(task.id, value as TaskStatus)
-                                    }
-                                  >
-                                    <SelectTrigger className="w-[110px] h-7 text-xs">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="todo">To Do</SelectItem>
-                                      <SelectItem value="in_progress">In Progress</SelectItem>
-                                      <SelectItem value="blocked">Blocked</SelectItem>
-                                      <SelectItem value="done">Done</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                )}
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
             </div>
           </ScrollArea>
         </CardContent>
