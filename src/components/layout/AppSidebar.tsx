@@ -1,6 +1,7 @@
 import { useLocation, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
+  LayoutDashboard,
   FolderKanban,
   Users,
   LogOut,
@@ -16,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import logo from "@/assets/logo.png";
 
 const navItems = [
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Projects", url: "/projects", icon: FolderKanban },
   { title: "Team", url: "/team", icon: Users },
 ];
