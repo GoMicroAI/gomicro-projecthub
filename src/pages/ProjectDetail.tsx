@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,6 +31,7 @@ type Folder = Database["public"]["Tables"]["folders"]["Row"];
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const { projects, isLoading: projectsLoading, updateProject } = useProjects();
   const { tasks, isLoading: tasksLoading, refetch, createTask, updateTask, deleteTask } = useTasks(id);
   const { teamMembers } = useTeamMembers();
@@ -47,9 +48,17 @@ export default function ProjectDetail() {
   const [deletingFolder, setDeletingFolder] = useState<Folder | undefined>();
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [uploadTargetFolderId, setUploadTargetFolderId] = useState<string | undefined>();
-  const [activeTab, setActiveTab] = useState("tasks");
+  const [activeTab, setActiveTab] = useState(() => searchParams.get("tab") || "tasks");
   
   const folderFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Update tab when URL changes
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["tasks", "files", "chat", "details"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const project = projects.find((p) => p.id === id);
   const isLoading = projectsLoading || tasksLoading || filesLoading || foldersLoading;
