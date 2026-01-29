@@ -52,7 +52,7 @@ export function useTeamMembers() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teamMembers"] });
-      toast({ title: "Team member created and invite sent!" });
+      toast({ title: "Team member created successfully!" });
     },
     onError: (error) => {
       toast({ title: "Failed to create team member", description: error.message, variant: "destructive" });

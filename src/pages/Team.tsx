@@ -64,7 +64,7 @@ export default function Team() {
       actions={
         isAdmin && (
           <Button onClick={() => setInviteDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" /> Invite Member
+            <Plus className="h-4 w-4 mr-2" /> Create Member
           </Button>
         )
       }

@@ -71,10 +71,9 @@ export function InviteDialog({ open, onOpenChange, onSubmit }: InviteDialogProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Invite Team Member</DialogTitle>
+          <DialogTitle>Create Team Member</DialogTitle>
           <DialogDescription>
-            Send an invitation to join your team. They'll receive an email with
-            instructions to set up their account.
+            Create a new team member account. They can use these credentials to log in.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -156,7 +155,7 @@ export function InviteDialog({ open, onOpenChange, onSubmit }: InviteDialogProps
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Sending..." : "Send Invite"}
+                {isSubmitting ? "Creating..." : "Create Member"}
               </Button>
             </div>
           </form>
