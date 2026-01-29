@@ -86,6 +86,7 @@ export function useTeamMembers() {
 
   const updateTeamMember = useMutation({
     mutationFn: async ({ id, ...updates }: { id: string; name?: string; role?: AppRole }) => {
+      // First update team_members table
       const { data, error } = await supabase
         .from("team_members")
         .update(updates)
@@ -94,10 +95,22 @@ export function useTeamMembers() {
         .single();
 
       if (error) throw error;
+
+      // If role was updated, also update user_roles table
+      if (updates.role && data.user_id) {
+        const { error: roleError } = await supabase
+          .from("user_roles")
+          .update({ role: updates.role })
+          .eq("user_id", data.user_id);
+        
+        if (roleError) throw roleError;
+      }
+
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teamMembers"] });
+      queryClient.invalidateQueries({ queryKey: ["userRole"] });
       toast({ title: "Team member updated successfully" });
     },
     onError: (error) => {
