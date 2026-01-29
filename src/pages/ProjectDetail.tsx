@@ -4,7 +4,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, ArrowLeft, Upload, ListTodo, FolderOpen, FolderPlus, MessageSquare } from "lucide-react";
+import { Plus, ArrowLeft, Upload, ListTodo, FolderOpen, FolderPlus, MessageSquare, Info } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
@@ -14,6 +14,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { useAllTaskAssignees, useTaskAssignees } from "@/hooks/useTaskAssignees";
 import { ProjectStatusBadge } from "@/components/projects/ProjectStatusBadge";
 import { EditableDescription } from "@/components/projects/EditableDescription";
+import { ProjectDetailsSection } from "@/components/projects/ProjectDetailsSection";
 import { TaskListItem } from "@/components/tasks/TaskListItem";
 import { TaskDialogMultiAssign } from "@/components/tasks/TaskDialogMultiAssign";
 import { FileListItem } from "@/components/files/FileListItem";
@@ -238,6 +239,10 @@ export default function ProjectDetail() {
                   <MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline">Chat</span>
                 </TabsTrigger>
+                <TabsTrigger value="details" className="flex-1 sm:flex-initial gap-1 sm:gap-2 text-xs sm:text-sm">
+                  <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Details</span>
+                </TabsTrigger>
               </TabsList>
               
               {isAdmin && (
@@ -374,6 +379,21 @@ export default function ProjectDetail() {
 
             <TabsContent value="chat" className="mt-0">
               {id && <ProjectChat projectId={id} />}
+            </TabsContent>
+
+            <TabsContent value="details" className="mt-0">
+              {project && (
+                <ProjectDetailsSection
+                  project={project}
+                  isAdmin={isAdmin}
+                  onUpdate={async (updates) => {
+                    await updateProject.mutateAsync({
+                      id: project.id,
+                      ...updates,
+                    });
+                  }}
+                />
+              )}
             </TabsContent>
           </Tabs>
         </div>
