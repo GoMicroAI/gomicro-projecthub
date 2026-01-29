@@ -9,19 +9,20 @@ interface AppLayoutProps {
   title: string;
   actions?: ReactNode;
   onRefresh?: () => void;
+  fixedHeight?: boolean;
 }
 
-export function AppLayout({ children, title, actions, onRefresh }: AppLayoutProps) {
+export function AppLayout({ children, title, actions, onRefresh, fixedHeight }: AppLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
+    <div className={`flex w-full bg-background ${fixedHeight ? 'h-screen overflow-hidden' : 'min-h-screen'}`}>
       {/* Desktop Sidebar */}
       <div className="hidden md:block">
         <AppSidebar />
       </div>
 
-      <main className="flex-1 overflow-auto">
+      <main className={`flex-1 flex flex-col ${fixedHeight ? 'overflow-hidden' : 'overflow-auto'}`}>
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
           <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4">
             <div className="flex items-center gap-2 md:gap-3">
@@ -47,7 +48,7 @@ export function AppLayout({ children, title, actions, onRefresh }: AppLayoutProp
             {actions && <div className="flex items-center gap-2">{actions}</div>}
           </div>
         </header>
-        <div className="p-4 md:p-6">{children}</div>
+        <div className={`p-4 md:p-6 ${fixedHeight ? 'flex-1 overflow-hidden flex flex-col' : ''}`}>{children}</div>
       </main>
     </div>
   );

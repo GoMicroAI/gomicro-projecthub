@@ -194,6 +194,7 @@ export default function ProjectDetail() {
     <AppLayout
       title={project?.name || "Loading..."}
       onRefresh={() => refetch()}
+      fixedHeight={activeTab === "chat"}
       actions={
         <Button variant="outline" size="sm" asChild>
           <Link to="/projects">
@@ -208,32 +209,34 @@ export default function ProjectDetail() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
       ) : (
-        <div className="space-y-4 md:space-y-6">
-          {/* Project Info */}
-          <Card>
-            <CardContent className="pt-4 md:pt-6">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-lg md:text-xl font-semibold">{project?.name}</h2>
-                    {project && <ProjectStatusBadge status={project.status} />}
+        <div className={`${activeTab === "chat" ? "flex flex-col flex-1 min-h-0 gap-4" : "space-y-4 md:space-y-6"}`}>
+          {/* Project Info - Hidden on chat tab for more space */}
+          {activeTab !== "chat" && (
+            <Card>
+              <CardContent className="pt-4 md:pt-6">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div className="space-y-2 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="text-lg md:text-xl font-semibold">{project?.name}</h2>
+                      {project && <ProjectStatusBadge status={project.status} />}
+                    </div>
+                    <EditableDescription
+                      description={project?.description || null}
+                      isAdmin={isAdmin}
+                      onSave={handleDescriptionSave}
+                    />
                   </div>
-                  <EditableDescription
-                    description={project?.description || null}
-                    isAdmin={isAdmin}
-                    onSave={handleDescriptionSave}
-                  />
+                  <div className="text-left sm:text-right text-xs md:text-sm text-muted-foreground shrink-0">
+                    <p>Created {project && format(new Date(project.created_at), "MMM d, yyyy")}</p>
+                    <p>{tasks.length} tasks • {files.length} files</p>
+                  </div>
                 </div>
-                <div className="text-left sm:text-right text-xs md:text-sm text-muted-foreground shrink-0">
-                  <p>Created {project && format(new Date(project.created_at), "MMM d, yyyy")}</p>
-                  <p>{tasks.length} tasks • {files.length} files</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Tabs: Tasks & Files */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className={`w-full ${activeTab === "chat" ? "flex-1 flex flex-col min-h-0" : ""}`}>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
               <TabsList className="w-full sm:w-auto">
                 <TabsTrigger value="tasks" className="flex-1 sm:flex-initial gap-1 sm:gap-2 text-xs sm:text-sm">
@@ -386,7 +389,7 @@ export default function ProjectDetail() {
               )}
             </TabsContent>
 
-            <TabsContent value="chat" className="mt-0">
+            <TabsContent value="chat" className="mt-0 flex-1 flex flex-col min-h-0">
               {id && <ProjectChat projectId={id} />}
             </TabsContent>
 
