@@ -4,8 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Send, Paperclip, Image, FileText, Loader2, ChevronUp } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Send, Paperclip, FileText, Loader2, ChevronUp } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -202,6 +202,7 @@ function MessageBubble({ message, isOwn, getInitials, isImage }: MessageBubblePr
   return (
     <div className={cn("flex gap-3", isOwn && "flex-row-reverse")}>
       <Avatar className="h-8 w-8 shrink-0">
+        <AvatarImage src={message.sender_avatar_url || undefined} alt={message.sender_name || "User"} />
         <AvatarFallback className="text-xs">
           {getInitials(message.sender_name || "?")}
         </AvatarFallback>

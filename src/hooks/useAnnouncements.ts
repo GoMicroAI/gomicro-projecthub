@@ -13,6 +13,7 @@ export interface Announcement {
   updated_at: string;
   author_name?: string;
   author_email?: string;
+  author_avatar_url?: string | null;
 }
 
 export interface AnnouncementComment {
@@ -26,6 +27,7 @@ export interface AnnouncementComment {
   created_at: string;
   author_name?: string;
   author_email?: string;
+  author_avatar_url?: string | null;
 }
 
 export interface AnnouncementReaction {
@@ -60,17 +62,18 @@ export function useAnnouncements() {
       const userIds = [...new Set(data.map((a) => a.user_id))];
       const { data: members } = await supabase
         .from("team_members")
-        .select("user_id, name, email")
+        .select("user_id, name, email, avatar_url")
         .in("user_id", userIds);
 
       const memberMap = new Map(
-        members?.map((m) => [m.user_id, { name: m.name, email: m.email }]) || []
+        members?.map((m) => [m.user_id, { name: m.name, email: m.email, avatar_url: m.avatar_url }]) || []
       );
 
       return data.map((ann) => ({
         ...ann,
         author_name: memberMap.get(ann.user_id)?.name || "Unknown",
         author_email: memberMap.get(ann.user_id)?.email || "",
+        author_avatar_url: memberMap.get(ann.user_id)?.avatar_url || null,
       })) as Announcement[];
     },
     enabled: !!user,
@@ -176,17 +179,18 @@ export function useAnnouncementComments(announcementId: string) {
       const userIds = [...new Set(data.map((c) => c.user_id))];
       const { data: members } = await supabase
         .from("team_members")
-        .select("user_id, name, email")
+        .select("user_id, name, email, avatar_url")
         .in("user_id", userIds);
 
       const memberMap = new Map(
-        members?.map((m) => [m.user_id, { name: m.name, email: m.email }]) || []
+        members?.map((m) => [m.user_id, { name: m.name, email: m.email, avatar_url: m.avatar_url }]) || []
       );
 
       return data.map((comment) => ({
         ...comment,
         author_name: memberMap.get(comment.user_id)?.name || "Unknown",
         author_email: memberMap.get(comment.user_id)?.email || "",
+        author_avatar_url: memberMap.get(comment.user_id)?.avatar_url || null,
       })) as AnnouncementComment[];
     },
     enabled: !!user && !!announcementId,

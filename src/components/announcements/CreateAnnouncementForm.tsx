@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Image, Send, Loader2, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
@@ -22,6 +22,7 @@ export function CreateAnnouncementForm({ onSubmit, isPending }: CreateAnnounceme
 
   const currentMember = teamMembers.find((m) => m.user_id === user?.id);
   const userName = currentMember?.name || "You";
+  const avatarUrl = currentMember?.avatar_url;
 
   const getInitials = (name: string) => {
     return name
@@ -64,6 +65,7 @@ export function CreateAnnouncementForm({ onSubmit, isPending }: CreateAnnounceme
       <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6 pb-3 sm:pb-6">
         <div className="flex gap-2 sm:gap-3">
           <Avatar className="h-8 w-8 sm:h-10 sm:w-10 shrink-0">
+            <AvatarImage src={avatarUrl || undefined} alt={userName} />
             <AvatarFallback className="text-xs sm:text-sm">{getInitials(userName)}</AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-2 sm:space-y-3">
