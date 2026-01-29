@@ -4,6 +4,7 @@ import {
   FolderKanban,
   Users,
   Megaphone,
+  Settings,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -20,6 +21,7 @@ const navItems = [
   { title: "Projects", url: "/projects", icon: FolderKanban },
   { title: "Team", url: "/team", icon: Users },
   { title: "Announcements", url: "/announcements", icon: Megaphone },
+  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 interface AppSidebarProps {
