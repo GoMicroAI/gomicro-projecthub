@@ -29,7 +29,7 @@ export function useProjects() {
   });
 
   const createProject = useMutation({
-    mutationFn: async (project: { name: string; description?: string; status?: ProjectStatus }) => {
+    mutationFn: async (project: { name: string; description?: string; status?: ProjectStatus; image_url?: string | null }) => {
       const { data, error } = await supabase
         .from("projects")
         .insert({
@@ -37,6 +37,7 @@ export function useProjects() {
           description: project.description,
           status: project.status || "active",
           created_by: user?.id,
+          image_url: project.image_url,
         })
         .select()
         .single();

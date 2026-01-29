@@ -5,17 +5,21 @@ import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useUserRole } from "@/hooks/useUserRole";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { ProjectDialog } from "@/components/projects/ProjectDialog";
 import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
 import type { Database } from "@/integrations/supabase/types";
 
-type Project = Database["public"]["Tables"]["projects"]["Row"];
+type Project = Database["public"]["Tables"]["projects"]["Row"] & {
+  image_url?: string | null;
+};
 
 export default function Projects() {
   const { projects, isLoading, refetch, createProject, updateProject, deleteProject } = useProjects();
   const { tasks } = useTasks();
+  const { teamMembers } = useTeamMembers();
   const { isAdmin } = useUserRole();
   
   const [search, setSearch] = useState("");
@@ -35,6 +39,7 @@ export default function Projects() {
     name: string;
     description?: string;
     status?: Database["public"]["Enums"]["project_status"];
+    image_url?: string | null;
   }) => {
     await createProject.mutateAsync(data);
   };
@@ -43,6 +48,7 @@ export default function Projects() {
     name: string;
     description?: string;
     status?: Database["public"]["Enums"]["project_status"];
+    image_url?: string | null;
   }) => {
     if (!editingProject) return;
     await updateProject.mutateAsync({ id: editingProject.id, ...data });
@@ -85,12 +91,13 @@ export default function Projects() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {filteredProjects.map((project) => (
             <ProjectCard
               key={project.id}
-              project={project}
+              project={project as Project}
               isAdmin={isAdmin}
+              teamMembers={teamMembers}
               taskCount={getTaskCountForProject(project.id)}
               onEdit={(p) => {
                 setEditingProject(p);
