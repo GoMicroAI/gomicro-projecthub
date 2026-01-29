@@ -67,13 +67,10 @@ export function ProjectCard({
             <div className="flex-1 p-4 flex flex-col justify-between min-w-0">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2">
                     <h3 className="font-semibold text-base truncate">{project.name}</h3>
                     <ProjectStatusBadge status={project.status} />
                   </div>
-                  <p className="text-sm text-muted-foreground line-clamp-1">
-                    {project.description || "No description"}
-                  </p>
                 </div>
                 {isAdmin && (
                   <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
