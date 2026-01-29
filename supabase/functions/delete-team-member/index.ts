@@ -91,7 +91,20 @@ serve(async (req) => {
       );
     }
 
-    // Delete from team_members first (this will cascade to task_assignees via foreign keys if set up)
+    // First, remove all task assignments for this user
+    if (member.user_id) {
+      const { error: deleteAssigneesError } = await adminClient
+        .from("task_assignees")
+        .delete()
+        .eq("user_id", member.user_id);
+
+      if (deleteAssigneesError) {
+        console.error("Error deleting task assignees:", deleteAssigneesError);
+        // Continue with deletion even if this fails
+      }
+    }
+
+    // Delete from team_members
     const { error: deleteTeamError } = await adminClient
       .from("team_members")
       .delete()
