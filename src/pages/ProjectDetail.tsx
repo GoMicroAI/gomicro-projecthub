@@ -13,7 +13,7 @@ import { useFolders } from "@/hooks/useFolders";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAllTaskAssignees, useTaskAssignees } from "@/hooks/useTaskAssignees";
 import { ProjectStatusBadge } from "@/components/projects/ProjectStatusBadge";
-import { EditableDescription } from "@/components/projects/EditableDescription";
+
 import { ProjectDetailsSection } from "@/components/projects/ProjectDetailsSection";
 import { TaskListItem } from "@/components/tasks/TaskListItem";
 import { TaskDialogMultiAssign } from "@/components/tasks/TaskDialogMultiAssign";
@@ -211,20 +211,13 @@ export default function ProjectDetail() {
       ) : (
         <div className={`${activeTab === "chat" ? "flex flex-col flex-1 min-h-0 gap-4" : "space-y-4 md:space-y-6"}`}>
           {/* Project Info - Hidden on chat tab for more space */}
-          {activeTab !== "chat" && (
+          {activeTab !== "chat" && activeTab !== "details" && (
             <Card>
               <CardContent className="pt-4 md:pt-6">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                  <div className="space-y-2 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h2 className="text-lg md:text-xl font-semibold">{project?.name}</h2>
-                      {project && <ProjectStatusBadge status={project.status} />}
-                    </div>
-                    <EditableDescription
-                      description={project?.description || null}
-                      isAdmin={isAdmin}
-                      onSave={handleDescriptionSave}
-                    />
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-lg md:text-xl font-semibold">{project?.name}</h2>
+                    {project && <ProjectStatusBadge status={project.status} />}
                   </div>
                   <div className="text-left sm:text-right text-xs md:text-sm text-muted-foreground shrink-0">
                     <p>Created {project && format(new Date(project.created_at), "MMM d, yyyy")}</p>

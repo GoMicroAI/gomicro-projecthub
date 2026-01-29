@@ -40,8 +40,8 @@ export function ProjectDetailsSection({
   };
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
+    <Card className="flex flex-col max-h-[calc(100vh-220px)] overflow-hidden">
+      <CardHeader className="pb-3 shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Project Details</CardTitle>
           {isAdmin && !isEditing && (
@@ -69,13 +69,13 @@ export function ProjectDetailsSection({
           )}
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 overflow-y-auto">
         {isEditing ? (
           <Textarea
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
             placeholder="Add project details, notes, or important information..."
-            className="min-h-[200px] resize-none"
+            className="min-h-[200px] resize-y"
             autoFocus
           />
         ) : (
