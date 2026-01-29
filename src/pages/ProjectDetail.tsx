@@ -4,7 +4,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, ArrowLeft, Upload, ListTodo, FolderOpen, FolderPlus, MessageSquare, Info } from "lucide-react";
+import { Plus, ArrowLeft, Upload, ListTodo, FolderOpen, FolderPlus, MessageSquare, Info, X } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
@@ -13,7 +13,6 @@ import { useFolders } from "@/hooks/useFolders";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAllTaskAssignees, useTaskAssignees } from "@/hooks/useTaskAssignees";
 import { ProjectStatusBadge } from "@/components/projects/ProjectStatusBadge";
-
 import { ProjectDetailsSection } from "@/components/projects/ProjectDetailsSection";
 import { TaskListItem } from "@/components/tasks/TaskListItem";
 import { TaskDialogMultiAssign } from "@/components/tasks/TaskDialogMultiAssign";
@@ -22,6 +21,8 @@ import { FolderItem } from "@/components/files/FolderItem";
 import { CreateFolderDialog } from "@/components/files/CreateFolderDialog";
 import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
 import { ProjectChat } from "@/components/chat/ProjectChat";
+import { useProjectMessages } from "@/hooks/useProjectMessages";
+import { UserAvatar } from "@/components/shared/UserAvatar";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -40,6 +41,7 @@ export default function ProjectDetail() {
   const { isAdmin } = useUserRole();
   const { assigneesByTask } = useAllTaskAssignees(id);
   const { setAssignees } = useTaskAssignees();
+  const { messages } = useProjectMessages(id || "");
 
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
@@ -48,14 +50,20 @@ export default function ProjectDetail() {
   const [deletingFolder, setDeletingFolder] = useState<Folder | undefined>();
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [uploadTargetFolderId, setUploadTargetFolderId] = useState<string | undefined>();
-  const [activeTab, setActiveTab] = useState(() => searchParams.get("tab") || "tasks");
+  const [activeTab, setActiveTab] = useState(() => {
+    const tab = searchParams.get("tab");
+    return tab === "chat" ? "tasks" : (tab || "tasks");
+  });
+  const [chatOpen, setChatOpen] = useState(() => searchParams.get("tab") === "chat");
   
   const folderFileInputRef = useRef<HTMLInputElement>(null);
 
   // Update tab when URL changes
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab && ["tasks", "files", "chat", "details"].includes(tab)) {
+    if (tab === "chat") {
+      setChatOpen(true);
+    } else if (tab && ["tasks", "files", "details"].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -65,6 +73,12 @@ export default function ProjectDetail() {
 
   // Files not in any folder (root level)
   const rootFiles = files.filter((f) => !f.folder_id);
+
+  // Get latest message
+  const latestMessage = messages[0];
+  const latestMessageSender = latestMessage 
+    ? teamMembers.find((m) => m.user_id === latestMessage.user_id)
+    : null;
 
   if (!project && !projectsLoading) {
     return (
@@ -88,14 +102,6 @@ export default function ProjectDetail() {
   const getAssigneeIdsForTask = (taskId: string) => {
     const taskAssignees = assigneesByTask[taskId] || [];
     return taskAssignees.map((a) => a.user_id);
-  };
-
-  const handleDescriptionSave = async (description: string) => {
-    if (!project) return;
-    await updateProject.mutateAsync({
-      id: project.id,
-      description: description || null,
-    });
   };
 
   const handleCreateTask = async (data: {
@@ -190,11 +196,30 @@ export default function ProjectDetail() {
     await renameFolder.mutateAsync({ folderId, name });
   };
 
+  // Chat view
+  if (chatOpen && id) {
+    return (
+      <AppLayout
+        title={`${project?.name || "Project"} - Chat`}
+        fixedHeight
+        actions={
+          <Button variant="outline" size="sm" onClick={() => setChatOpen(false)}>
+            <ArrowLeft className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Back to Project</span>
+          </Button>
+        }
+      >
+        <div className="flex-1 flex flex-col min-h-0">
+          <ProjectChat projectId={id} />
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout
       title={project?.name || "Loading..."}
       onRefresh={() => refetch()}
-      fixedHeight={activeTab === "chat"}
       actions={
         <Button variant="outline" size="sm" asChild>
           <Link to="/projects">
@@ -209,27 +234,68 @@ export default function ProjectDetail() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
       ) : (
-        <div className={`${activeTab === "chat" ? "flex flex-col flex-1 min-h-0 gap-4" : "space-y-4 md:space-y-6"}`}>
-          {/* Project Info - Hidden on chat tab for more space */}
-          {activeTab !== "chat" && activeTab !== "details" && (
+        <div className="space-y-4 md:space-y-6">
+          {/* Project Info Card with Chat Preview */}
+          {activeTab !== "details" && (
             <Card>
               <CardContent className="pt-4 md:pt-6">
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-lg md:text-xl font-semibold">{project?.name}</h2>
-                    {project && <ProjectStatusBadge status={project.status} />}
+                <div className="flex flex-col gap-4">
+                  {/* Project Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="text-lg md:text-xl font-semibold">{project?.name}</h2>
+                      {project && <ProjectStatusBadge status={project.status} />}
+                    </div>
+                    <div className="text-left sm:text-right text-xs md:text-sm text-muted-foreground shrink-0">
+                      <p>Created {project && format(new Date(project.created_at), "MMM d, yyyy")}</p>
+                      <p>{tasks.length} tasks • {files.length} files</p>
+                    </div>
                   </div>
-                  <div className="text-left sm:text-right text-xs md:text-sm text-muted-foreground shrink-0">
-                    <p>Created {project && format(new Date(project.created_at), "MMM d, yyyy")}</p>
-                    <p>{tasks.length} tasks • {files.length} files</p>
+
+                  {/* Chat Preview Bar */}
+                  <div 
+                    onClick={() => setChatOpen(true)}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border cursor-pointer hover:bg-muted transition-colors"
+                  >
+                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 shrink-0">
+                      <MessageSquare className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-sm font-medium">Project Chat</span>
+                        <span className="text-xs text-muted-foreground">
+                          {messages.length} messages
+                        </span>
+                      </div>
+                      {latestMessage ? (
+                        <div className="flex items-center gap-2">
+                          <UserAvatar 
+                            userId={latestMessage.user_id} 
+                            className="h-5 w-5"
+                            fallbackClassName="text-[10px]"
+                          />
+                          <p className="text-sm text-muted-foreground truncate">
+                            <span className="font-medium text-foreground">
+                              {latestMessageSender?.name || "Unknown"}:
+                            </span>{" "}
+                            {latestMessage.content || "Sent an attachment"}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground italic">No messages yet</p>
+                      )}
+                    </div>
+                    <Button variant="ghost" size="sm" className="shrink-0">
+                      Open <MessageSquare className="ml-1 h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Tabs: Tasks & Files */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className={`w-full ${activeTab === "chat" ? "flex-1 flex flex-col min-h-0" : ""}`}>
+          {/* Tabs: Tasks, Files, Details */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
               <TabsList className="w-full sm:w-auto">
                 <TabsTrigger value="tasks" className="flex-1 sm:flex-initial gap-1 sm:gap-2 text-xs sm:text-sm">
@@ -239,10 +305,6 @@ export default function ProjectDetail() {
                 <TabsTrigger value="files" className="flex-1 sm:flex-initial gap-1 sm:gap-2 text-xs sm:text-sm">
                   <FolderOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline">Files</span> ({files.length})
-                </TabsTrigger>
-                <TabsTrigger value="chat" className="flex-1 sm:flex-initial gap-1 sm:gap-2 text-xs sm:text-sm">
-                  <MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline">Chat</span>
                 </TabsTrigger>
                 <TabsTrigger value="details" className="flex-1 sm:flex-initial gap-1 sm:gap-2 text-xs sm:text-sm">
                   <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -385,10 +447,6 @@ export default function ProjectDetail() {
                   )}
                 </div>
               )}
-            </TabsContent>
-
-            <TabsContent value="chat" className="mt-0 flex-1 flex flex-col min-h-0">
-              {id && <ProjectChat projectId={id} />}
             </TabsContent>
 
             <TabsContent value="details" className="mt-0">
