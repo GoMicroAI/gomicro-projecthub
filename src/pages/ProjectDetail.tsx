@@ -185,13 +185,12 @@ export default function ProjectDetail() {
       title={project?.name || "Loading..."}
       onRefresh={() => refetch()}
       actions={
-        <div className="flex items-center gap-2">
-          <Button variant="outline" asChild>
-            <Link to="/projects">
-              <ArrowLeft className="h-4 w-4 mr-2" /> Back
-            </Link>
-          </Button>
-        </div>
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/projects">
+            <ArrowLeft className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Back</span>
+          </Link>
+        </Button>
       }
     >
       {isLoading ? (
@@ -199,14 +198,14 @@ export default function ProjectDetail() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {/* Project Info */}
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2 flex-1 mr-4">
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-xl font-semibold">{project?.name}</h2>
+            <CardContent className="pt-4 md:pt-6">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-lg md:text-xl font-semibold">{project?.name}</h2>
                     {project && <ProjectStatusBadge status={project.status} />}
                   </div>
                   <EditableDescription
@@ -215,7 +214,7 @@ export default function ProjectDetail() {
                     onSave={handleDescriptionSave}
                   />
                 </div>
-                <div className="text-right text-sm text-muted-foreground shrink-0">
+                <div className="text-left sm:text-right text-xs md:text-sm text-muted-foreground shrink-0">
                   <p>Created {project && format(new Date(project.created_at), "MMM d, yyyy")}</p>
                   <p>{tasks.length} tasks • {files.length} files</p>
                 </div>
@@ -225,38 +224,41 @@ export default function ProjectDetail() {
 
           {/* Tabs: Tasks & Files */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="flex items-center justify-between mb-4">
-              <TabsList>
-                <TabsTrigger value="tasks" className="gap-2">
-                  <ListTodo className="h-4 w-4" />
-                  Tasks ({tasks.length})
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <TabsList className="w-full sm:w-auto">
+                <TabsTrigger value="tasks" className="flex-1 sm:flex-initial gap-1 sm:gap-2 text-xs sm:text-sm">
+                  <ListTodo className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Tasks</span> ({tasks.length})
                 </TabsTrigger>
-                <TabsTrigger value="files" className="gap-2">
-                  <FolderOpen className="h-4 w-4" />
-                  Files ({files.length})
+                <TabsTrigger value="files" className="flex-1 sm:flex-initial gap-1 sm:gap-2 text-xs sm:text-sm">
+                  <FolderOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Files</span> ({files.length})
                 </TabsTrigger>
-                <TabsTrigger value="chat" className="gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Chat
+                <TabsTrigger value="chat" className="flex-1 sm:flex-initial gap-1 sm:gap-2 text-xs sm:text-sm">
+                  <MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Chat</span>
                 </TabsTrigger>
               </TabsList>
               
               {isAdmin && (
                 <div className="flex gap-2">
                   {activeTab === "tasks" && (
-                    <Button onClick={() => setTaskDialogOpen(true)}>
-                      <Plus className="h-4 w-4 mr-2" /> Add Task
+                    <Button size="sm" onClick={() => setTaskDialogOpen(true)} className="flex-1 sm:flex-initial">
+                      <Plus className="h-4 w-4 mr-1 sm:mr-2" /> 
+                      <span className="sm:inline">Add Task</span>
                     </Button>
                   )}
                   {activeTab === "files" && (
                     <>
-                      <Button variant="outline" onClick={() => setFolderDialogOpen(true)}>
-                        <FolderPlus className="h-4 w-4 mr-2" /> New Folder
+                      <Button variant="outline" size="sm" onClick={() => setFolderDialogOpen(true)}>
+                        <FolderPlus className="h-4 w-4 sm:mr-2" />
+                        <span className="hidden sm:inline">New Folder</span>
                       </Button>
                       <label>
-                        <Button asChild>
+                        <Button size="sm" asChild>
                           <span>
-                            <Upload className="h-4 w-4 mr-2" /> Upload File
+                            <Upload className="h-4 w-4 sm:mr-2" />
+                            <span className="hidden sm:inline">Upload</span>
                           </span>
                         </Button>
                         <input

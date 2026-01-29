@@ -55,15 +55,15 @@ export function AnnouncementCard({ announcement, onDelete, isDeleting }: Announc
 
   return (
     <Card>
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10">
-              <AvatarFallback>{getInitials(announcement.author_name || "?")}</AvatarFallback>
+      <CardHeader className="pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+              <AvatarFallback className="text-xs sm:text-sm">{getInitials(announcement.author_name || "?")}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-medium">{announcement.author_name}</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="font-medium text-sm sm:text-base">{announcement.author_name}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
                 {format(new Date(announcement.created_at), "MMM d, yyyy 'at' h:mm a")}
               </p>
             </div>
@@ -72,6 +72,7 @@ export function AnnouncementCard({ announcement, onDelete, isDeleting }: Announc
             <Button
               variant="ghost"
               size="icon"
+              className="h-8 w-8"
               onClick={() => onDelete(announcement.id)}
               disabled={isDeleting}
             >
@@ -84,9 +85,9 @@ export function AnnouncementCard({ announcement, onDelete, isDeleting }: Announc
           )}
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6 pb-3 sm:pb-6">
         {/* Content */}
-        <p className="whitespace-pre-wrap">{announcement.content}</p>
+        <p className="whitespace-pre-wrap text-sm sm:text-base">{announcement.content}</p>
 
         {/* Image */}
         {announcement.image_url && (
@@ -94,7 +95,7 @@ export function AnnouncementCard({ announcement, onDelete, isDeleting }: Announc
             <img
               src={announcement.image_url}
               alt="Announcement"
-              className="max-w-full max-h-96 rounded-lg object-cover"
+              className="max-w-full max-h-64 sm:max-h-96 rounded-lg object-cover"
             />
           </a>
         )}
