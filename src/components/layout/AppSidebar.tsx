@@ -13,6 +13,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import logo from "@/assets/logo.png";
 
 const navItems = [
   { title: "Projects", url: "/projects", icon: FolderKanban },
@@ -52,16 +53,21 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
       {/* Header */}
       <div className="p-4 border-b border-sidebar-border">
         <div className="flex items-center justify-between">
-          {!collapsed && (
-            <div className="gradient-header text-white font-bold text-lg px-3 py-1.5 rounded-lg">
-              ProjectHub
+          {!collapsed ? (
+            <div className="flex items-center gap-2">
+              <img src={logo} alt="GoMicro" className="h-10 w-10" />
+              <div className="text-sidebar-foreground">
+                <span className="font-bold text-sm">ProjectHUB</span>
+              </div>
             </div>
+          ) : (
+            <img src={logo} alt="GoMicro" className="h-8 w-8" />
           )}
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setCollapsed(!collapsed)}
-            className={cn("ml-auto", onNavigate && "hidden")}
+            className={cn("ml-auto text-sidebar-foreground hover:bg-sidebar-accent", onNavigate && "hidden")}
           >
             {collapsed ? (
               <ChevronRight className="h-4 w-4" />
@@ -83,8 +89,8 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors",
                   isActive(item.url)
-                    ? "bg-sidebar-accent text-sidebar-primary font-medium"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                 )}
               >
                 <item.icon className="h-5 w-5 shrink-0" />
@@ -104,7 +110,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
           )}
         >
           <Avatar className="h-9 w-9">
-            <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+            <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground text-sm">
               {user?.email ? getInitials(user.email) : "U"}
             </AvatarFallback>
           </Avatar>
@@ -116,8 +122,8 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
               <Badge
                 variant="secondary"
                 className={cn(
-                  "text-xs",
-                  isAdmin ? "bg-status-active text-status-active-foreground" : ""
+                  "text-xs bg-sidebar-accent/50 text-sidebar-foreground",
+                  isAdmin && "bg-status-active text-status-active-foreground"
                 )}
               >
                 {role || "..."}
@@ -129,7 +135,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
               variant="ghost"
               size="icon"
               onClick={signOut}
-              className="shrink-0"
+              className="shrink-0 text-sidebar-foreground hover:bg-sidebar-accent"
             >
               <LogOut className="h-4 w-4" />
             </Button>

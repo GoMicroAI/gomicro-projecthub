@@ -16,6 +16,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -58,8 +59,9 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="gradient-header text-white font-bold text-2xl px-4 py-2 rounded-lg inline-block mx-auto mb-4">
-            ProjectHub
+          <div className="flex flex-col items-center gap-3 mb-4">
+            <img src={logo} alt="GoMicro" className="h-20 w-20" />
+            <h1 className="text-xl font-bold text-primary">ProjectHUB</h1>
           </div>
           <CardTitle className="text-2xl">Welcome back</CardTitle>
           <p className="text-muted-foreground">
