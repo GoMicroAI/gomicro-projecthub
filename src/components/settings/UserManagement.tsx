@@ -2,18 +2,28 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { useAuth } from "@/contexts/AuthContext";
 import { InviteDialog } from "@/components/team/InviteDialog";
 import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/integrations/supabase/types";
 
 type TeamMember = Database["public"]["Tables"]["team_members"]["Row"];
+type AppRole = Database["public"]["Enums"]["app_role"];
 
 export function UserManagement() {
-  const { teamMembers, isLoading, inviteTeamMember, deleteTeamMember } = useTeamMembers();
+  const { user } = useAuth();
+  const { teamMembers, isLoading, inviteTeamMember, updateTeamMember, deleteTeamMember } = useTeamMembers();
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<TeamMember | null>(null);
@@ -22,9 +32,13 @@ export function UserManagement() {
     email: string;
     password: string;
     name: string;
-    role: Database["public"]["Enums"]["app_role"];
+    role: AppRole;
   }) => {
     await inviteTeamMember.mutateAsync(data);
+  };
+
+  const handleRoleChange = async (memberId: string, newRole: AppRole) => {
+    await updateTeamMember.mutateAsync({ id: memberId, role: newRole });
   };
 
   const handleDeleteClick = (member: TeamMember) => {
@@ -49,6 +63,9 @@ export function UserManagement() {
       .slice(0, 2);
   };
 
+  // Check if this is the current user (prevent self-role change)
+  const isCurrentUser = (member: TeamMember) => member.user_id === user?.id;
+
   if (isLoading) {
     return (
       <Card>
@@ -66,7 +83,7 @@ export function UserManagement() {
           <div>
             <CardTitle>User Management</CardTitle>
             <CardDescription>
-              Add new team members or remove existing ones.
+              Add new team members, change roles, or remove existing ones.
             </CardDescription>
           </div>
           <Button onClick={() => setInviteDialogOpen(true)} size="sm">
@@ -94,19 +111,41 @@ export function UserManagement() {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium">{member.name}</p>
+                      <p className="font-medium">
+                        {member.name}
+                        {isCurrentUser(member) && (
+                          <span className="text-xs text-muted-foreground ml-2">(You)</span>
+                        )}
+                      </p>
                       <p className="text-sm text-muted-foreground">{member.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Badge
-                      variant="secondary"
-                      className={cn(
-                        member.role === "admin" && "bg-status-active text-status-active-foreground"
-                      )}
-                    >
-                      {member.role}
-                    </Badge>
+                    {/* Role selector - disabled for current user */}
+                    {isCurrentUser(member) ? (
+                      <Badge
+                        variant="secondary"
+                        className={cn(
+                          member.role === "admin" && "bg-status-active text-status-active-foreground"
+                        )}
+                      >
+                        {member.role}
+                      </Badge>
+                    ) : (
+                      <Select
+                        value={member.role}
+                        onValueChange={(value: AppRole) => handleRoleChange(member.id, value)}
+                        disabled={updateTeamMember.isPending}
+                      >
+                        <SelectTrigger className="w-24 h-8">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="viewer">Viewer</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
                     <Badge
                       variant="outline"
                       className={cn(
@@ -117,14 +156,17 @@ export function UserManagement() {
                     >
                       {member.status}
                     </Badge>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteClick(member)}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {/* Can't delete yourself */}
+                    {!isCurrentUser(member) && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteClick(member)}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))
