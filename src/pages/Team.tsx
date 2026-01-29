@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useTasks } from "@/hooks/useTasks";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
 import { InviteDialog } from "@/components/team/InviteDialog";
 import { TeamMemberList } from "@/components/team/TeamMemberList";
 import { MemberTasksPanel } from "@/components/team/MemberTasksPanel";
@@ -18,6 +19,7 @@ import type { Database } from "@/integrations/supabase/types";
 export default function Team() {
   const { teamMembers, isLoading, refetch, inviteTeamMember } = useTeamMembers();
   const { tasks, refetch: refetchTasks } = useTasks();
+  const { allAssignees, refetch: refetchAssignees } = useAllTaskAssigneesGlobal();
   const { isAdmin } = useUserRole();
 
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
@@ -37,6 +39,20 @@ export default function Team() {
   const handleRefresh = () => {
     refetch();
     refetchTasks();
+    refetchAssignees();
+  };
+
+  // Get current task for each member (for the list view)
+  const getMemberCurrentTask = (userId: string | null) => {
+    if (!userId) return null;
+    // Find task IDs assigned to this user
+    const assignedTaskIds = allAssignees
+      .filter((a) => a.user_id === userId)
+      .map((a) => a.task_id);
+    // Find in-progress task
+    return tasks.find(
+      (t) => assignedTaskIds.includes(t.id) && t.status === "in_progress"
+    );
   };
 
   return (
@@ -67,6 +83,7 @@ export default function Team() {
                 <TeamMemberList
                   members={teamMembers}
                   tasks={tasks}
+                  allAssignees={allAssignees}
                   selectedMemberId={selectedMemberId}
                   onSelectMember={setSelectedMemberId}
                 />
@@ -82,6 +99,7 @@ export default function Team() {
                   <MemberTasksPanel
                     member={selectedMember}
                     tasks={tasks}
+                    allAssignees={allAssignees}
                     onClose={() => setSelectedMemberId(null)}
                   />
                 ) : (
