@@ -1,6 +1,6 @@
 import { AnnouncementComment, useAnnouncementReactions } from "@/hooks/useAnnouncements";
 import { useAuth } from "@/contexts/AuthContext";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Reply, FileText } from "lucide-react";
 import { format } from "date-fns";
@@ -25,6 +25,7 @@ export function CommentItem({ comment, replies = [], onReply, getInitials, isRep
     <div className={cn("space-y-2", isReply && "ml-8 pl-4 border-l")}>
       <div className="flex items-start gap-3">
         <Avatar className="h-8 w-8">
+          <AvatarImage src={comment.author_avatar_url || undefined} alt={comment.author_name || "User"} />
           <AvatarFallback className="text-xs">{getInitials(comment.author_name || "?")}</AvatarFallback>
         </Avatar>
         <div className="flex-1 space-y-1">

@@ -14,6 +14,7 @@ export interface ProjectMessage {
   created_at: string;
   sender_name?: string;
   sender_email?: string;
+  sender_avatar_url?: string | null;
 }
 
 const PAGE_SIZE = 20;
@@ -45,17 +46,18 @@ export function useProjectMessages(projectId?: string) {
       const userIds = [...new Set(messages.map((m) => m.user_id))];
       const { data: members } = await supabase
         .from("team_members")
-        .select("user_id, name, email")
+        .select("user_id, name, email, avatar_url")
         .in("user_id", userIds);
 
       const memberMap = new Map(
-        members?.map((m) => [m.user_id, { name: m.name, email: m.email }]) || []
+        members?.map((m) => [m.user_id, { name: m.name, email: m.email, avatar_url: m.avatar_url }]) || []
       );
 
       const enrichedMessages = messages.map((msg) => ({
         ...msg,
         sender_name: memberMap.get(msg.user_id)?.name || "Unknown",
         sender_email: memberMap.get(msg.user_id)?.email || "",
+        sender_avatar_url: memberMap.get(msg.user_id)?.avatar_url || null,
       }));
 
       setHasMore(messages.length === PAGE_SIZE);
@@ -93,17 +95,18 @@ export function useProjectMessages(projectId?: string) {
       const userIds = [...new Set(messages.map((m) => m.user_id))];
       const { data: members } = await supabase
         .from("team_members")
-        .select("user_id, name, email")
+        .select("user_id, name, email, avatar_url")
         .in("user_id", userIds);
 
       const memberMap = new Map(
-        members?.map((m) => [m.user_id, { name: m.name, email: m.email }]) || []
+        members?.map((m) => [m.user_id, { name: m.name, email: m.email, avatar_url: m.avatar_url }]) || []
       );
 
       const enrichedMessages = messages.map((msg) => ({
         ...msg,
         sender_name: memberMap.get(msg.user_id)?.name || "Unknown",
         sender_email: memberMap.get(msg.user_id)?.email || "",
+        sender_avatar_url: memberMap.get(msg.user_id)?.avatar_url || null,
       }));
 
       setHasMore(messages.length === PAGE_SIZE);
@@ -190,7 +193,7 @@ export function useProjectMessages(projectId?: string) {
           // Get sender info
           const { data: member } = await supabase
             .from("team_members")
-            .select("name, email")
+            .select("name, email, avatar_url")
             .eq("user_id", newMsg.user_id)
             .single();
 
@@ -198,6 +201,7 @@ export function useProjectMessages(projectId?: string) {
             ...newMsg,
             sender_name: member?.name || "Unknown",
             sender_email: member?.email || "",
+            sender_avatar_url: member?.avatar_url || null,
           };
 
           setAllMessages((prev) => {

@@ -3,7 +3,7 @@ import { Announcement, useAnnouncementComments, useAnnouncementReactions } from 
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageSquare, Trash2, Paperclip, Send, Loader2 } from "lucide-react";
 import { format } from "date-fns";
@@ -59,6 +59,7 @@ export function AnnouncementCard({ announcement, onDelete, isDeleting }: Announc
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-3">
             <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+              <AvatarImage src={announcement.author_avatar_url || undefined} alt={announcement.author_name || "User"} />
               <AvatarFallback className="text-xs sm:text-sm">{getInitials(announcement.author_name || "?")}</AvatarFallback>
             </Avatar>
             <div>

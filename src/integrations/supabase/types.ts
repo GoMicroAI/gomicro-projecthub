@@ -374,6 +374,7 @@ export type Database = {
       }
       team_members: {
         Row: {
+          avatar_url: string | null
           email: string
           id: string
           invited_at: string
@@ -384,6 +385,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          avatar_url?: string | null
           email: string
           id?: string
           invited_at?: string
@@ -394,6 +396,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          avatar_url?: string | null
           email?: string
           id?: string
           invited_at?: string

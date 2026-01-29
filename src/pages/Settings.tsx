@@ -6,12 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
-
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserManagement } from "@/components/settings/UserManagement";
-import { Lock, Users } from "lucide-react";
+import { ProfilePhotoUpload } from "@/components/settings/ProfilePhotoUpload";
+import { Lock, Users, User } from "lucide-react";
 
 export default function Settings() {
   const { user } = useAuth();
@@ -90,8 +90,12 @@ export default function Settings() {
   return (
     <AppLayout title="Settings">
       <div className="max-w-4xl mx-auto">
-        <Tabs defaultValue="account" className="w-full">
+        <Tabs defaultValue="profile" className="w-full">
           <TabsList className="mb-6">
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Profile
+            </TabsTrigger>
             <TabsTrigger value="account" className="flex items-center gap-2">
               <Lock className="h-4 w-4" />
               Account
@@ -103,6 +107,10 @@ export default function Settings() {
               </TabsTrigger>
             )}
           </TabsList>
+
+          <TabsContent value="profile">
+            <ProfilePhotoUpload />
+          </TabsContent>
 
           <TabsContent value="account">
             <Card>
