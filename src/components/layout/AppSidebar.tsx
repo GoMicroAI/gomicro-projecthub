@@ -19,7 +19,11 @@ const navItems = [
   { title: "Team", url: "/team", icon: Users },
 ];
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  onNavigate?: () => void;
+}
+
+export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const { user, signOut } = useAuth();
@@ -32,6 +36,10 @@ export function AppSidebar() {
 
   const getInitials = (email: string) => {
     return email.slice(0, 2).toUpperCase();
+  };
+
+  const handleNavClick = () => {
+    onNavigate?.();
   };
 
   return (
@@ -53,7 +61,7 @@ export function AppSidebar() {
             variant="ghost"
             size="icon"
             onClick={() => setCollapsed(!collapsed)}
-            className="ml-auto"
+            className={cn("ml-auto", onNavigate && "hidden")}
           >
             {collapsed ? (
               <ChevronRight className="h-4 w-4" />
@@ -71,6 +79,7 @@ export function AppSidebar() {
             <li key={item.title}>
               <Link
                 to={item.url}
+                onClick={handleNavClick}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors",
                   isActive(item.url)

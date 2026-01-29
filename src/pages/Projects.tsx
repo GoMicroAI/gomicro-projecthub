@@ -67,8 +67,9 @@ export default function Projects() {
       onRefresh={() => refetch()}
       actions={
         isAdmin && (
-          <Button onClick={() => setProjectDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" /> New Project
+          <Button onClick={() => setProjectDialogOpen(true)} size="sm" className="md:size-default">
+            <Plus className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">New Project</span>
           </Button>
         )
       }
@@ -91,7 +92,7 @@ export default function Projects() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {filteredProjects.map((project) => (
             <ProjectCard
               key={project.id}
