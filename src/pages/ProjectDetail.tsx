@@ -4,7 +4,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, ArrowLeft, Upload, ListTodo, FolderOpen, FolderPlus } from "lucide-react";
+import { Plus, ArrowLeft, Upload, ListTodo, FolderOpen, FolderPlus, MessageSquare } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
@@ -20,6 +20,7 @@ import { FileListItem } from "@/components/files/FileListItem";
 import { FolderItem } from "@/components/files/FolderItem";
 import { CreateFolderDialog } from "@/components/files/CreateFolderDialog";
 import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { ProjectChat } from "@/components/chat/ProjectChat";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -234,6 +235,10 @@ export default function ProjectDetail() {
                   <FolderOpen className="h-4 w-4" />
                   Files ({files.length})
                 </TabsTrigger>
+                <TabsTrigger value="chat" className="gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  Chat
+                </TabsTrigger>
               </TabsList>
               
               {isAdmin && (
@@ -363,6 +368,10 @@ export default function ProjectDetail() {
                   )}
                 </div>
               )}
+            </TabsContent>
+
+            <TabsContent value="chat" className="mt-0">
+              {id && <ProjectChat projectId={id} />}
             </TabsContent>
           </Tabs>
         </div>
