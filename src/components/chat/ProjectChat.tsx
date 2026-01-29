@@ -88,7 +88,7 @@ export function ProjectChat({ projectId }: ProjectChatProps) {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-280px)] min-h-[350px] border rounded-lg bg-card overflow-hidden">
+    <div className="flex flex-col h-[60vh] md:h-[65vh] min-h-[300px] border rounded-lg bg-card overflow-hidden">
       {/* Load More Button */}
       {hasMore && (
         <div className="p-2 border-b">
