@@ -45,6 +45,12 @@ export function useFiles(projectId?: string, taskId?: string) {
       taskId?: string;
       folderId?: string;
     }) => {
+      // Validate file size (max 100MB)
+      const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+      if (file.size > MAX_FILE_SIZE) {
+        throw new Error("File size must be less than 100MB");
+      }
+
       const fileName = `${projectId}/${Date.now()}-${file.name}`;
       
       // Upload to storage

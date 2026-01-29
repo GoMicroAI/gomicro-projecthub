@@ -94,9 +94,9 @@ export function ProjectDialog({
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "Image must be less than 5MB", variant: "destructive" });
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "Image must be less than 2MB", variant: "destructive" });
       return;
     }
 
@@ -187,6 +187,7 @@ export function ProjectDialog({
                     <Upload className="h-4 w-4 mr-2" />
                     {isUploading ? "Uploading..." : "Upload"}
                   </Button>
+                  <p className="text-xs text-muted-foreground">Max 2MB</p>
                   {imageUrl && (
                     <Button
                       type="button"

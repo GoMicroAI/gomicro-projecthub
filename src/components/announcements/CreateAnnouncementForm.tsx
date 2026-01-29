@@ -36,6 +36,13 @@ export function CreateAnnouncementForm({ onSubmit, isPending }: CreateAnnounceme
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file size (max 2MB for images in announcements)
+      const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
+      if (file.size > MAX_IMAGE_SIZE) {
+        alert("Image size must be less than 2MB");
+        e.target.value = "";
+        return;
+      }
       setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -109,9 +116,11 @@ export function CreateAnnouncementForm({ onSubmit, isPending }: CreateAnnounceme
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
                   className="gap-1 sm:gap-2 text-xs sm:text-sm"
+                  title="Add image (max 2MB)"
                 >
                   <Image className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline">Add Image</span>
+                  <span className="text-[10px] text-muted-foreground hidden sm:inline">(2MB max)</span>
                 </Button>
               </div>
               <Button
