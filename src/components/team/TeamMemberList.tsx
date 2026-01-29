@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/integrations/supabase/types";
+import type { TaskAssignee } from "@/hooks/useAllTaskAssignees";
 
 type TeamMember = Database["public"]["Tables"]["team_members"]["Row"];
 type Task = Database["public"]["Tables"]["tasks"]["Row"];
@@ -10,6 +11,7 @@ type Task = Database["public"]["Tables"]["tasks"]["Row"];
 interface TeamMemberListProps {
   members: TeamMember[];
   tasks: Task[];
+  allAssignees: TaskAssignee[];
   selectedMemberId: string | null;
   onSelectMember: (memberId: string) => void;
 }
@@ -17,6 +19,7 @@ interface TeamMemberListProps {
 export function TeamMemberList({
   members,
   tasks,
+  allAssignees,
   selectedMemberId,
   onSelectMember,
 }: TeamMemberListProps) {
@@ -31,7 +34,14 @@ export function TeamMemberList({
 
   const getMemberCurrentTask = (userId: string | null) => {
     if (!userId) return null;
-    return tasks.find((t) => t.assigned_to === userId && t.status === "in_progress");
+    // Find task IDs assigned to this user via junction table
+    const assignedTaskIds = allAssignees
+      .filter((a) => a.user_id === userId)
+      .map((a) => a.task_id);
+    // Find in-progress task
+    return tasks.find(
+      (t) => assignedTaskIds.includes(t.id) && t.status === "in_progress"
+    );
   };
 
   return (
