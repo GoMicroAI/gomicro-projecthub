@@ -1,0 +1,123 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import type { Database } from "@/integrations/supabase/types";
+
+type ProjectFile = Database["public"]["Tables"]["files"]["Row"];
+
+export function useFiles(projectId?: string, taskId?: string) {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: files = [], isLoading, refetch } = useQuery({
+    queryKey: ["files", projectId, taskId],
+    queryFn: async () => {
+      let query = supabase
+        .from("files")
+        .select("*")
+        .order("uploaded_at", { ascending: false });
+
+      if (projectId) {
+        query = query.eq("project_id", projectId);
+      }
+      if (taskId) {
+        query = query.eq("task_id", taskId);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as ProjectFile[];
+    },
+    enabled: !!user,
+  });
+
+  const uploadFile = useMutation({
+    mutationFn: async ({
+      file,
+      projectId,
+      taskId,
+    }: {
+      file: File;
+      projectId: string;
+      taskId?: string;
+    }) => {
+      const fileName = `${projectId}/${Date.now()}-${file.name}`;
+      
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from("project-files")
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from("project-files")
+        .getPublicUrl(fileName);
+
+      // Create file record
+      const { data, error } = await supabase
+        .from("files")
+        .insert({
+          project_id: projectId,
+          task_id: taskId,
+          file_name: file.name,
+          file_url: urlData.publicUrl,
+          uploaded_by: user?.id,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["files"] });
+      toast({ title: "File uploaded successfully" });
+    },
+    onError: (error) => {
+      toast({ title: "Failed to upload file", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteFile = useMutation({
+    mutationFn: async (fileRecord: ProjectFile) => {
+      // Extract path from URL
+      const url = new URL(fileRecord.file_url);
+      const pathParts = url.pathname.split("/storage/v1/object/public/project-files/");
+      const filePath = pathParts[1];
+
+      if (filePath) {
+        // Delete from storage
+        await supabase.storage
+          .from("project-files")
+          .remove([filePath]);
+      }
+
+      // Delete record
+      const { error } = await supabase
+        .from("files")
+        .delete()
+        .eq("id", fileRecord.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["files"] });
+      toast({ title: "File deleted successfully" });
+    },
+    onError: (error) => {
+      toast({ title: "Failed to delete file", description: error.message, variant: "destructive" });
+    },
+  });
+
+  return {
+    files,
+    isLoading,
+    refetch,
+    uploadFile,
+    deleteFile,
+  };
+}
