@@ -91,19 +91,19 @@ export default function Settings() {
     <AppLayout title="Settings">
       <div className="max-w-4xl mx-auto">
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="mb-6">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              Profile
+          <TabsList className="mb-6 flex-wrap h-auto gap-1">
+            <TabsTrigger value="profile" className="flex items-center gap-1.5 text-xs sm:text-sm px-2.5 sm:px-3">
+              <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span>Profile</span>
             </TabsTrigger>
-            <TabsTrigger value="account" className="flex items-center gap-2">
-              <Lock className="h-4 w-4" />
-              Account
+            <TabsTrigger value="account" className="flex items-center gap-1.5 text-xs sm:text-sm px-2.5 sm:px-3">
+              <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span>Account</span>
             </TabsTrigger>
             {isAdmin && (
-              <TabsTrigger value="users" className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                User Management
+              <TabsTrigger value="users" className="flex items-center gap-1.5 text-xs sm:text-sm px-2.5 sm:px-3">
+                <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">User</span> <span>Management</span>
               </TabsTrigger>
             )}
           </TabsList>
