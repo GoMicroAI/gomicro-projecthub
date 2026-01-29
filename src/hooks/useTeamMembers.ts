@@ -107,19 +107,34 @@ export function useTeamMembers() {
 
   const deleteTeamMember = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("team_members")
-        .delete()
-        .eq("id", id);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
 
-      if (error) throw error;
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-team-member`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ memberId: id }),
+        }
+      );
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to delete team member");
+      }
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teamMembers"] });
-      toast({ title: "Team member removed successfully" });
+      toast({ title: "Team member deleted successfully" });
     },
     onError: (error) => {
-      toast({ title: "Failed to remove team member", description: error.message, variant: "destructive" });
+      toast({ title: "Failed to delete team member", description: error.message, variant: "destructive" });
     },
   });
 
