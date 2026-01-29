@@ -47,105 +47,121 @@ export function ProjectCard({
   return (
     <Card className="group hover:shadow-md transition-shadow overflow-hidden">
       <CardContent className="p-0">
-        <div className="flex flex-col sm:flex-row sm:min-h-[100px]">
-          {/* Image Section */}
-          <div className="w-full sm:w-28 h-28 sm:h-auto sm:self-stretch shrink-0 bg-muted flex items-center justify-center">
-            {project.image_url ? (
-              <img
-                src={project.image_url}
-                alt={project.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <Image className="h-8 w-8 text-muted-foreground/50" />
-            )}
-          </div>
-
-          {/* Content Section */}
-          <div className="flex-1 p-4 flex flex-col justify-between min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-semibold text-base truncate">{project.name}</h3>
-                  <ProjectStatusBadge status={project.status} />
-                </div>
-                <p className="text-sm text-muted-foreground line-clamp-1">
-                  {project.description || "No description"}
-                </p>
-              </div>
-              {isAdmin && (
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onEdit?.(project);
-                    }}
-                  >
-                    <Edit className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-destructive hover:text-destructive"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onDelete?.(project);
-                    }}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+        <div className="flex flex-col">
+          {/* Main Content Row */}
+          <div className="flex flex-col sm:flex-row sm:min-h-[100px]">
+            {/* Image Section */}
+            <div className="w-full sm:w-28 h-28 sm:h-auto sm:self-stretch shrink-0 bg-muted flex items-center justify-center">
+              {project.image_url ? (
+                <img
+                  src={project.image_url}
+                  alt={project.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Image className="h-8 w-8 text-muted-foreground/50" />
               )}
             </div>
 
-            {/* Footer: Members and Actions */}
-            <div className="flex items-center justify-between mt-2">
-              <div className="flex items-center gap-2">
-                {/* Team Member Avatars */}
-                <div className="flex -space-x-2">
-                  {displayedMembers.map((member) => (
-                    <Avatar key={member.id} className="h-7 w-7 border-2 border-background">
-                      <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                        {getInitials(member.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                  ))}
-                  {remainingCount > 0 && (
-                    <Avatar className="h-7 w-7 border-2 border-background">
-                      <AvatarFallback className="text-xs bg-muted text-muted-foreground">
-                        +{remainingCount}
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
+            {/* Content Section */}
+            <div className="flex-1 p-4 flex flex-col justify-between min-w-0">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-base truncate">{project.name}</h3>
+                    <ProjectStatusBadge status={project.status} />
+                  </div>
+                  <p className="text-sm text-muted-foreground line-clamp-1">
+                    {project.description || "No description"}
+                  </p>
                 </div>
-                <span className="text-xs text-muted-foreground">
-                  {taskCount} task{taskCount !== 1 ? "s" : ""}
-                </span>
+                {isAdmin && (
+                  <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onEdit?.(project);
+                      }}
+                    >
+                      <Edit className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-destructive hover:text-destructive"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onDelete?.(project);
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                )}
               </div>
-              <Button variant="ghost" size="sm" className="h-7 text-xs" asChild>
-                <Link to={`/projects/${project.id}`}>
-                  View <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                </Link>
-              </Button>
+
+              {/* Footer: Members and Actions */}
+              <div className="flex items-center justify-between mt-2">
+                <div className="flex items-center gap-2">
+                  {/* Team Member Avatars */}
+                  <div className="flex -space-x-2">
+                    {displayedMembers.map((member) => (
+                      <Avatar key={member.id} className="h-7 w-7 border-2 border-background">
+                        <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                          {getInitials(member.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                    ))}
+                    {remainingCount > 0 && (
+                      <Avatar className="h-7 w-7 border-2 border-background">
+                        <AvatarFallback className="text-xs bg-muted text-muted-foreground">
+                          +{remainingCount}
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {taskCount} task{taskCount !== 1 ? "s" : ""}
+                  </span>
+                </div>
+                <Button variant="ghost" size="sm" className="h-7 text-xs" asChild>
+                  <Link to={`/projects/${project.id}`}>
+                    View <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Latest Message Section - Right Side (Desktop) */}
+            <div className="hidden sm:flex w-52 shrink-0 border-l bg-muted/30 p-3 flex-col justify-center">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+                <MessageCircle className="h-3.5 w-3.5" />
+                <span className="font-medium">Latest Message</span>
+              </div>
+              {latestMessage ? (
+                <div className="text-sm">
+                  <p className="font-medium text-foreground truncate">{latestMessage.sender_name}</p>
+                  <p className="text-muted-foreground line-clamp-2 text-xs">
+                    {latestMessage.content || "Sent an attachment"}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground italic">No messages yet</p>
+              )}
             </div>
           </div>
 
-          {/* Latest Message Section - Right Side */}
-          <div className="hidden sm:flex w-52 shrink-0 border-l bg-muted/30 p-3 flex-col justify-center">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
-              <MessageCircle className="h-3.5 w-3.5" />
-              <span className="font-medium">Latest Message</span>
-            </div>
+          {/* Latest Message Section - Bottom (Mobile) */}
+          <div className="sm:hidden border-t bg-muted/30 px-4 py-2.5 flex items-center gap-2">
+            <MessageCircle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
             {latestMessage ? (
-              <div className="text-sm">
-                <p className="font-medium text-foreground truncate">{latestMessage.sender_name}</p>
-                <p className="text-muted-foreground line-clamp-2 text-xs">
-                  {latestMessage.content || "Sent an attachment"}
-                </p>
-              </div>
+              <p className="text-xs text-muted-foreground truncate">
+                <span className="font-medium text-foreground">{latestMessage.sender_name}:</span>{" "}
+                {latestMessage.content || "Sent an attachment"}
+              </p>
             ) : (
               <p className="text-xs text-muted-foreground italic">No messages yet</p>
             )}
