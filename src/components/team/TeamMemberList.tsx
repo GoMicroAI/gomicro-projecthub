@@ -14,6 +14,8 @@ interface TeamMemberListProps {
   allAssignees: TaskAssignee[];
   selectedMemberId: string | null;
   onSelectMember: (memberId: string) => void;
+  isAdmin: boolean;
+  currentUserId?: string;
 }
 
 export function TeamMemberList({
@@ -22,6 +24,8 @@ export function TeamMemberList({
   allAssignees,
   selectedMemberId,
   onSelectMember,
+  isAdmin,
+  currentUserId,
 }: TeamMemberListProps) {
   const getInitials = (name: string) => {
     return name
@@ -49,15 +53,20 @@ export function TeamMemberList({
       {members.map((member) => {
         const currentTask = getMemberCurrentTask(member.user_id);
         const isSelected = selectedMemberId === member.id;
+        const isOwnProfile = member.user_id === currentUserId;
+        // Non-admins can only click on their own profile
+        const isClickable = isAdmin || isOwnProfile;
 
         return (
           <Card
             key={member.id}
             className={cn(
-              "p-4 cursor-pointer transition-all hover:border-primary/50",
-              isSelected && "border-primary bg-primary/5"
+              "p-4 transition-all",
+              isClickable ? "cursor-pointer hover:border-primary/50" : "cursor-default opacity-80",
+              isSelected && "border-primary bg-primary/5",
+              isOwnProfile && !isAdmin && "ring-1 ring-primary/30"
             )}
-            onClick={() => onSelectMember(member.id)}
+            onClick={() => isClickable && onSelectMember(member.id)}
           >
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
@@ -67,7 +76,10 @@ export function TeamMemberList({
               </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-medium truncate">{member.name}</h3>
+                  <h3 className="font-medium truncate">
+                    {member.name}
+                    {isOwnProfile && !isAdmin && <span className="text-xs text-muted-foreground ml-1">(You)</span>}
+                  </h3>
                   <Badge
                     variant="secondary"
                     className={cn(

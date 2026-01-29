@@ -257,38 +257,42 @@ export default function ProjectDetail() {
                 </TabsTrigger>
               </TabsList>
               
-              {isAdmin && (
-                <div className="flex gap-2">
-                  {activeTab === "tasks" && (
-                    <Button size="sm" onClick={() => setTaskDialogOpen(true)} className="flex-1 sm:flex-initial">
-                      <Plus className="h-4 w-4 mr-1 sm:mr-2" /> 
-                      <span className="sm:inline">Add Task</span>
-                    </Button>
-                  )}
-                  {activeTab === "files" && (
-                    <>
+              <div className="flex gap-2">
+                {/* Add Task - Admin only */}
+                {isAdmin && activeTab === "tasks" && (
+                  <Button size="sm" onClick={() => setTaskDialogOpen(true)} className="flex-1 sm:flex-initial">
+                    <Plus className="h-4 w-4 mr-1 sm:mr-2" /> 
+                    <span className="sm:inline">Add Task</span>
+                  </Button>
+                )}
+                {/* Files actions */}
+                {activeTab === "files" && (
+                  <>
+                    {/* New Folder - Admin only */}
+                    {isAdmin && (
                       <Button variant="outline" size="sm" onClick={() => setFolderDialogOpen(true)}>
                         <FolderPlus className="h-4 w-4 sm:mr-2" />
                         <span className="hidden sm:inline">New Folder</span>
                       </Button>
-                      <label>
-                        <Button size="sm" asChild>
-                          <span>
-                            <Upload className="h-4 w-4 sm:mr-2" />
-                            <span className="hidden sm:inline">Upload</span>
-                          </span>
-                        </Button>
-                        <input
-                          type="file"
-                          className="hidden"
-                          onChange={(e) => handleFileUpload(e)}
-                          disabled={uploadFile.isPending}
-                        />
-                      </label>
-                    </>
-                  )}
-                </div>
-              )}
+                    )}
+                    {/* Upload - All users can upload */}
+                    <label>
+                      <Button size="sm" asChild>
+                        <span>
+                          <Upload className="h-4 w-4 sm:mr-2" />
+                          <span className="hidden sm:inline">Upload</span>
+                        </span>
+                      </Button>
+                      <input
+                        type="file"
+                        className="hidden"
+                        onChange={(e) => handleFileUpload(e)}
+                        disabled={uploadFile.isPending}
+                      />
+                    </label>
+                  </>
+                )}
+              </div>
             </div>
 
             <TabsContent value="tasks" className="mt-0">
@@ -329,26 +333,26 @@ export default function ProjectDetail() {
                   <CardContent className="py-12 text-center">
                     <FolderOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground mb-4">No files or folders yet.</p>
-                    {isAdmin && (
-                      <div className="flex justify-center gap-2">
+                    <div className="flex justify-center gap-2">
+                      {isAdmin && (
                         <Button variant="outline" onClick={() => setFolderDialogOpen(true)}>
                           <FolderPlus className="h-4 w-4 mr-2" /> Create Folder
                         </Button>
-                        <label>
-                          <Button asChild>
-                            <span>
-                              <Upload className="h-4 w-4 mr-2" /> Upload File
-                            </span>
-                          </Button>
-                          <input
-                            type="file"
-                            className="hidden"
-                            onChange={(e) => handleFileUpload(e)}
-                            disabled={uploadFile.isPending}
-                          />
-                        </label>
-                      </div>
-                    )}
+                      )}
+                      <label>
+                        <Button asChild>
+                          <span>
+                            <Upload className="h-4 w-4 mr-2" /> Upload File
+                          </span>
+                        </Button>
+                        <input
+                          type="file"
+                          className="hidden"
+                          onChange={(e) => handleFileUpload(e)}
+                          disabled={uploadFile.isPending}
+                        />
+                      </label>
+                    </div>
                   </CardContent>
                 </Card>
               ) : (
