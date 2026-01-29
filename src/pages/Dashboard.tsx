@@ -10,7 +10,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { ProjectDialog } from "@/components/projects/ProjectDialog";
 import { TaskStatusBadge } from "@/components/tasks/TaskStatusBadge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { AnnouncementsFeed } from "@/components/announcements/AnnouncementsFeed";
@@ -223,6 +223,7 @@ export default function Dashboard() {
                           className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50"
                         >
                           <Avatar className="h-8 w-8">
+                            <AvatarImage src={member.avatar_url || undefined} alt={member.name} />
                             <AvatarFallback className="text-xs">
                               {getInitials(member.name)}
                             </AvatarFallback>

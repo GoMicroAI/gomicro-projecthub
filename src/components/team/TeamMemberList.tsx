@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -70,6 +70,7 @@ export function TeamMemberList({
           >
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
+                <AvatarImage src={member.avatar_url || undefined} alt={member.name} />
                 <AvatarFallback className="text-sm bg-primary/10 text-primary">
                   {getInitials(member.name)}
                 </AvatarFallback>
