@@ -12,8 +12,9 @@ import {
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import logo from "@/assets/logo.png";
 
@@ -33,6 +34,11 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { role, isAdmin } = useUserRole();
+  const { teamMembers } = useTeamMembers();
+
+  const currentMember = teamMembers.find((m) => m.user_id === user?.id);
+  const userName = currentMember?.name || user?.email || "User";
+  const avatarUrl = currentMember?.avatar_url;
 
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
@@ -114,8 +120,9 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
           )}
         >
           <Avatar className="h-9 w-9">
+            <AvatarImage src={avatarUrl || undefined} alt={userName} />
             <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground text-sm">
-              {user?.email ? getInitials(user.email) : "U"}
+              {getInitials(userName)}
             </AvatarFallback>
           </Avatar>
           {!collapsed && (
