@@ -2,9 +2,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ProjectStatusBadge } from "./ProjectStatusBadge";
-import { Edit, Trash2, ArrowRight, Image } from "lucide-react";
+import { Edit, Trash2, ArrowRight, Image, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
+import type { LatestMessage } from "@/hooks/useLatestProjectMessages";
 
 type Project = Database["public"]["Tables"]["projects"]["Row"] & {
   image_url?: string | null;
@@ -18,6 +19,7 @@ interface ProjectCardProps {
   onEdit?: (project: Project) => void;
   onDelete?: (project: Project) => void;
   taskCount?: number;
+  latestMessage?: LatestMessage;
 }
 
 export function ProjectCard({
@@ -27,6 +29,7 @@ export function ProjectCard({
   onEdit,
   onDelete,
   taskCount = 0,
+  latestMessage,
 }: ProjectCardProps) {
   const displayedMembers = teamMembers.slice(0, 4);
   const remainingCount = teamMembers.length - 4;
@@ -38,6 +41,11 @@ export function ProjectCard({
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const truncateMessage = (content: string | null, maxLength: number = 30) => {
+    if (!content) return "No messages yet";
+    return content.length > maxLength ? content.slice(0, maxLength) + "..." : content;
   };
 
   return (
@@ -68,6 +76,18 @@ export function ProjectCard({
                 <p className="text-sm text-muted-foreground line-clamp-1">
                   {project.description || "No description"}
                 </p>
+                {/* Latest Message Preview */}
+                <div className="flex items-center gap-1.5 mt-1.5 text-xs text-muted-foreground">
+                  <MessageCircle className="h-3 w-3 shrink-0" />
+                  {latestMessage ? (
+                    <span className="truncate">
+                      <span className="font-medium">{latestMessage.sender_name}:</span>{" "}
+                      {truncateMessage(latestMessage.content)}
+                    </span>
+                  ) : (
+                    <span className="italic">No messages yet</span>
+                  )}
+                </div>
               </div>
               {isAdmin && (
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">

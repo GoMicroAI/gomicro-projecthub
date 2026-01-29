@@ -7,6 +7,7 @@ import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useLatestProjectMessages } from "@/hooks/useLatestProjectMessages";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { ProjectDialog } from "@/components/projects/ProjectDialog";
 import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
@@ -21,6 +22,7 @@ export default function Projects() {
   const { tasks } = useTasks();
   const { teamMembers } = useTeamMembers();
   const { isAdmin } = useUserRole();
+  const { data: latestMessages } = useLatestProjectMessages(projects.map((p) => p.id));
   
   const [search, setSearch] = useState("");
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);
@@ -100,6 +102,7 @@ export default function Projects() {
               isAdmin={isAdmin}
               teamMembers={teamMembers}
               taskCount={getTaskCountForProject(project.id)}
+              latestMessage={latestMessages?.get(project.id)}
               onEdit={(p) => {
                 setEditingProject(p);
                 setProjectDialogOpen(true);
