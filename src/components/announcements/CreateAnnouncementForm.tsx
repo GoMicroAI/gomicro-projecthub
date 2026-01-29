@@ -61,17 +61,17 @@ export function CreateAnnouncementForm({ onSubmit, isPending }: CreateAnnounceme
 
   return (
     <Card>
-      <CardContent className="pt-6">
-        <div className="flex gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarFallback>{getInitials(userName)}</AvatarFallback>
+      <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6 pb-3 sm:pb-6">
+        <div className="flex gap-2 sm:gap-3">
+          <Avatar className="h-8 w-8 sm:h-10 sm:w-10 shrink-0">
+            <AvatarFallback className="text-xs sm:text-sm">{getInitials(userName)}</AvatarFallback>
           </Avatar>
-          <div className="flex-1 space-y-3">
+          <div className="flex-1 space-y-2 sm:space-y-3">
             <Textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Share an announcement with your team..."
-              className="min-h-[80px] resize-none"
+              className="min-h-[60px] sm:min-h-[80px] resize-none text-sm sm:text-base"
             />
 
             {/* Image Preview */}
@@ -80,12 +80,12 @@ export function CreateAnnouncementForm({ onSubmit, isPending }: CreateAnnounceme
                 <img
                   src={imagePreview}
                   alt="Preview"
-                  className="max-w-xs max-h-32 rounded-lg object-cover"
+                  className="max-w-[150px] sm:max-w-xs max-h-24 sm:max-h-32 rounded-lg object-cover"
                 />
                 <Button
                   variant="destructive"
                   size="icon"
-                  className="absolute -top-2 -right-2 h-6 w-6"
+                  className="absolute -top-2 -right-2 h-5 w-5 sm:h-6 sm:w-6"
                   onClick={clearImage}
                 >
                   <X className="h-3 w-3" />
@@ -106,21 +106,22 @@ export function CreateAnnouncementForm({ onSubmit, isPending }: CreateAnnounceme
                   variant="ghost"
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
-                  className="gap-2"
+                  className="gap-1 sm:gap-2 text-xs sm:text-sm"
                 >
-                  <Image className="h-4 w-4" />
-                  Add Image
+                  <Image className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Add Image</span>
                 </Button>
               </div>
               <Button
+                size="sm"
                 onClick={handleSubmit}
                 disabled={isPending || (!content.trim() && !imageFile)}
-                className="gap-2"
+                className="gap-1 sm:gap-2 text-xs sm:text-sm"
               >
                 {isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
                 ) : (
-                  <Send className="h-4 w-4" />
+                  <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 )}
                 Post
               </Button>

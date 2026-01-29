@@ -19,16 +19,16 @@ export function AnnouncementsFeed() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)]">
+    <div className="flex flex-col h-[calc(100vh-120px)] sm:h-[calc(100vh-140px)]">
       {/* Scrollable Feed */}
       <div className="flex-1 overflow-y-auto pb-4">
         {announcements.length === 0 ? (
-          <div className="text-center py-12">
-            <Megaphone className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No announcements yet. Be the first to post!</p>
+          <div className="text-center py-8 sm:py-12">
+            <Megaphone className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-3 sm:mb-4" />
+            <p className="text-sm sm:text-base text-muted-foreground">No announcements yet. Be the first to post!</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {announcements.map((announcement) => (
               <AnnouncementCard
                 key={announcement.id}
@@ -42,7 +42,7 @@ export function AnnouncementsFeed() {
       </div>
 
       {/* Create Post Form - Fixed at bottom */}
-      <div className="border-t pt-4 bg-background">
+      <div className="border-t pt-3 sm:pt-4 bg-background">
         <CreateAnnouncementForm onSubmit={handleCreate} isPending={createAnnouncement.isPending} />
       </div>
     </div>
