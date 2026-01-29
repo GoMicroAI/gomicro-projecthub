@@ -27,27 +27,35 @@ export function useTeamMembers() {
   });
 
   const inviteTeamMember = useMutation({
-    mutationFn: async ({ email, name, role }: { email: string; name: string; role: AppRole }) => {
-      const { data, error } = await supabase
-        .from("team_members")
-        .insert({
-          email,
-          name,
-          role,
-          status: "invited",
-        })
-        .select()
-        .single();
+    mutationFn: async ({ email, password, name, role }: { email: string; password: string; name: string; role: AppRole }) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
 
-      if (error) throw error;
-      return data;
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-team-member`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ email, password, name, role }),
+        }
+      );
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to create team member");
+      }
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teamMembers"] });
-      toast({ title: "Team member invited successfully" });
+      toast({ title: "Team member created and invite sent!" });
     },
     onError: (error) => {
-      toast({ title: "Failed to invite team member", description: error.message, variant: "destructive" });
+      toast({ title: "Failed to create team member", description: error.message, variant: "destructive" });
     },
   });
 

@@ -44,6 +44,7 @@ export default function Team() {
 
   const handleInvite = async (data: {
     email: string;
+    password: string;
     name: string;
     role: Database["public"]["Enums"]["app_role"];
   }) => {
