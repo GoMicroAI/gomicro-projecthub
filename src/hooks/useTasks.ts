@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,6 +34,30 @@ export function useTasks(projectId?: string) {
     },
     enabled: !!user,
   });
+
+  // Subscribe to realtime changes
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel("tasks-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "tasks",
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["tasks"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient]);
 
   const createTask = useMutation({
     mutationFn: async (task: {
