@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
-import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,7 +20,6 @@ serve(async (req: Request) => {
   }
 
   try {
-    // Verify the caller is an admin
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(
@@ -33,9 +31,7 @@ serve(async (req: Request) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
 
-    // Create client with user's token to verify they're admin
     const userClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -50,7 +46,6 @@ serve(async (req: Request) => {
       );
     }
 
-    // Check if user is admin
     const { data: roleData, error: roleError } = await userClient
       .from("user_roles")
       .select("role")
@@ -65,7 +60,6 @@ serve(async (req: Request) => {
       );
     }
 
-    // Parse request body
     const { email, password, name, role }: CreateTeamMemberRequest = await req.json();
 
     if (!email || !password || !name || !role) {
@@ -75,27 +69,23 @@ serve(async (req: Request) => {
       );
     }
 
-    // Use service role to create the user
     const adminClient = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // First, insert into team_members (this must exist before user creation for trigger to work)
+    // Insert into team_members first (trigger will link on user creation)
     const { error: memberError } = await adminClient
       .from("team_members")
       .insert({ email, name, role, status: "invited" });
 
-    if (memberError) {
-      // If it's a duplicate, that's okay
-      if (!memberError.message.includes("duplicate")) {
-        return new Response(
-          JSON.stringify({ error: memberError.message }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
+    if (memberError && !memberError.message.includes("duplicate")) {
+      return new Response(
+        JSON.stringify({ error: memberError.message }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    // Create the auth user
+    // Create the auth user with confirmed email
     const { data: userData, error: userError } = await adminClient.auth.admin.createUser({
       email,
       password,
@@ -103,38 +93,11 @@ serve(async (req: Request) => {
     });
 
     if (userError) {
-      // Rollback team_members insert if user creation failed
       await adminClient.from("team_members").delete().eq("email", email);
       return new Response(
         JSON.stringify({ error: userError.message }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
-    }
-
-    // Send invite email if Resend is configured
-    if (resendApiKey) {
-      try {
-        const resend = new Resend(resendApiKey);
-        await resend.emails.send({
-          from: "Team <noreply@resend.dev>",
-          to: [email],
-          subject: "You've been invited to join the team!",
-          html: `
-            <h1>Welcome to the team, ${name}!</h1>
-            <p>You've been invited to join as a <strong>${role}</strong>.</p>
-            <p>Your login credentials:</p>
-            <ul>
-              <li><strong>Email:</strong> ${email}</li>
-              <li><strong>Password:</strong> ${password}</li>
-            </ul>
-            <p>Please log in and change your password after your first login.</p>
-          `,
-        });
-        console.log("Invite email sent to:", email);
-      } catch (emailError) {
-        console.error("Failed to send invite email:", emailError);
-        // Don't fail the request if email fails
-      }
     }
 
     return new Response(
