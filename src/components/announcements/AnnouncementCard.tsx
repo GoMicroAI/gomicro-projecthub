@@ -183,15 +183,26 @@ export function AnnouncementCard({ announcement, onDelete, isDeleting }: Announc
                   placeholder="Write a comment..."
                   className="min-h-[60px] resize-none"
                 />
-                <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1">
                   <label>
-                    <Button variant="outline" size="icon" asChild>
+                    <Button variant="outline" size="icon" asChild title="Attach file (max 100MB)">
                       <span><Paperclip className="h-4 w-4" /></span>
                     </Button>
                     <input
                       type="file"
                       className="hidden"
-                      onChange={(e) => setAttachmentFile(e.target.files?.[0] || null)}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+                          if (file.size > MAX_FILE_SIZE) {
+                            alert("File size must be less than 100MB");
+                            e.target.value = "";
+                            return;
+                          }
+                          setAttachmentFile(file);
+                        }
+                      }}
                     />
                   </label>
                   <Button

@@ -55,6 +55,13 @@ export function ProjectChat({ projectId }: ProjectChatProps) {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file size (max 100MB)
+      const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+      if (file.size > MAX_FILE_SIZE) {
+        alert("File size must be less than 100MB");
+        e.target.value = "";
+        return;
+      }
       setAttachmentFile(file);
     }
   };
@@ -165,6 +172,7 @@ export function ProjectChat({ projectId }: ProjectChatProps) {
             variant="ghost"
             size="icon"
             onClick={() => fileInputRef.current?.click()}
+            title="Attach file (max 100MB)"
           >
             <Paperclip className="h-4 w-4" />
           </Button>

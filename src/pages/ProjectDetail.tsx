@@ -332,7 +332,8 @@ export default function ProjectDetail() {
                 <Card>
                   <CardContent className="py-12 text-center">
                     <FolderOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground mb-4">No files or folders yet.</p>
+                    <p className="text-muted-foreground mb-2">No files or folders yet.</p>
+                    <p className="text-xs text-muted-foreground mb-4">Max file size: 100MB</p>
                     <div className="flex justify-center gap-2">
                       {isAdmin && (
                         <Button variant="outline" onClick={() => setFolderDialogOpen(true)}>
