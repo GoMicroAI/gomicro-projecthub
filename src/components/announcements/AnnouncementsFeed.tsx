@@ -19,28 +19,32 @@ export function AnnouncementsFeed() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Create Post Form */}
-      <CreateAnnouncementForm onSubmit={handleCreate} isPending={createAnnouncement.isPending} />
+    <div className="flex flex-col h-[calc(100vh-140px)]">
+      {/* Scrollable Feed */}
+      <div className="flex-1 overflow-y-auto pb-4">
+        {announcements.length === 0 ? (
+          <div className="text-center py-12">
+            <Megaphone className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">No announcements yet. Be the first to post!</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {announcements.map((announcement) => (
+              <AnnouncementCard
+                key={announcement.id}
+                announcement={announcement}
+                onDelete={(id) => deleteAnnouncement.mutate(id)}
+                isDeleting={deleteAnnouncement.isPending}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
-      {/* Feed */}
-      {announcements.length === 0 ? (
-        <div className="text-center py-12">
-          <Megaphone className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">No announcements yet. Be the first to post!</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {announcements.map((announcement) => (
-            <AnnouncementCard
-              key={announcement.id}
-              announcement={announcement}
-              onDelete={(id) => deleteAnnouncement.mutate(id)}
-              isDeleting={deleteAnnouncement.isPending}
-            />
-          ))}
-        </div>
-      )}
+      {/* Create Post Form - Fixed at bottom */}
+      <div className="border-t pt-4 bg-background">
+        <CreateAnnouncementForm onSubmit={handleCreate} isPending={createAnnouncement.isPending} />
+      </div>
     </div>
   );
 }
