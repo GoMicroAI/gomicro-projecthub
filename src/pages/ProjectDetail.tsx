@@ -384,12 +384,12 @@ export default function ProjectDetail() {
             <TabsContent value="details" className="mt-0">
               {project && (
                 <ProjectDetailsSection
-                  project={project}
+                  description={project.description}
                   isAdmin={isAdmin}
-                  onUpdate={async (updates) => {
+                  onUpdate={async (description) => {
                     await updateProject.mutateAsync({
                       id: project.id,
-                      ...updates,
+                      description,
                     });
                   }}
                 />
