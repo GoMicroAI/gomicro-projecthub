@@ -225,6 +225,10 @@ export type Database = {
     }
     Functions: {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_task_assignee: {
+        Args: { _task_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_team_member: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {

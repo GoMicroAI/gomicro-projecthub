@@ -14,6 +14,7 @@ import { Play, Pause, CheckCircle, AlertCircle, X } from "lucide-react";
 import { useTasks } from "@/hooks/useTasks";
 import { useProjects } from "@/hooks/useProjects";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -47,6 +48,12 @@ export const MemberTasksPanel = forwardRef<HTMLDivElement, MemberTasksPanelProps
     const { updateTask } = useTasks();
     const { projects } = useProjects();
     const { isAdmin } = useUserRole();
+    const { user } = useAuth();
+
+    // Check if the current user is viewing their own tasks
+    const isOwnProfile = user?.id === member.user_id;
+    // Users can modify if they are admin OR viewing their own assigned tasks
+    const canModifyTasks = isAdmin || isOwnProfile;
 
     // Get task IDs assigned to this member via task_assignees junction table
     const assignedTaskIds = allAssignees
@@ -149,8 +156,8 @@ export const MemberTasksPanel = forwardRef<HTMLDivElement, MemberTasksPanelProps
                                       {getProjectName(task.project_id)}
                                     </p>
                                   </div>
-                                  <div className="flex items-center gap-2">
-                                    {isAdmin && section.key !== "in_progress" && section.key !== "done" && (
+                                  <div className="flex items-center gap-2 flex-wrap justify-end">
+                                    {canModifyTasks && section.key !== "in_progress" && section.key !== "done" && (
                                       <Button
                                         size="sm"
                                         variant="outline"
@@ -161,7 +168,7 @@ export const MemberTasksPanel = forwardRef<HTMLDivElement, MemberTasksPanelProps
                                         Start
                                       </Button>
                                     )}
-                                    {isAdmin && (
+                                    {canModifyTasks && (
                                       <Select
                                         value={task.status}
                                         onValueChange={(value) =>
