@@ -136,7 +136,10 @@ export function ProjectCard({
             </div>
 
             {/* Latest Message Section - Right Side (Desktop) */}
-            <div className="hidden sm:flex w-52 shrink-0 border-l bg-muted/30 p-3 flex-col justify-center">
+            <Link 
+              to={`/projects/${project.id}?tab=chat`}
+              className="hidden sm:flex w-52 shrink-0 border-l bg-muted/30 p-3 flex-col justify-center hover:bg-muted/50 transition-colors cursor-pointer"
+            >
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
                 <MessageCircle className="h-3.5 w-3.5" />
                 <span className="font-medium">Latest Message</span>
@@ -151,11 +154,14 @@ export function ProjectCard({
               ) : (
                 <p className="text-xs text-muted-foreground italic">No messages yet</p>
               )}
-            </div>
+            </Link>
           </div>
 
           {/* Latest Message Section - Bottom (Mobile) */}
-          <div className="sm:hidden border-t bg-muted/30 px-4 py-2.5 flex items-center gap-2">
+          <Link 
+            to={`/projects/${project.id}?tab=chat`}
+            className="sm:hidden border-t bg-muted/30 px-4 py-2.5 flex items-center gap-2 hover:bg-muted/50 transition-colors"
+          >
             <MessageCircle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
             {latestMessage ? (
               <p className="text-xs text-muted-foreground truncate">
@@ -165,7 +171,7 @@ export function ProjectCard({
             ) : (
               <p className="text-xs text-muted-foreground italic">No messages yet</p>
             )}
-          </div>
+          </Link>
         </div>
       </CardContent>
     </Card>
