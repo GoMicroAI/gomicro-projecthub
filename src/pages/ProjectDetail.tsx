@@ -1,33 +1,39 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, ArrowLeft, Upload, ListTodo, FolderOpen } from "lucide-react";
+import { Plus, ArrowLeft, Upload, ListTodo, FolderOpen, FolderPlus } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useFiles } from "@/hooks/useFiles";
+import { useFolders } from "@/hooks/useFolders";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAllTaskAssignees, useTaskAssignees } from "@/hooks/useTaskAssignees";
 import { ProjectStatusBadge } from "@/components/projects/ProjectStatusBadge";
+import { EditableDescription } from "@/components/projects/EditableDescription";
 import { TaskListItem } from "@/components/tasks/TaskListItem";
 import { TaskDialogMultiAssign } from "@/components/tasks/TaskDialogMultiAssign";
 import { FileListItem } from "@/components/files/FileListItem";
+import { FolderItem } from "@/components/files/FolderItem";
+import { CreateFolderDialog } from "@/components/files/CreateFolderDialog";
 import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
 
 type Task = Database["public"]["Tables"]["tasks"]["Row"];
 type ProjectFile = Database["public"]["Tables"]["files"]["Row"];
+type Folder = Database["public"]["Tables"]["folders"]["Row"];
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
-  const { projects, isLoading: projectsLoading } = useProjects();
+  const { projects, isLoading: projectsLoading, updateProject } = useProjects();
   const { tasks, isLoading: tasksLoading, refetch, createTask, updateTask, deleteTask } = useTasks(id);
   const { teamMembers } = useTeamMembers();
   const { files, isLoading: filesLoading, uploadFile, deleteFile } = useFiles(id);
+  const { folders, isLoading: foldersLoading, createFolder, deleteFolder, renameFolder } = useFolders(id);
   const { isAdmin } = useUserRole();
   const { assigneesByTask } = useAllTaskAssignees(id);
   const { setAssignees } = useTaskAssignees();
@@ -36,10 +42,18 @@ export default function ProjectDetail() {
   const [editingTask, setEditingTask] = useState<Task | undefined>();
   const [deletingTask, setDeletingTask] = useState<Task | undefined>();
   const [deletingFile, setDeletingFile] = useState<ProjectFile | undefined>();
+  const [deletingFolder, setDeletingFolder] = useState<Folder | undefined>();
+  const [folderDialogOpen, setFolderDialogOpen] = useState(false);
+  const [uploadTargetFolderId, setUploadTargetFolderId] = useState<string | undefined>();
   const [activeTab, setActiveTab] = useState("tasks");
+  
+  const folderFileInputRef = useRef<HTMLInputElement>(null);
 
   const project = projects.find((p) => p.id === id);
-  const isLoading = projectsLoading || tasksLoading || filesLoading;
+  const isLoading = projectsLoading || tasksLoading || filesLoading || foldersLoading;
+
+  // Files not in any folder (root level)
+  const rootFiles = files.filter((f) => !f.folder_id);
 
   if (!project && !projectsLoading) {
     return (
@@ -65,6 +79,14 @@ export default function ProjectDetail() {
     return taskAssignees.map((a) => a.user_id);
   };
 
+  const handleDescriptionSave = async (description: string) => {
+    if (!project) return;
+    await updateProject.mutateAsync({
+      id: project.id,
+      description: description || null,
+    });
+  };
+
   const handleCreateTask = async (data: {
     title: string;
     description?: string;
@@ -83,7 +105,6 @@ export default function ProjectDetail() {
       due_date: data.due_date || undefined,
     });
     
-    // Set assignees for the new task
     if (data.assignees.length > 0) {
       await setAssignees.mutateAsync({
         taskId: result.id,
@@ -110,7 +131,6 @@ export default function ProjectDetail() {
       due_date: data.due_date || null,
     });
     
-    // Update assignees
     await setAssignees.mutateAsync({
       taskId: editingTask.id,
       userIds: data.assignees,
@@ -125,17 +145,38 @@ export default function ProjectDetail() {
     setDeletingTask(undefined);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, folderId?: string) => {
     const file = e.target.files?.[0];
     if (!file || !id) return;
-    await uploadFile.mutateAsync({ file, projectId: id });
+    await uploadFile.mutateAsync({ file, projectId: id, folderId });
     e.target.value = "";
+    setUploadTargetFolderId(undefined);
+  };
+
+  const handleUploadToFolder = (folderId: string) => {
+    setUploadTargetFolderId(folderId);
+    folderFileInputRef.current?.click();
   };
 
   const handleDeleteFile = async () => {
     if (!deletingFile) return;
     await deleteFile.mutateAsync(deletingFile);
     setDeletingFile(undefined);
+  };
+
+  const handleCreateFolder = async (name: string) => {
+    if (!id) return;
+    await createFolder.mutateAsync({ name, projectId: id });
+  };
+
+  const handleDeleteFolder = async () => {
+    if (!deletingFolder) return;
+    await deleteFolder.mutateAsync(deletingFolder.id);
+    setDeletingFolder(undefined);
+  };
+
+  const handleRenameFolder = async (folderId: string, name: string) => {
+    await renameFolder.mutateAsync({ folderId, name });
   };
 
   return (
@@ -162,16 +203,18 @@ export default function ProjectDetail() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
-                <div className="space-y-2">
+                <div className="space-y-2 flex-1 mr-4">
                   <div className="flex items-center gap-3">
                     <h2 className="text-xl font-semibold">{project?.name}</h2>
                     {project && <ProjectStatusBadge status={project.status} />}
                   </div>
-                  <p className="text-muted-foreground">
-                    {project?.description || "No description"}
-                  </p>
+                  <EditableDescription
+                    description={project?.description || null}
+                    isAdmin={isAdmin}
+                    onSave={handleDescriptionSave}
+                  />
                 </div>
-                <div className="text-right text-sm text-muted-foreground">
+                <div className="text-right text-sm text-muted-foreground shrink-0">
                   <p>Created {project && format(new Date(project.created_at), "MMM d, yyyy")}</p>
                   <p>{tasks.length} tasks • {files.length} files</p>
                 </div>
@@ -201,19 +244,24 @@ export default function ProjectDetail() {
                     </Button>
                   )}
                   {activeTab === "files" && (
-                    <label>
-                      <Button asChild>
-                        <span>
-                          <Upload className="h-4 w-4 mr-2" /> Upload File
-                        </span>
+                    <>
+                      <Button variant="outline" onClick={() => setFolderDialogOpen(true)}>
+                        <FolderPlus className="h-4 w-4 mr-2" /> New Folder
                       </Button>
-                      <input
-                        type="file"
-                        className="hidden"
-                        onChange={handleFileUpload}
-                        disabled={uploadFile.isPending}
-                      />
-                    </label>
+                      <label>
+                        <Button asChild>
+                          <span>
+                            <Upload className="h-4 w-4 mr-2" /> Upload File
+                          </span>
+                        </Button>
+                        <input
+                          type="file"
+                          className="hidden"
+                          onChange={(e) => handleFileUpload(e)}
+                          disabled={uploadFile.isPending}
+                        />
+                      </label>
+                    </>
                   )}
                 </div>
               )}
@@ -252,44 +300,82 @@ export default function ProjectDetail() {
             </TabsContent>
 
             <TabsContent value="files" className="mt-0">
-              {files.length === 0 ? (
+              {files.length === 0 && folders.length === 0 ? (
                 <Card>
                   <CardContent className="py-12 text-center">
                     <FolderOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground mb-4">No files uploaded yet.</p>
+                    <p className="text-muted-foreground mb-4">No files or folders yet.</p>
                     {isAdmin && (
-                      <label>
-                        <Button asChild>
-                          <span>
-                            <Upload className="h-4 w-4 mr-2" /> Upload First File
-                          </span>
+                      <div className="flex justify-center gap-2">
+                        <Button variant="outline" onClick={() => setFolderDialogOpen(true)}>
+                          <FolderPlus className="h-4 w-4 mr-2" /> Create Folder
                         </Button>
-                        <input
-                          type="file"
-                          className="hidden"
-                          onChange={handleFileUpload}
-                          disabled={uploadFile.isPending}
-                        />
-                      </label>
+                        <label>
+                          <Button asChild>
+                            <span>
+                              <Upload className="h-4 w-4 mr-2" /> Upload File
+                            </span>
+                          </Button>
+                          <input
+                            type="file"
+                            className="hidden"
+                            onChange={(e) => handleFileUpload(e)}
+                            disabled={uploadFile.isPending}
+                          />
+                        </label>
+                      </div>
                     )}
                   </CardContent>
                 </Card>
               ) : (
                 <div className="space-y-2">
-                  {files.map((file) => (
-                    <FileListItem
-                      key={file.id}
-                      file={file}
+                  {/* Folders */}
+                  {folders.map((folder) => (
+                    <FolderItem
+                      key={folder.id}
+                      folder={folder}
+                      files={files}
                       isAdmin={isAdmin}
-                      onDelete={(file) => setDeletingFile(file)}
+                      onDelete={(folder) => setDeletingFolder(folder)}
+                      onRename={handleRenameFolder}
+                      onUploadToFolder={handleUploadToFolder}
+                      onDeleteFile={(file) => setDeletingFile(file)}
                     />
                   ))}
+                  
+                  {/* Root level files (not in any folder) */}
+                  {rootFiles.length > 0 && (
+                    <>
+                      {folders.length > 0 && (
+                        <div className="pt-4 pb-2">
+                          <p className="text-sm font-medium text-muted-foreground">Other Files</p>
+                        </div>
+                      )}
+                      {rootFiles.map((file) => (
+                        <FileListItem
+                          key={file.id}
+                          file={file}
+                          isAdmin={isAdmin}
+                          onDelete={(file) => setDeletingFile(file)}
+                        />
+                      ))}
+                    </>
+                  )}
                 </div>
               )}
             </TabsContent>
           </Tabs>
         </div>
       )}
+
+      {/* Hidden input for folder uploads */}
+      <input
+        ref={folderFileInputRef}
+        type="file"
+        className="hidden"
+        onChange={(e) => handleFileUpload(e, uploadTargetFolderId)}
+        disabled={uploadFile.isPending}
+      />
 
       {id && (
         <TaskDialogMultiAssign
@@ -305,6 +391,12 @@ export default function ProjectDetail() {
           onSubmit={editingTask ? handleUpdateTask : handleCreateTask}
         />
       )}
+
+      <CreateFolderDialog
+        open={folderDialogOpen}
+        onOpenChange={setFolderDialogOpen}
+        onSubmit={handleCreateFolder}
+      />
 
       <DeleteConfirmDialog
         open={!!deletingTask}
@@ -322,6 +414,15 @@ export default function ProjectDetail() {
         description={`Are you sure you want to delete "${deletingFile?.file_name}"? This action cannot be undone.`}
         onConfirm={handleDeleteFile}
         isDeleting={deleteFile.isPending}
+      />
+
+      <DeleteConfirmDialog
+        open={!!deletingFolder}
+        onOpenChange={(open) => !open && setDeletingFolder(undefined)}
+        title="Delete Folder"
+        description={`Are you sure you want to delete "${deletingFolder?.name}"? All files in this folder will be moved to the root level.`}
+        onConfirm={handleDeleteFolder}
+        isDeleting={deleteFolder.isPending}
       />
     </AppLayout>
   );

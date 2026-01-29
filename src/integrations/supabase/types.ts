@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           file_name: string
           file_url: string
+          folder_id: string | null
           id: string
           project_id: string
           task_id: string | null
@@ -27,6 +28,7 @@ export type Database = {
         Insert: {
           file_name: string
           file_url: string
+          folder_id?: string | null
           id?: string
           project_id: string
           task_id?: string | null
@@ -36,6 +38,7 @@ export type Database = {
         Update: {
           file_name?: string
           file_url?: string
+          folder_id?: string | null
           id?: string
           project_id?: string
           task_id?: string | null
@@ -43,6 +46,13 @@ export type Database = {
           uploaded_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "files_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "files_project_id_fkey"
             columns: ["project_id"]
@@ -55,6 +65,48 @@ export type Database = {
             columns: ["task_id"]
             isOneToOne: false
             referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      folders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          parent_id: string | null
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          parent_id?: string | null
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          parent_id?: string | null
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "folders_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]

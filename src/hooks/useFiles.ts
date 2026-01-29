@@ -38,10 +38,12 @@ export function useFiles(projectId?: string, taskId?: string) {
       file,
       projectId,
       taskId,
+      folderId,
     }: {
       file: File;
       projectId: string;
       taskId?: string;
+      folderId?: string;
     }) => {
       const fileName = `${projectId}/${Date.now()}-${file.name}`;
       
@@ -63,6 +65,7 @@ export function useFiles(projectId?: string, taskId?: string) {
         .insert({
           project_id: projectId,
           task_id: taskId,
+          folder_id: folderId,
           file_name: file.name,
           file_url: urlData.publicUrl,
           uploaded_by: user?.id,
