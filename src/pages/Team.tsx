@@ -27,7 +27,10 @@ export default function Team() {
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
-  const selectedMember = teamMembers.find((m) => m.id === selectedMemberId);
+  // Filter out admin users from the team list - only show viewers
+  const visibleMembers = teamMembers.filter((m) => m.role !== "admin");
+
+  const selectedMember = visibleMembers.find((m) => m.id === selectedMemberId);
   
   // For non-admins, check if they're viewing their own profile
   const isViewingOwnProfile = selectedMember?.user_id === user?.id;
@@ -50,7 +53,7 @@ export default function Team() {
   };
 
   const handleSelectMember = (memberId: string) => {
-    const member = teamMembers.find((m) => m.id === memberId);
+    const member = visibleMembers.find((m) => m.id === memberId);
     // Non-admins can only select themselves
     if (!isAdmin && member?.user_id !== user?.id) {
       return; // Don't allow selection
@@ -102,10 +105,10 @@ export default function Team() {
             ) : (
               <div className="h-full overflow-auto">
                 <h2 className="text-sm font-medium text-muted-foreground mb-3">
-                  Team Members ({teamMembers.length})
+                  Team Members ({visibleMembers.length})
                 </h2>
                 <TeamMemberList
-                  members={teamMembers}
+                  members={visibleMembers}
                   tasks={tasks}
                   allAssignees={allAssignees}
                   selectedMemberId={selectedMemberId}
@@ -124,10 +127,10 @@ export default function Team() {
               <ResizablePanel defaultSize={35} minSize={25}>
                 <div className="h-full p-4 overflow-auto">
                   <h2 className="text-sm font-medium text-muted-foreground mb-3">
-                    Team Members ({teamMembers.length})
+                    Team Members ({visibleMembers.length})
                   </h2>
                   <TeamMemberList
-                    members={teamMembers}
+                    members={visibleMembers}
                     tasks={tasks}
                     allAssignees={allAssignees}
                     selectedMemberId={selectedMemberId}
