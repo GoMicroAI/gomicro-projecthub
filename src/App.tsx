@@ -10,6 +10,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import Team from "./pages/Team";
 import Announcements from "./pages/Announcements";
 import Settings from "./pages/Settings";
+import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -110,6 +111,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Settings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/install"
+        element={
+          <ProtectedRoute>
+            <Install />
           </ProtectedRoute>
         }
       />
