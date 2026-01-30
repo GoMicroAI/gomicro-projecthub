@@ -66,7 +66,6 @@ export default function Projects() {
   return (
     <AppLayout
       title="Projects"
-      onRefresh={() => refetch()}
       actions={
         isAdmin && (
           <Button onClick={() => setProjectDialogOpen(true)} size="sm" className="md:size-default">
