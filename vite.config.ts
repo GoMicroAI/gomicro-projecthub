@@ -20,9 +20,9 @@ export default defineConfig(({ mode }) => ({
       includeAssets: ["favicon.png", "favicon.ico", "robots.txt"],
       manifest: {
         name: "GoMicro ProjectHUB",
-        short_name: "ProjectHUB",
+        short_name: "GoMicro",
         description: "GoMicro ProjectHUB - Team Project & Task Management",
-        theme_color: "#1a5d47",
+        theme_color: "#2D5A4A",
         background_color: "#ffffff",
         display: "standalone",
         orientation: "portrait",
