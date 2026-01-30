@@ -5,7 +5,6 @@ import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(({ mode }) => ({
-  base: "/projecthub/",
   server: {
     host: "::",
     port: 8080,
@@ -27,8 +26,8 @@ export default defineConfig(({ mode }) => ({
         background_color: "#ffffff",
         display: "standalone",
         orientation: "portrait",
-        scope: "/projecthub/",
-        start_url: "/projecthub/",
+        scope: "/",
+        start_url: "/",
         icons: [
           {
             src: "pwa-192x192.png",

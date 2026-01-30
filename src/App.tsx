@@ -133,7 +133,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter basename="/projecthub">
+        <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
       </TooltipProvider>
