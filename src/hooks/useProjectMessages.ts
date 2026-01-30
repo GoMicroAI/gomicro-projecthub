@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +19,35 @@ export interface ProjectMessage {
 
 const PAGE_SIZE = 20;
 
+// Cache for team members to avoid repeated fetches
+const memberCache = new Map<string, { name: string; email: string; avatar_url: string | null }>();
+
+async function enrichMessagesWithSenders(messages: any[]): Promise<ProjectMessage[]> {
+  if (messages.length === 0) return [];
+
+  const userIds = [...new Set(messages.map((m) => m.user_id))];
+  const uncachedUserIds = userIds.filter((id) => !memberCache.has(id));
+
+  // Only fetch uncached members
+  if (uncachedUserIds.length > 0) {
+    const { data: members } = await supabase
+      .from("team_members")
+      .select("user_id, name, email, avatar_url")
+      .in("user_id", uncachedUserIds);
+
+    members?.forEach((m) => {
+      memberCache.set(m.user_id, { name: m.name, email: m.email, avatar_url: m.avatar_url });
+    });
+  }
+
+  return messages.map((msg) => ({
+    ...msg,
+    sender_name: memberCache.get(msg.user_id)?.name || "Unknown",
+    sender_email: memberCache.get(msg.user_id)?.email || "",
+    sender_avatar_url: memberCache.get(msg.user_id)?.avatar_url || null,
+  }));
+}
+
 export function useProjectMessages(projectId?: string) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -27,7 +56,7 @@ export function useProjectMessages(projectId?: string) {
   const [allMessages, setAllMessages] = useState<ProjectMessage[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // Fetch initial messages (most recent)
+  // Fetch initial messages with aggressive caching
   const { data: initialMessages = [], isLoading, refetch } = useQuery({
     queryKey: ["project-messages", projectId, "initial"],
     queryFn: async () => {
@@ -42,28 +71,13 @@ export function useProjectMessages(projectId?: string) {
 
       if (error) throw error;
 
-      // Get sender info from team_members
-      const userIds = [...new Set(messages.map((m) => m.user_id))];
-      const { data: members } = await supabase
-        .from("team_members")
-        .select("user_id, name, email, avatar_url")
-        .in("user_id", userIds);
-
-      const memberMap = new Map(
-        members?.map((m) => [m.user_id, { name: m.name, email: m.email, avatar_url: m.avatar_url }]) || []
-      );
-
-      const enrichedMessages = messages.map((msg) => ({
-        ...msg,
-        sender_name: memberMap.get(msg.user_id)?.name || "Unknown",
-        sender_email: memberMap.get(msg.user_id)?.email || "",
-        sender_avatar_url: memberMap.get(msg.user_id)?.avatar_url || null,
-      }));
-
+      const enrichedMessages = await enrichMessagesWithSenders(messages);
       setHasMore(messages.length === PAGE_SIZE);
-      return enrichedMessages.reverse(); // Oldest first for display
+      return enrichedMessages.reverse();
     },
     enabled: !!projectId && !!user,
+    staleTime: 1000 * 60 * 5, // 5 minutes - data considered fresh
+    gcTime: 1000 * 60 * 30, // 30 minutes - keep in cache
   });
 
   // Update allMessages when initialMessages changes
@@ -91,24 +105,7 @@ export function useProjectMessages(projectId?: string) {
 
       if (error) throw error;
 
-      // Get sender info
-      const userIds = [...new Set(messages.map((m) => m.user_id))];
-      const { data: members } = await supabase
-        .from("team_members")
-        .select("user_id, name, email, avatar_url")
-        .in("user_id", userIds);
-
-      const memberMap = new Map(
-        members?.map((m) => [m.user_id, { name: m.name, email: m.email, avatar_url: m.avatar_url }]) || []
-      );
-
-      const enrichedMessages = messages.map((msg) => ({
-        ...msg,
-        sender_name: memberMap.get(msg.user_id)?.name || "Unknown",
-        sender_email: memberMap.get(msg.user_id)?.email || "",
-        sender_avatar_url: memberMap.get(msg.user_id)?.avatar_url || null,
-      }));
-
+      const enrichedMessages = await enrichMessagesWithSenders(messages);
       setHasMore(messages.length === PAGE_SIZE);
       setAllMessages((prev) => [...enrichedMessages.reverse(), ...prev]);
     } catch (error) {
@@ -117,6 +114,52 @@ export function useProjectMessages(projectId?: string) {
       setIsLoadingMore(false);
     }
   };
+
+  // Download all chat history
+  const downloadChatHistory = useCallback(async () => {
+    if (!projectId) return;
+
+    toast({ title: "Downloading chat history..." });
+
+    try {
+      // Fetch all messages
+      const { data: messages, error } = await supabase
+        .from("project_messages")
+        .select("*")
+        .eq("project_id", projectId)
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+
+      const enrichedMessages = await enrichMessagesWithSenders(messages);
+
+      // Format as text
+      const chatText = enrichedMessages
+        .map((msg) => {
+          const date = new Date(msg.created_at).toLocaleString();
+          const content = msg.content || "[Attachment]";
+          const attachment = msg.attachment_name ? ` [File: ${msg.attachment_name}]` : "";
+          return `[${date}] ${msg.sender_name}: ${content}${attachment}`;
+        })
+        .join("\n");
+
+      // Create and download file
+      const blob = new Blob([chatText], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `chat-history-${projectId.slice(0, 8)}-${new Date().toISOString().split("T")[0]}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({ title: "Chat history downloaded!" });
+    } catch (error) {
+      console.error("Failed to download chat history:", error);
+      toast({ title: "Failed to download", variant: "destructive" });
+    }
+  }, [projectId, toast]);
 
   // Send message mutation
   const sendMessage = useMutation({
@@ -239,5 +282,6 @@ export function useProjectMessages(projectId?: string) {
     loadMore,
     sendMessage,
     refetch,
+    downloadChatHistory,
   };
 }
