@@ -113,6 +113,8 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      {/* Redirect old /install route to settings */}
+      <Route path="/install" element={<Navigate to="/settings" replace />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
