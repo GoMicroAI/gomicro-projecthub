@@ -78,7 +78,7 @@ export default function Team() {
       ) : (
         <>
           {/* Mobile View */}
-          <div className="md:hidden h-[calc(100vh-140px)]">
+          <div className="md:hidden h-[calc(100dvh-140px)]">
             {selectedMember && canViewTaskPanel ? (
               <div className="h-full flex flex-col">
                 <Button
@@ -118,7 +118,7 @@ export default function Team() {
           </div>
 
           {/* Desktop View */}
-          <div className="hidden md:block h-[calc(100vh-140px)]">
+          <div className="hidden md:block h-[calc(100dvh-140px)]">
             <ResizablePanelGroup direction="horizontal" className="rounded-lg border">
               {/* Team Member List */}
               <ResizablePanel defaultSize={35} minSize={25}>
