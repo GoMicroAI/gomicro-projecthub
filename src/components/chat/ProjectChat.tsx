@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Send, Paperclip, FileText, Loader2, ChevronUp } from "lucide-react";
+import { Send, Paperclip, FileText, Loader2, ChevronUp, Download } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +22,7 @@ export function ProjectChat({ projectId }: ProjectChatProps) {
     isLoadingMore,
     loadMore,
     sendMessage,
+    downloadChatHistory,
   } = useProjectMessages(projectId);
 
   const [messageText, setMessageText] = useState("");
@@ -96,15 +97,15 @@ export function ProjectChat({ projectId }: ProjectChatProps) {
 
   return (
     <div className="flex flex-col flex-1 min-h-0 border rounded-lg bg-card overflow-hidden">
-      {/* Load More Button */}
-      {hasMore && (
-        <div className="p-2 border-b">
+      {/* Load More & Download */}
+      <div className="p-2 border-b flex items-center gap-2">
+        {hasMore && (
           <Button
             variant="ghost"
             size="sm"
             onClick={loadMore}
             disabled={isLoadingMore}
-            className="w-full"
+            className="flex-1"
           >
             {isLoadingMore ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -113,8 +114,16 @@ export function ProjectChat({ projectId }: ProjectChatProps) {
             )}
             Load older messages
           </Button>
-        </div>
-      )}
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={downloadChatHistory}
+          title="Download chat history"
+        >
+          <Download className="h-4 w-4" />
+        </Button>
+      </div>
 
       {/* Messages Area */}
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
