@@ -135,37 +135,37 @@ export function ProjectCard({
             {/* Chat Section - Right Side (Desktop) */}
             <Link 
               to={`/projects/${project.id}?tab=chat`}
-              className="hidden sm:flex w-64 shrink-0 border-l bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/15 transition-all cursor-pointer"
+              className="hidden sm:flex w-64 shrink-0 border-l bg-primary hover:bg-primary/90 transition-all cursor-pointer"
             >
               <div className="flex flex-col w-full p-4">
                 {/* Chat Header */}
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10">
-                    <MessageCircle className="h-4 w-4 text-primary" />
+                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-white/20">
+                    <MessageCircle className="h-4 w-4 text-primary-foreground" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-foreground">Chat</p>
-                    <p className="text-xs text-muted-foreground">Project conversation</p>
+                    <p className="text-sm font-semibold text-primary-foreground">Chat</p>
+                    <p className="text-xs text-primary-foreground/70">Project conversation</p>
                   </div>
                 </div>
                 
                 {/* Latest Message */}
                 <div className="flex-1 flex flex-col justify-center">
                   {latestMessage ? (
-                    <div className="bg-background/60 rounded-lg p-2.5 border border-border/50">
-                      <p className="text-xs font-medium text-foreground truncate">
+                    <div className="bg-white/10 rounded-lg p-2.5 border border-white/20">
+                      <p className="text-xs font-medium text-primary-foreground truncate">
                         {latestMessage.sender_name}
                       </p>
-                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                      <p className="text-xs text-primary-foreground/80 line-clamp-2 mt-0.5">
                         {latestMessage.content || "Sent an attachment"}
                       </p>
                     </div>
                   ) : (
-                    <div className="bg-background/40 rounded-lg p-2.5 border border-dashed border-border/50">
-                      <p className="text-xs text-muted-foreground italic text-center">
+                    <div className="bg-white/5 rounded-lg p-2.5 border border-dashed border-white/20">
+                      <p className="text-xs text-primary-foreground/70 italic text-center">
                         No messages yet
                       </p>
-                      <p className="text-xs text-primary font-medium text-center mt-1">
+                      <p className="text-xs text-primary-foreground font-medium text-center mt-1">
                         Start chatting →
                       </p>
                     </div>
@@ -178,23 +178,23 @@ export function ProjectCard({
           {/* Chat Section - Bottom (Mobile) */}
           <Link 
             to={`/projects/${project.id}?tab=chat`}
-            className="sm:hidden border-t bg-gradient-to-r from-primary/5 to-primary/10 px-4 py-3 flex items-center gap-3 hover:from-primary/10 hover:to-primary/15 transition-colors"
+            className="sm:hidden border-t bg-primary hover:bg-primary/90 px-4 py-3 flex items-center gap-3 transition-colors"
           >
-            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 shrink-0">
-              <MessageCircle className="h-4 w-4 text-primary" />
+            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-white/20 shrink-0">
+              <MessageCircle className="h-4 w-4 text-primary-foreground" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground">Chat</p>
+              <p className="text-sm font-semibold text-primary-foreground">Chat</p>
               {latestMessage ? (
-                <p className="text-xs text-muted-foreground truncate">
-                  <span className="font-medium text-foreground">{latestMessage.sender_name}:</span>{" "}
+                <p className="text-xs text-primary-foreground/80 truncate">
+                  <span className="font-medium text-primary-foreground">{latestMessage.sender_name}:</span>{" "}
                   {latestMessage.content || "Sent an attachment"}
                 </p>
               ) : (
-                <p className="text-xs text-muted-foreground italic">Start a conversation</p>
+                <p className="text-xs text-primary-foreground/70 italic">Start a conversation</p>
               )}
             </div>
-            <ArrowRight className="h-4 w-4 text-primary shrink-0" />
+            <ArrowRight className="h-4 w-4 text-primary-foreground shrink-0" />
           </Link>
         </div>
       </CardContent>
