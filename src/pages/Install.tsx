@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Smartphone, Monitor, Share, Plus } from "lucide-react";
+import { Download, Smartphone, Monitor, Share, Plus, Apple } from "lucide-react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -11,18 +11,8 @@ interface BeforeInstallPromptEvent extends Event {
 export default function InstallAppSection() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
-  const [isAndroid, setIsAndroid] = useState(false);
 
   useEffect(() => {
-    // Check device type
-    const userAgent = navigator.userAgent.toLowerCase();
-    const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
-    const isAndroidDevice = /android/.test(userAgent);
-    
-    setIsIOS(isIOSDevice);
-    setIsAndroid(isAndroidDevice);
-
     // Check if already installed
     if (window.matchMedia("(display-mode: standalone)").matches) {
       setIsInstalled(true);
@@ -89,7 +79,7 @@ export default function InstallAppSection() {
           <div>
             <CardTitle className="text-lg">Install App</CardTitle>
             <CardDescription>
-              Install ProjectHUB on your device for quick access and offline use.
+              Install GoMicro ProjectHUB on your device for quick access and offline use.
             </CardDescription>
           </div>
         </div>
@@ -104,80 +94,74 @@ export default function InstallAppSection() {
         )}
 
         {/* iPhone/iPad Instructions */}
-        {isIOS && (
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-            <h4 className="font-semibold flex items-center gap-2 mb-3">
-              <Smartphone className="h-4 w-4" />
-              iPhone / iPad
-            </h4>
-            <ol className="space-y-3 text-sm">
-              <li className="flex items-start gap-2">
-                <span className="font-bold text-blue-600">1.</span>
-                <span>Open this page in <strong>Safari</strong> browser</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-bold text-blue-600">2.</span>
-                <span className="flex items-center gap-1">
-                  Tap the <Share className="h-4 w-4 inline" /> <strong>Share</strong> button at the bottom
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-bold text-blue-600">3.</span>
-                <span className="flex items-center gap-1">
-                  Scroll down and tap <Plus className="h-4 w-4 inline" /> <strong>"Add to Home Screen"</strong>
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-bold text-blue-600">4.</span>
-                <span>Tap <strong>"Add"</strong> in the top right corner</span>
-              </li>
-            </ol>
-          </div>
-        )}
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <h4 className="font-semibold flex items-center gap-2 mb-3 text-blue-800">
+            <Apple className="h-4 w-4" />
+            iPhone / iPad
+          </h4>
+          <ol className="space-y-2 text-sm text-blue-900">
+            <li className="flex items-start gap-2">
+              <span className="font-bold text-blue-600 min-w-[20px]">1.</span>
+              <span>Open this page in <strong>Safari</strong> browser</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="font-bold text-blue-600 min-w-[20px]">2.</span>
+              <span className="flex items-center gap-1 flex-wrap">
+                Tap the <Share className="h-4 w-4 inline mx-1" /> <strong>Share</strong> button at the bottom
+              </span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="font-bold text-blue-600 min-w-[20px]">3.</span>
+              <span className="flex items-center gap-1 flex-wrap">
+                Scroll down and tap <Plus className="h-4 w-4 inline mx-1" /> <strong>"Add to Home Screen"</strong>
+              </span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="font-bold text-blue-600 min-w-[20px]">4.</span>
+              <span>Tap <strong>"Add"</strong> in the top right corner</span>
+            </li>
+          </ol>
+        </div>
 
         {/* Android Instructions */}
-        {isAndroid && !deferredPrompt && (
-          <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-            <h4 className="font-semibold flex items-center gap-2 mb-3">
-              <Smartphone className="h-4 w-4" />
-              Android
-            </h4>
-            <ol className="space-y-2 text-sm">
-              <li className="flex items-start gap-2">
-                <span className="font-bold text-green-600">1.</span>
-                <span>Open this page in <strong>Chrome</strong> browser</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-bold text-green-600">2.</span>
-                <span>Tap the <strong>menu</strong> (three dots) in the top right</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-bold text-green-600">3.</span>
-                <span>Tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></span>
-              </li>
-            </ol>
-          </div>
-        )}
+        <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+          <h4 className="font-semibold flex items-center gap-2 mb-3 text-green-800">
+            <Smartphone className="h-4 w-4" />
+            Android
+          </h4>
+          <ol className="space-y-2 text-sm text-green-900">
+            <li className="flex items-start gap-2">
+              <span className="font-bold text-green-600 min-w-[20px]">1.</span>
+              <span>Open this page in <strong>Chrome</strong> browser</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="font-bold text-green-600 min-w-[20px]">2.</span>
+              <span>Tap the <strong>menu</strong> (⋮ three dots) in the top right</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="font-bold text-green-600 min-w-[20px]">3.</span>
+              <span>Tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></span>
+            </li>
+          </ol>
+        </div>
 
         {/* Desktop Instructions */}
-        {!isIOS && !isAndroid && !deferredPrompt && (
-          <div className="rounded-lg border p-4">
-            <h4 className="font-semibold flex items-center gap-2 mb-3">
-              <Monitor className="h-4 w-4" />
-              Desktop (Chrome / Edge)
-            </h4>
-            <ol className="space-y-2 text-sm">
-              <li className="flex items-start gap-2">
-                <span className="font-bold">1.</span>
-                <span>Look for the <strong>install icon</strong> in the address bar (right side)</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-bold">2.</span>
-                <span>Click <strong>"Install"</strong> when prompted</span>
-              </li>
-            </ol>
-          </div>
-        )}
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <h4 className="font-semibold flex items-center gap-2 mb-3 text-gray-800">
+            <Monitor className="h-4 w-4" />
+            Desktop (Chrome / Edge)
+          </h4>
+          <ol className="space-y-2 text-sm text-gray-700">
+            <li className="flex items-start gap-2">
+              <span className="font-bold text-gray-600 min-w-[20px]">1.</span>
+              <span>Look for the <strong>install icon</strong> in the address bar (right side)</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="font-bold text-gray-600 min-w-[20px]">2.</span>
+              <span>Click <strong>"Install"</strong> when prompted</span>
+            </li>
+          </ol>
+        </div>
       </CardContent>
     </Card>
   );
