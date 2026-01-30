@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -115,51 +115,6 @@ export function useProjectMessages(projectId?: string) {
     }
   };
 
-  // Download all chat history
-  const downloadChatHistory = useCallback(async () => {
-    if (!projectId) return;
-
-    toast({ title: "Downloading chat history..." });
-
-    try {
-      // Fetch all messages
-      const { data: messages, error } = await supabase
-        .from("project_messages")
-        .select("*")
-        .eq("project_id", projectId)
-        .order("created_at", { ascending: true });
-
-      if (error) throw error;
-
-      const enrichedMessages = await enrichMessagesWithSenders(messages);
-
-      // Format as text
-      const chatText = enrichedMessages
-        .map((msg) => {
-          const date = new Date(msg.created_at).toLocaleString();
-          const content = msg.content || "[Attachment]";
-          const attachment = msg.attachment_name ? ` [File: ${msg.attachment_name}]` : "";
-          return `[${date}] ${msg.sender_name}: ${content}${attachment}`;
-        })
-        .join("\n");
-
-      // Create and download file
-      const blob = new Blob([chatText], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `chat-history-${projectId.slice(0, 8)}-${new Date().toISOString().split("T")[0]}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      toast({ title: "Chat history downloaded!" });
-    } catch (error) {
-      console.error("Failed to download chat history:", error);
-      toast({ title: "Failed to download", variant: "destructive" });
-    }
-  }, [projectId, toast]);
 
   // Send message mutation
   const sendMessage = useMutation({
@@ -282,6 +237,5 @@ export function useProjectMessages(projectId?: string) {
     loadMore,
     sendMessage,
     refetch,
-    downloadChatHistory,
   };
 }
