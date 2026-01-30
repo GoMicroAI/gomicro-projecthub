@@ -17,19 +17,29 @@ jobs:
           node-version: 20
 
       - run: npm install
+
       - run: npm run build
 
-      - name: Prepare deploy branch
+      - name: Save build outside repo
         run: |
-          git fetch origin deploy || true
+          mkdir /tmp/build
+          cp -r dist/* /tmp/build/
+
+      - name: Deploy to branch
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+          git fetch origin
+
           git checkout deploy || git checkout --orphan deploy
 
+          git reset --hard
+          git clean -fd
+
           rm -rf *
-          cp -r dist/* .
+          cp -r /tmp/build/* .
 
           git add .
           git commit -m "deploy build"
-
-      - name: Push deploy branch
-        run: |
           git push origin deploy
