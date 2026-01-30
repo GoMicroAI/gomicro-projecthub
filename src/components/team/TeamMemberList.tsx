@@ -81,17 +81,11 @@ export function TeamMemberList({
                     {member.name}
                     {isOwnProfile && !isAdmin && <span className="text-xs text-muted-foreground ml-1">(You)</span>}
                   </h3>
-                  <Badge
-                    variant="secondary"
-                    className={cn(
-                      "text-xs",
-                      member.role === "admin"
-                        ? "bg-status-active text-status-active-foreground"
-                        : ""
-                    )}
-                  >
-                    {member.role}
-                  </Badge>
+                  {member.role === "viewer" && (
+                    <Badge variant="secondary" className="text-xs">
+                      {member.role}
+                    </Badge>
+                  )}
                 </div>
                 {currentTask ? (
                   <p className="text-sm text-muted-foreground truncate mt-0.5">

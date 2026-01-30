@@ -27,8 +27,8 @@ export default function Team() {
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
-  // Filter out admin users from the team list - only show viewers
-  const visibleMembers = teamMembers.filter((m) => m.role !== "admin");
+  // Filter out only the main admin (sivam.common@gmail.com) from the team list
+  const visibleMembers = teamMembers.filter((m) => m.email !== "sivam.common@gmail.com");
 
   const selectedMember = visibleMembers.find((m) => m.id === selectedMemberId);
   
