@@ -41,7 +41,7 @@ export default function ProjectDetail() {
   const { isAdmin } = useUserRole();
   const { assigneesByTask } = useAllTaskAssignees(id);
   const { setAssignees } = useTaskAssignees();
-  const { messages } = useProjectMessages(id || "");
+  const { messages } = useProjectMessages(id);
 
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
