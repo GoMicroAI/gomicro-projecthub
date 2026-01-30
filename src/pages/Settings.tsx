@@ -11,7 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserManagement } from "@/components/settings/UserManagement";
 import { ProfilePhotoUpload } from "@/components/settings/ProfilePhotoUpload";
-import { Lock, Users, User } from "lucide-react";
+import InstallAppSection from "@/pages/Install";
+import { Lock, Users, User, Download } from "lucide-react";
 
 export default function Settings() {
   const { user } = useAuth();
@@ -100,6 +101,10 @@ export default function Settings() {
               <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span>Account</span>
             </TabsTrigger>
+            <TabsTrigger value="install" className="flex items-center gap-1.5 text-xs sm:text-sm px-2.5 sm:px-3">
+              <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span>Install App</span>
+            </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="users" className="flex items-center gap-1.5 text-xs sm:text-sm px-2.5 sm:px-3">
                 <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -161,6 +166,10 @@ export default function Settings() {
                 </form>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="install">
+            <InstallAppSection />
           </TabsContent>
 
           {isAdmin && (
