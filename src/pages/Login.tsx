@@ -59,14 +59,10 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex flex-col items-center gap-3 mb-4">
+          <div className="flex flex-col items-center gap-3">
             <img src={logo} alt="GoMicro" className="h-20 w-20" />
             <h1 className="text-xl font-bold text-primary">ProjectHUB</h1>
           </div>
-          <CardTitle className="text-2xl">Welcome back</CardTitle>
-          <p className="text-muted-foreground">
-            Sign in to access your dashboard
-          </p>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -79,7 +75,7 @@ export default function Login() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>User ID</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
@@ -128,9 +124,6 @@ export default function Login() {
               </Button>
             </form>
           </Form>
-          <p className="text-center text-sm text-muted-foreground mt-4">
-            This is an invite-only system. Contact your admin for access.
-          </p>
         </CardContent>
       </Card>
     </div>
