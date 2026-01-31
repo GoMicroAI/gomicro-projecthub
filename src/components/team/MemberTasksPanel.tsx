@@ -9,13 +9,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Play, Pause, CheckCircle, AlertCircle, X } from "lucide-react";
+import { Play, X } from "lucide-react";
 import { useTasks } from "@/hooks/useTasks";
 import { useProjects } from "@/hooks/useProjects";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAuth } from "@/contexts/AuthContext";
-import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
 
 type TeamMember = Database["public"]["Tables"]["team_members"]["Row"];
@@ -36,11 +44,11 @@ interface MemberTasksPanelProps {
   onClose: () => void;
 }
 
-const statusConfig: Record<TaskStatus, { label: string; icon: React.ComponentType<{ className?: string }>; className: string }> = {
-  todo: { label: "To Do", icon: Pause, className: "bg-muted text-muted-foreground" },
-  in_progress: { label: "In Progress", icon: Play, className: "bg-status-active text-status-active-foreground" },
-  blocked: { label: "Blocked", icon: AlertCircle, className: "bg-status-paused text-status-paused-foreground" },
-  done: { label: "Done", icon: CheckCircle, className: "bg-status-done text-status-done-foreground" },
+const statusLabels: Record<TaskStatus, string> = {
+  todo: "Assigned",
+  in_progress: "In Progress",
+  blocked: "Blocked",
+  done: "Done",
 };
 
 export const MemberTasksPanel = forwardRef<HTMLDivElement, MemberTasksPanelProps>(
@@ -50,19 +58,21 @@ export const MemberTasksPanel = forwardRef<HTMLDivElement, MemberTasksPanelProps
     const { isAdmin } = useUserRole();
     const { user } = useAuth();
 
-    // Check if the current user is viewing their own tasks
     const isOwnProfile = user?.id === member.user_id;
-    // Users can modify if they are admin OR viewing their own assigned tasks
     const canModifyTasks = isAdmin || isOwnProfile;
 
     // Get task IDs assigned to this member via task_assignees junction table
-    const assignedTaskIds = allAssignees
-      .filter((a) => a.user_id === member.user_id)
-      .map((a) => a.task_id);
+    const memberAssignees = allAssignees.filter((a) => a.user_id === member.user_id);
+    const assignedTaskIds = memberAssignees.map((a) => a.task_id);
 
     // Get tasks assigned to this member
     const memberTasks = tasks.filter((t) => assignedTaskIds.includes(t.id));
-    const currentTask = memberTasks.find((t) => t.status === "in_progress");
+
+    // Get assignment date for a task
+    const getAssignedDate = (taskId: string) => {
+      const assignee = memberAssignees.find((a) => a.task_id === taskId);
+      return assignee?.assigned_at || null;
+    };
 
     const getInitials = (name: string) => {
       return name
@@ -85,6 +95,54 @@ export const MemberTasksPanel = forwardRef<HTMLDivElement, MemberTasksPanelProps
     const handleMakeCurrentTask = async (taskId: string) => {
       await updateTask.mutateAsync({ id: taskId, status: "in_progress" });
     };
+
+    // Format date based on status
+    const formatStatusDate = (task: Task) => {
+      if (task.status === "in_progress") {
+        return "—";
+      }
+      if (task.status === "done") {
+        return format(new Date(task.updated_at), "MMM d, yyyy");
+      }
+      if (task.status === "blocked") {
+        return format(new Date(task.updated_at), "MMM d, yyyy");
+      }
+      // For todo/assigned, show assigned date
+      const assignedAt = getAssignedDate(task.id);
+      if (assignedAt) {
+        return format(new Date(assignedAt), "MMM d, yyyy");
+      }
+      return format(new Date(task.created_at), "MMM d, yyyy");
+    };
+
+    // Get date label based on status
+    const getDateLabel = (status: TaskStatus) => {
+      switch (status) {
+        case "done":
+          return "Completed";
+        case "blocked":
+          return "Blocked Since";
+        case "in_progress":
+          return "—";
+        default:
+          return "Assigned";
+      }
+    };
+
+    // Group tasks by status in specific order
+    const tasksByStatus = {
+      in_progress: memberTasks.filter((t) => t.status === "in_progress"),
+      blocked: memberTasks.filter((t) => t.status === "blocked"),
+      done: memberTasks.filter((t) => t.status === "done"),
+      todo: memberTasks.filter((t) => t.status === "todo"),
+    };
+
+    const sections: { key: TaskStatus; title: string }[] = [
+      { key: "in_progress", title: "In Progress" },
+      { key: "blocked", title: "Blocked" },
+      { key: "done", title: "Done" },
+      { key: "todo", title: "Assigned (To Do)" },
+    ];
 
     return (
       <Card ref={ref} className="h-full flex flex-col">
@@ -111,93 +169,79 @@ export const MemberTasksPanel = forwardRef<HTMLDivElement, MemberTasksPanelProps
         <CardContent className="flex-1 p-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-6">
-              {/* Group tasks by status */}
-              {(() => {
-                const tasksByStatus = {
-                  in_progress: memberTasks.filter((t) => t.status === "in_progress"),
-                  blocked: memberTasks.filter((t) => t.status === "blocked"),
-                  done: memberTasks.filter((t) => t.status === "done"),
-                  todo: memberTasks.filter((t) => t.status === "todo"),
-                };
+              {sections.map((section) => {
+                const sectionTasks = tasksByStatus[section.key];
+                if (sectionTasks.length === 0) return null;
 
-                const sections: { key: TaskStatus; title: string; emptyText: string; bgClass: string; borderClass: string }[] = [
-                  { key: "in_progress", title: "Current Tasks", emptyText: "No active tasks", bgClass: "bg-status-in-progress/10", borderClass: "border-status-in-progress" },
-                  { key: "blocked", title: "Blocked", emptyText: "No blocked tasks", bgClass: "bg-status-blocked/10", borderClass: "border-status-blocked" },
-                  { key: "done", title: "Done", emptyText: "No completed tasks", bgClass: "bg-status-done/10", borderClass: "border-status-done" },
-                  { key: "todo", title: "To Do (Assigned)", emptyText: "No pending tasks", bgClass: "bg-status-todo/10", borderClass: "border-status-todo" },
-                ];
-
-                return sections.map((section) => {
-                  const sectionTasks = tasksByStatus[section.key];
-                  const StatusIcon = statusConfig[section.key].icon;
-
-                  return (
-                    <div key={section.key} className={cn("rounded-lg border-l-4 p-3", section.bgClass, section.borderClass)}>
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold text-sm flex items-center gap-2">
-                          <StatusIcon className="h-4 w-4" />
-                          {section.title}
-                        </h3>
-                        <span className="text-xs text-muted-foreground bg-background px-2 py-0.5 rounded-full">
-                          {sectionTasks.length}
-                        </span>
-                      </div>
-
-                      {sectionTasks.length === 0 ? (
-                        <p className="text-xs text-muted-foreground italic">{section.emptyText}</p>
-                      ) : (
-                        <div className="space-y-2">
+                return (
+                  <div key={section.key}>
+                    <h3 className="font-medium text-sm text-muted-foreground mb-2">
+                      {section.title} ({sectionTasks.length})
+                    </h3>
+                    <div className="border rounded-md overflow-hidden">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead className="w-[40%]">Task</TableHead>
+                            <TableHead className="w-[25%]">Project</TableHead>
+                            <TableHead className="w-[15%]">
+                              {section.key === "in_progress" ? "Date" : getDateLabel(section.key)}
+                            </TableHead>
+                            {canModifyTasks && (
+                              <TableHead className="w-[20%] text-right">Actions</TableHead>
+                            )}
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
                           {sectionTasks.map((task) => (
-                            <Card key={task.id} className="bg-background">
-                              <CardContent className="p-3">
-                                <div className="flex items-start gap-3">
-                                  <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-sm">{task.title}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                      {getProjectName(task.project_id)}
-                                    </p>
-                                  </div>
-                                  <div className="flex items-center gap-2 flex-wrap justify-end">
-                                    {canModifyTasks && section.key !== "in_progress" && section.key !== "done" && (
+                            <TableRow key={task.id}>
+                              <TableCell className="font-medium">{task.title}</TableCell>
+                              <TableCell className="text-muted-foreground text-sm">
+                                {getProjectName(task.project_id)}
+                              </TableCell>
+                              <TableCell className="text-muted-foreground text-sm">
+                                {formatStatusDate(task)}
+                              </TableCell>
+                              {canModifyTasks && (
+                                <TableCell className="text-right">
+                                  <div className="flex items-center justify-end gap-2">
+                                    {section.key !== "in_progress" && section.key !== "done" && (
                                       <Button
                                         size="sm"
-                                        variant="outline"
+                                        variant="ghost"
                                         onClick={() => handleMakeCurrentTask(task.id)}
-                                        className="text-xs h-7"
+                                        className="h-7 px-2"
                                       >
-                                        <Play className="h-3 w-3 mr-1" />
-                                        Start
+                                        <Play className="h-3 w-3" />
                                       </Button>
                                     )}
-                                    {canModifyTasks && (
-                                      <Select
-                                        value={task.status}
-                                        onValueChange={(value) =>
-                                          handleStatusChange(task.id, value as TaskStatus)
-                                        }
-                                      >
-                                        <SelectTrigger className="w-[110px] h-7 text-xs">
-                                          <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          <SelectItem value="todo">To Do</SelectItem>
-                                          <SelectItem value="in_progress">In Progress</SelectItem>
-                                          <SelectItem value="blocked">Blocked</SelectItem>
-                                          <SelectItem value="done">Done</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                    )}
+                                    <Select
+                                      value={task.status}
+                                      onValueChange={(value) =>
+                                        handleStatusChange(task.id, value as TaskStatus)
+                                      }
+                                    >
+                                      <SelectTrigger className="w-[100px] h-7 text-xs">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="todo">Assigned</SelectItem>
+                                        <SelectItem value="in_progress">In Progress</SelectItem>
+                                        <SelectItem value="blocked">Blocked</SelectItem>
+                                        <SelectItem value="done">Done</SelectItem>
+                                      </SelectContent>
+                                    </Select>
                                   </div>
-                                </div>
-                              </CardContent>
-                            </Card>
+                                </TableCell>
+                              )}
+                            </TableRow>
                           ))}
-                        </div>
-                      )}
+                        </TableBody>
+                      </Table>
                     </div>
-                  );
-                });
-              })()}
+                  </div>
+                );
+              })}
 
               {memberTasks.length === 0 && (
                 <p className="text-center text-muted-foreground py-8">
