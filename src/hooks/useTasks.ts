@@ -22,7 +22,8 @@ export function useTasks(projectId?: string) {
       let query = supabase
         .from("tasks")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(200); // Reasonable limit per project
 
       if (projectId) {
         query = query.eq("project_id", projectId);
@@ -33,6 +34,8 @@ export function useTasks(projectId?: string) {
       return data as Task[];
     },
     enabled: !!user,
+    staleTime: 1000 * 60 * 1, // 1 minute for tasks
+    gcTime: 1000 * 60 * 5, // 5 minutes cache
   });
 
   // Subscribe to realtime changes

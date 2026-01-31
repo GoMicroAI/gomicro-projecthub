@@ -46,6 +46,8 @@ export function CommentItem({ comment, replies = [], onReply, getInitials, isRep
                     src={comment.attachment_url}
                     alt={comment.attachment_name || "Attachment"}
                     className="max-w-xs max-h-32 rounded object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </a>
               ) : (

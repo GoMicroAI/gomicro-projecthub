@@ -11,13 +11,16 @@ export function useFiles(projectId?: string, taskId?: string) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const PAGE_SIZE = 100; // Reasonable limit for files per project
+
   const { data: files = [], isLoading, refetch } = useQuery({
     queryKey: ["files", projectId, taskId],
     queryFn: async () => {
       let query = supabase
         .from("files")
         .select("*")
-        .order("uploaded_at", { ascending: false });
+        .order("uploaded_at", { ascending: false })
+        .limit(PAGE_SIZE);
 
       if (projectId) {
         query = query.eq("project_id", projectId);
@@ -31,6 +34,8 @@ export function useFiles(projectId?: string, taskId?: string) {
       return data as ProjectFile[];
     },
     enabled: !!user,
+    staleTime: 1000 * 60 * 2, // 2 minutes - reduce unnecessary refetches
+    gcTime: 1000 * 60 * 10, // 10 minutes cache
   });
 
   const uploadFile = useMutation({

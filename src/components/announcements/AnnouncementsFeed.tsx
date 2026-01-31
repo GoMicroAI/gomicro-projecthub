@@ -1,10 +1,19 @@
 import { useAnnouncements } from "@/hooks/useAnnouncements";
 import { CreateAnnouncementForm } from "./CreateAnnouncementForm";
 import { AnnouncementCard } from "./AnnouncementCard";
-import { Loader2, Megaphone } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, Megaphone, ChevronDown } from "lucide-react";
 
 export function AnnouncementsFeed() {
-  const { announcements, isLoading, createAnnouncement, deleteAnnouncement } = useAnnouncements();
+  const { 
+    announcements, 
+    isLoading, 
+    hasMore, 
+    isLoadingMore, 
+    loadMore, 
+    createAnnouncement, 
+    deleteAnnouncement 
+  } = useAnnouncements();
 
   const handleCreate = async (data: { content: string; imageFile?: File }) => {
     await createAnnouncement.mutateAsync(data);
@@ -37,6 +46,26 @@ export function AnnouncementsFeed() {
                 isDeleting={deleteAnnouncement.isPending}
               />
             ))}
+            
+            {/* Load More Button */}
+            {hasMore && (
+              <div className="flex justify-center pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={loadMore}
+                  disabled={isLoadingMore}
+                  className="w-full max-w-xs"
+                >
+                  {isLoadingMore ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 mr-2" />
+                  )}
+                  Load older announcements
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>

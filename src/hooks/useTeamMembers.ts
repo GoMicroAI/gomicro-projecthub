@@ -19,12 +19,15 @@ export function useTeamMembers() {
       const { data, error } = await supabase
         .from("team_members")
         .select("*")
-        .order("name", { ascending: true });
+        .order("name", { ascending: true })
+        .limit(500); // Reasonable team size limit
 
       if (error) throw error;
       return data as TeamMember[];
     },
     enabled: !!user,
+    staleTime: 1000 * 60 * 5, // 5 minutes - team rarely changes
+    gcTime: 1000 * 60 * 30, // 30 minutes cache
   });
 
   // Subscribe to realtime changes

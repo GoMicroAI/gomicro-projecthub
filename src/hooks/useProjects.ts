@@ -21,12 +21,15 @@ export function useProjects() {
       const { data, error } = await supabase
         .from("projects")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(100); // Reasonable limit for projects
 
       if (error) throw error;
       return data as Project[];
     },
     enabled: !!user,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes cache
   });
 
   // Subscribe to realtime changes

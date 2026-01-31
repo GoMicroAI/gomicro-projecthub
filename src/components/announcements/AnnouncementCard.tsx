@@ -97,6 +97,8 @@ export function AnnouncementCard({ announcement, onDelete, isDeleting }: Announc
               src={announcement.image_url}
               alt="Announcement"
               className="max-w-full max-h-64 sm:max-h-96 rounded-lg object-cover"
+              loading="lazy"
+              decoding="async"
             />
           </a>
         )}
