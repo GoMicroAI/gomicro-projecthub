@@ -4,7 +4,8 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, ArrowLeft, Upload, ListTodo, FolderOpen, FolderPlus, MessageSquare, Info, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, ArrowLeft, Upload, ListTodo, FolderOpen, FolderPlus, MessageSquare, Info, FileText } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
@@ -12,6 +13,7 @@ import { useFiles } from "@/hooks/useFiles";
 import { useFolders } from "@/hooks/useFolders";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAllTaskAssignees, useTaskAssignees } from "@/hooks/useTaskAssignees";
+import { useProjectCustomTabs } from "@/hooks/useProjectCustomTabs";
 import { ProjectStatusBadge } from "@/components/projects/ProjectStatusBadge";
 import { ProjectDetailsSection } from "@/components/projects/ProjectDetailsSection";
 import { TaskListItem } from "@/components/tasks/TaskListItem";
@@ -21,6 +23,8 @@ import { FolderItem } from "@/components/files/FolderItem";
 import { CreateFolderDialog } from "@/components/files/CreateFolderDialog";
 import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
 import { ProjectChat } from "@/components/chat/ProjectChat";
+import { CustomTabDialog } from "@/components/projects/CustomTabDialog";
+import { CustomTabContent } from "@/components/projects/CustomTabContent";
 import { useProjectMessages } from "@/hooks/useProjectMessages";
 import { UserAvatar } from "@/components/shared/UserAvatar";
 import { format } from "date-fns";
@@ -42,6 +46,7 @@ export default function ProjectDetail() {
   const { assigneesByTask } = useAllTaskAssignees(id);
   const { setAssignees } = useTaskAssignees();
   const { messages } = useProjectMessages(id);
+  const { customTabs, createTab, updateTab, deleteTab } = useProjectCustomTabs(id);
 
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
@@ -50,6 +55,8 @@ export default function ProjectDetail() {
   const [deletingFolder, setDeletingFolder] = useState<Folder | undefined>();
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [uploadTargetFolderId, setUploadTargetFolderId] = useState<string | undefined>();
+  const [customTabDialogOpen, setCustomTabDialogOpen] = useState(false);
+  const [deletingCustomTab, setDeletingCustomTab] = useState<{ id: string; name: string } | undefined>();
   const [activeTab, setActiveTab] = useState(() => {
     const tab = searchParams.get("tab");
     return tab === "chat" ? "tasks" : (tab || "tasks");
@@ -79,6 +86,24 @@ export default function ProjectDetail() {
   const latestMessageSender = latestMessage 
     ? teamMembers.find((m) => m.user_id === latestMessage.user_id)
     : null;
+
+  // Check if active tab is a custom tab
+  const isCustomTab = activeTab.startsWith("custom-");
+  const activeCustomTab = isCustomTab 
+    ? customTabs.find(t => `custom-${t.id}` === activeTab)
+    : null;
+
+  // All tabs for mobile selector
+  const allTabs = [
+    { value: "tasks", label: `Tasks (${tasks.length})`, icon: ListTodo },
+    { value: "files", label: `Files (${files.length})`, icon: FolderOpen },
+    { value: "details", label: "Details", icon: Info },
+    ...customTabs.map(tab => ({
+      value: `custom-${tab.id}`,
+      label: tab.name,
+      icon: FileText,
+    })),
+  ];
 
   if (!project && !projectsLoading) {
     return (
@@ -196,6 +221,25 @@ export default function ProjectDetail() {
     await renameFolder.mutateAsync({ folderId, name });
   };
 
+  const handleCreateCustomTab = async (data: { name: string; content: string }) => {
+    await createTab.mutateAsync(data);
+    setCustomTabDialogOpen(false);
+  };
+
+  const handleUpdateCustomTab = async (tabId: string, data: { name?: string; content?: string }) => {
+    await updateTab.mutateAsync({ id: tabId, ...data });
+  };
+
+  const handleDeleteCustomTab = async () => {
+    if (!deletingCustomTab) return;
+    await deleteTab.mutateAsync(deletingCustomTab.id);
+    setDeletingCustomTab(undefined);
+    // Switch to tasks tab after deletion
+    if (activeTab === `custom-${deletingCustomTab.id}`) {
+      setActiveTab("tasks");
+    }
+  };
+
   // Chat view
   if (chatOpen && id) {
     return (
@@ -236,7 +280,7 @@ export default function ProjectDetail() {
       ) : (
         <div className="space-y-4 md:space-y-6">
           {/* Project Info Card with Chat Preview */}
-          {activeTab !== "details" && (
+          {activeTab !== "details" && !isCustomTab && (
             <Card>
               <CardContent className="pt-4 md:pt-6">
                 <div className="flex flex-col gap-4">
@@ -294,25 +338,83 @@ export default function ProjectDetail() {
             </Card>
           )}
 
-          {/* Tabs: Tasks, Files, Details */}
+          {/* Tabs: Tasks, Files, Details, Custom Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-              <TabsList className="w-full sm:w-auto">
-                <TabsTrigger value="tasks" className="flex-1 sm:flex-initial gap-1 sm:gap-2 text-xs sm:text-sm">
-                  <ListTodo className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline">Tasks</span> ({tasks.length})
-                </TabsTrigger>
-                <TabsTrigger value="files" className="flex-1 sm:flex-initial gap-1 sm:gap-2 text-xs sm:text-sm">
-                  <FolderOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline">Files</span> ({files.length})
-                </TabsTrigger>
-                <TabsTrigger value="details" className="flex-1 sm:flex-initial gap-1 sm:gap-2 text-xs sm:text-sm">
-                  <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline">Details</span>
-                </TabsTrigger>
-              </TabsList>
+              {/* Mobile: Dropdown selector */}
+              <div className="sm:hidden w-full">
+                <Select value={activeTab} onValueChange={setActiveTab}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allTabs.map((tab) => (
+                      <SelectItem key={tab.value} value={tab.value}>
+                        <div className="flex items-center gap-2">
+                          <tab.icon className="h-4 w-4" />
+                          {tab.label}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Desktop: Tab list with custom tabs */}
+              <div className="hidden sm:flex items-center gap-2">
+                <TabsList className="w-auto">
+                  <TabsTrigger value="tasks" className="gap-2 text-sm">
+                    <ListTodo className="h-4 w-4" />
+                    Tasks ({tasks.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="files" className="gap-2 text-sm">
+                    <FolderOpen className="h-4 w-4" />
+                    Files ({files.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="details" className="gap-2 text-sm">
+                    <Info className="h-4 w-4" />
+                    Details
+                  </TabsTrigger>
+                  {customTabs.map((tab) => (
+                    <TabsTrigger 
+                      key={tab.id} 
+                      value={`custom-${tab.id}`} 
+                      className="gap-2 text-sm"
+                    >
+                      <FileText className="h-4 w-4" />
+                      {tab.name}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                
+                {/* Add Details button - visible on desktop */}
+                {isAdmin && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setCustomTabDialogOpen(true)}
+                    className="gap-1"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Details
+                  </Button>
+                )}
+              </div>
               
               <div className="flex gap-2">
+                {/* Mobile: Add Details button */}
+                {isAdmin && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setCustomTabDialogOpen(true)}
+                    className="sm:hidden gap-1"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Details
+                  </Button>
+                )}
+                
                 {/* Add Task - Admin only */}
                 {isAdmin && activeTab === "tasks" && (
                   <Button size="sm" onClick={() => setTaskDialogOpen(true)} className="flex-1 sm:flex-initial">
@@ -463,6 +565,21 @@ export default function ProjectDetail() {
                 />
               )}
             </TabsContent>
+
+            {/* Custom Tab Contents */}
+            {customTabs.map((tab) => (
+              <TabsContent key={tab.id} value={`custom-${tab.id}`} className="mt-0">
+                <CustomTabContent
+                  tabId={tab.id}
+                  name={tab.name}
+                  content={tab.content}
+                  isAdmin={isAdmin}
+                  onUpdate={(data) => handleUpdateCustomTab(tab.id, data)}
+                  onDelete={() => setDeletingCustomTab({ id: tab.id, name: tab.name })}
+                  isPending={updateTab.isPending}
+                />
+              </TabsContent>
+            ))}
           </Tabs>
         </div>
       )}
@@ -497,6 +614,13 @@ export default function ProjectDetail() {
         onSubmit={handleCreateFolder}
       />
 
+      <CustomTabDialog
+        open={customTabDialogOpen}
+        onOpenChange={setCustomTabDialogOpen}
+        onSubmit={handleCreateCustomTab}
+        isPending={createTab.isPending}
+      />
+
       <DeleteConfirmDialog
         open={!!deletingTask}
         onOpenChange={(open) => !open && setDeletingTask(undefined)}
@@ -522,6 +646,15 @@ export default function ProjectDetail() {
         description={`Are you sure you want to delete "${deletingFolder?.name}"? All files in this folder will be moved to the root level.`}
         onConfirm={handleDeleteFolder}
         isDeleting={deleteFolder.isPending}
+      />
+
+      <DeleteConfirmDialog
+        open={!!deletingCustomTab}
+        onOpenChange={(open) => !open && setDeletingCustomTab(undefined)}
+        title="Delete Tab"
+        description={`Are you sure you want to delete the "${deletingCustomTab?.name}" tab? This action cannot be undone.`}
+        onConfirm={handleDeleteCustomTab}
+        isDeleting={deleteTab.isPending}
       />
     </AppLayout>
   );
