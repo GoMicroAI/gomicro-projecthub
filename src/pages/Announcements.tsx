@@ -3,7 +3,7 @@ import { AnnouncementsFeed } from "@/components/announcements/AnnouncementsFeed"
 
 export default function Announcements() {
   return (
-    <AppLayout title="Announcements">
+    <AppLayout title="Announcements" fixedHeight>
       <AnnouncementsFeed />
     </AppLayout>
   );

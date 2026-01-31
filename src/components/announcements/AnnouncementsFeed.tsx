@@ -28,7 +28,7 @@ export function AnnouncementsFeed() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-120px)] sm:h-[calc(100vh-140px)]">
+    <div className="flex flex-col h-full min-h-0">
       {/* Scrollable Feed */}
       <div className="flex-1 overflow-y-auto pb-4">
         {announcements.length === 0 ? (
