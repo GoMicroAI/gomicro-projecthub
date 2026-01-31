@@ -57,6 +57,8 @@ export function ProjectCard({
                   src={project.image_url}
                   alt={project.name}
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               ) : (
                 <Image className="h-8 w-8 text-muted-foreground/50" />

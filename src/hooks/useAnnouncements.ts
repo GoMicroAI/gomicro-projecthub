@@ -45,10 +45,13 @@ export function useAnnouncements() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [hasMore, setHasMore] = useState(true);
+  const [allAnnouncements, setAllAnnouncements] = useState<Announcement[]>([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Fetch announcements with pagination
-  const { data: announcements = [], isLoading, refetch } = useQuery({
-    queryKey: ["announcements"],
+  const { data: initialAnnouncements = [], isLoading, refetch } = useQuery({
+    queryKey: ["announcements", "initial"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("announcements")
@@ -69,15 +72,70 @@ export function useAnnouncements() {
         members?.map((m) => [m.user_id, { name: m.name, email: m.email, avatar_url: m.avatar_url }]) || []
       );
 
-      return data.map((ann) => ({
+      const enriched = data.map((ann) => ({
         ...ann,
         author_name: memberMap.get(ann.user_id)?.name || "Unknown",
         author_email: memberMap.get(ann.user_id)?.email || "",
         author_avatar_url: memberMap.get(ann.user_id)?.avatar_url || null,
       })) as Announcement[];
+
+      setHasMore(data.length === PAGE_SIZE);
+      return enriched;
     },
     enabled: !!user,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes cache
   });
+
+  // Update allAnnouncements when initial load changes
+  useEffect(() => {
+    if (initialAnnouncements.length > 0) {
+      setAllAnnouncements(initialAnnouncements);
+    }
+  }, [initialAnnouncements]);
+
+  // Load more (older) announcements
+  const loadMore = async () => {
+    if (!hasMore || isLoadingMore || allAnnouncements.length === 0) return;
+
+    setIsLoadingMore(true);
+    const oldestAnnouncement = allAnnouncements[allAnnouncements.length - 1];
+
+    try {
+      const { data, error } = await supabase
+        .from("announcements")
+        .select("*")
+        .lt("created_at", oldestAnnouncement.created_at)
+        .order("created_at", { ascending: false })
+        .limit(PAGE_SIZE);
+
+      if (error) throw error;
+
+      const userIds = [...new Set(data.map((a) => a.user_id))];
+      const { data: members } = await supabase
+        .from("team_members")
+        .select("user_id, name, email, avatar_url")
+        .in("user_id", userIds);
+
+      const memberMap = new Map(
+        members?.map((m) => [m.user_id, { name: m.name, email: m.email, avatar_url: m.avatar_url }]) || []
+      );
+
+      const enriched = data.map((ann) => ({
+        ...ann,
+        author_name: memberMap.get(ann.user_id)?.name || "Unknown",
+        author_email: memberMap.get(ann.user_id)?.email || "",
+        author_avatar_url: memberMap.get(ann.user_id)?.avatar_url || null,
+      })) as Announcement[];
+
+      setHasMore(data.length === PAGE_SIZE);
+      setAllAnnouncements((prev) => [...prev, ...enriched]);
+    } catch (error) {
+      console.error("Failed to load more announcements:", error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
   // Create announcement
   const createAnnouncement = useMutation({
@@ -152,8 +210,11 @@ export function useAnnouncements() {
   }, [user, queryClient]);
 
   return {
-    announcements,
+    announcements: allAnnouncements,
     isLoading,
+    hasMore,
+    isLoadingMore,
+    loadMore,
     refetch,
     createAnnouncement,
     deleteAnnouncement,

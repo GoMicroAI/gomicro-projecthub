@@ -237,6 +237,8 @@ function MessageBubble({ message, isOwn, getInitials, isImage }: MessageBubblePr
                     src={message.attachment_url}
                     alt={message.attachment_name || "Attachment"}
                     className="max-w-full max-h-48 rounded object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </a>
               ) : (
