@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,7 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Play, X } from "lucide-react";
+import { Play, X, History, ArrowLeft } from "lucide-react";
 import { useTasks } from "@/hooks/useTasks";
 import { useProjects } from "@/hooks/useProjects";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -44,15 +44,9 @@ interface MemberTasksPanelProps {
   onClose: () => void;
 }
 
-const statusLabels: Record<TaskStatus, string> = {
-  todo: "Assigned",
-  in_progress: "In Progress",
-  blocked: "Blocked",
-  done: "Done",
-};
-
 export const MemberTasksPanel = forwardRef<HTMLDivElement, MemberTasksPanelProps>(
   ({ member, tasks, allAssignees, onClose }, ref) => {
+    const [showHistory, setShowHistory] = useState(false);
     const { updateTask } = useTasks();
     const { projects } = useProjects();
     const { isAdmin } = useUserRole();
@@ -116,10 +110,8 @@ export const MemberTasksPanel = forwardRef<HTMLDivElement, MemberTasksPanelProps
     };
 
     // Get date label based on status
-    const getDateLabel = (status: TaskStatus) => {
+    const getDateLabel = (status: Exclude<TaskStatus, "done">) => {
       switch (status) {
-        case "done":
-          return "Completed";
         case "blocked":
           return "Blocked Since";
         case "in_progress":
@@ -129,20 +121,22 @@ export const MemberTasksPanel = forwardRef<HTMLDivElement, MemberTasksPanelProps
       }
     };
 
-    // Group tasks by status in specific order
+    // Group tasks by status - exclude done from main view
+    const doneTasks = memberTasks.filter((t) => t.status === "done");
+
     const tasksByStatus = {
       in_progress: memberTasks.filter((t) => t.status === "in_progress"),
       blocked: memberTasks.filter((t) => t.status === "blocked"),
-      done: memberTasks.filter((t) => t.status === "done"),
       todo: memberTasks.filter((t) => t.status === "todo"),
     };
 
-    const sections: { key: TaskStatus; title: string }[] = [
+    const sections: { key: Exclude<TaskStatus, "done">; title: string }[] = [
       { key: "in_progress", title: "In Progress" },
       { key: "blocked", title: "Blocked" },
-      { key: "done", title: "Done" },
       { key: "todo", title: "Assigned (To Do)" },
     ];
+
+    const activeTaskCount = tasksByStatus.in_progress.length + tasksByStatus.blocked.length + tasksByStatus.todo.length;
 
     return (
       <Card ref={ref} className="h-full flex flex-col">
@@ -160,93 +154,155 @@ export const MemberTasksPanel = forwardRef<HTMLDivElement, MemberTasksPanelProps
                 <p className="text-sm text-muted-foreground">{member.email}</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant={showHistory ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowHistory(!showHistory)}
+                className="gap-1"
+              >
+                {showHistory ? (
+                  <>
+                    <ArrowLeft className="h-3 w-3" />
+                    Back
+                  </>
+                ) : (
+                  <>
+                    <History className="h-3 w-3" />
+                    History ({doneTasks.length})
+                  </>
+                )}
+              </Button>
+              <Button variant="ghost" size="icon" onClick={onClose}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardHeader>
 
         <CardContent className="flex-1 p-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-6">
-              {sections.map((section) => {
-                const sectionTasks = tasksByStatus[section.key];
-                if (sectionTasks.length === 0) return null;
-
-                return (
-                  <div key={section.key}>
-                    <h3 className="font-medium text-sm text-muted-foreground mb-2">
-                      {section.title} ({sectionTasks.length})
-                    </h3>
+              {showHistory ? (
+                // History View - Done Tasks
+                <>
+                  <h3 className="font-medium text-sm text-muted-foreground mb-2">
+                    Completed Tasks ({doneTasks.length})
+                  </h3>
+                  {doneTasks.length > 0 ? (
                     <div className="border rounded-md overflow-hidden">
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/50">
                             <TableHead className="w-[40%]">Task</TableHead>
-                            <TableHead className="w-[25%]">Project</TableHead>
-                            <TableHead className="w-[15%]">
-                              {section.key === "in_progress" ? "Date" : getDateLabel(section.key)}
-                            </TableHead>
-                            {canModifyTasks && (
-                              <TableHead className="w-[20%] text-right">Actions</TableHead>
-                            )}
+                            <TableHead className="w-[30%]">Project</TableHead>
+                            <TableHead className="w-[30%]">Completed</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {sectionTasks.map((task) => (
+                          {doneTasks.map((task) => (
                             <TableRow key={task.id}>
                               <TableCell className="font-medium">{task.title}</TableCell>
                               <TableCell className="text-muted-foreground text-sm">
                                 {getProjectName(task.project_id)}
                               </TableCell>
                               <TableCell className="text-muted-foreground text-sm">
-                                {formatStatusDate(task)}
+                                {format(new Date(task.updated_at), "MMM d, yyyy")}
                               </TableCell>
-                              {canModifyTasks && (
-                                <TableCell className="text-right">
-                                  <div className="flex items-center justify-end gap-2">
-                                    {section.key !== "in_progress" && section.key !== "done" && (
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        onClick={() => handleMakeCurrentTask(task.id)}
-                                        className="h-7 px-2"
-                                      >
-                                        <Play className="h-3 w-3" />
-                                      </Button>
-                                    )}
-                                    <Select
-                                      value={task.status}
-                                      onValueChange={(value) =>
-                                        handleStatusChange(task.id, value as TaskStatus)
-                                      }
-                                    >
-                                      <SelectTrigger className="w-[100px] h-7 text-xs">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="todo">Assigned</SelectItem>
-                                        <SelectItem value="in_progress">In Progress</SelectItem>
-                                        <SelectItem value="blocked">Blocked</SelectItem>
-                                        <SelectItem value="done">Done</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                </TableCell>
-                              )}
                             </TableRow>
                           ))}
                         </TableBody>
                       </Table>
                     </div>
-                  </div>
-                );
-              })}
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">
+                      No completed tasks yet.
+                    </p>
+                  )}
+                </>
+              ) : (
+                // Active Tasks View
+                <>
+                  {sections.map((section) => {
+                    const sectionTasks = tasksByStatus[section.key];
+                    if (sectionTasks.length === 0) return null;
 
-              {memberTasks.length === 0 && (
-                <p className="text-center text-muted-foreground py-8">
-                  No tasks assigned to this member.
-                </p>
+                    return (
+                      <div key={section.key}>
+                        <h3 className="font-medium text-sm text-muted-foreground mb-2">
+                          {section.title} ({sectionTasks.length})
+                        </h3>
+                        <div className="border rounded-md overflow-hidden">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="bg-muted/50">
+                                <TableHead className="w-[40%]">Task</TableHead>
+                                <TableHead className="w-[25%]">Project</TableHead>
+                                <TableHead className="w-[15%]">
+                                  {section.key === "in_progress" ? "Date" : getDateLabel(section.key)}
+                                </TableHead>
+                                {canModifyTasks && (
+                                  <TableHead className="w-[20%] text-right">Actions</TableHead>
+                                )}
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {sectionTasks.map((task) => (
+                                <TableRow key={task.id}>
+                                  <TableCell className="font-medium">{task.title}</TableCell>
+                                  <TableCell className="text-muted-foreground text-sm">
+                                    {getProjectName(task.project_id)}
+                                  </TableCell>
+                                  <TableCell className="text-muted-foreground text-sm">
+                                    {formatStatusDate(task)}
+                                  </TableCell>
+                                  {canModifyTasks && (
+                                    <TableCell className="text-right">
+                                      <div className="flex items-center justify-end gap-2">
+                                        {section.key !== "in_progress" && (
+                                          <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            onClick={() => handleMakeCurrentTask(task.id)}
+                                            className="h-7 px-2"
+                                          >
+                                            <Play className="h-3 w-3" />
+                                          </Button>
+                                        )}
+                                        <Select
+                                          value={task.status}
+                                          onValueChange={(value) =>
+                                            handleStatusChange(task.id, value as TaskStatus)
+                                          }
+                                        >
+                                          <SelectTrigger className="w-[100px] h-7 text-xs">
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="todo">Assigned</SelectItem>
+                                            <SelectItem value="in_progress">In Progress</SelectItem>
+                                            <SelectItem value="blocked">Blocked</SelectItem>
+                                            <SelectItem value="done">Done</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                    </TableCell>
+                                  )}
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {activeTaskCount === 0 && (
+                    <p className="text-center text-muted-foreground py-8">
+                      No active tasks assigned to this member.
+                    </p>
+                  )}
+                </>
               )}
             </div>
           </ScrollArea>
