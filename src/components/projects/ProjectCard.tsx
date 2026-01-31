@@ -2,8 +2,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ProjectStatusBadge } from "./ProjectStatusBadge";
-import { Edit, Trash2, ArrowRight, Image, MessageCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Edit, Trash2, Image, MessageCircle, ArrowRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
 import type { LatestMessage } from "@/hooks/useLatestProjectMessages";
 
@@ -31,6 +31,7 @@ export function ProjectCard({
   taskCount = 0,
   latestMessage,
 }: ProjectCardProps) {
+  const navigate = useNavigate();
   const displayedMembers = teamMembers.slice(0, 4);
   const remainingCount = teamMembers.length - 4;
 
@@ -43,6 +44,9 @@ export function ProjectCard({
       .slice(0, 2);
   };
 
+  const handleCardClick = () => {
+    navigate(`/projects/${project.id}`);
+  };
 
   return (
     <Card className="group hover:shadow-md transition-shadow overflow-hidden">
@@ -50,87 +54,88 @@ export function ProjectCard({
         <div className="flex flex-col">
           {/* Main Content Row */}
           <div className="flex flex-col sm:flex-row sm:min-h-[120px]">
-            {/* Image Section */}
-            <div className="w-full sm:w-28 h-28 sm:h-auto sm:self-stretch shrink-0 bg-muted flex items-center justify-center">
-              {project.image_url ? (
-                <img
-                  src={project.image_url}
-                  alt={project.name}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  decoding="async"
-                />
-              ) : (
-                <Image className="h-8 w-8 text-muted-foreground/50" />
-              )}
-            </div>
-
-            {/* Content Section */}
-            <div className="flex-1 p-4 flex flex-col justify-between min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-base truncate">{project.name}</h3>
-                    <ProjectStatusBadge status={project.status} />
-                  </div>
-                </div>
-                {isAdmin && (
-                  <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        onEdit?.(project);
-                      }}
-                    >
-                      <Edit className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-destructive hover:text-destructive"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        onDelete?.(project);
-                      }}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
+            {/* Clickable Card Area */}
+            <div 
+              onClick={handleCardClick}
+              className="flex flex-col sm:flex-row flex-1 min-w-0 cursor-pointer hover:bg-muted/30 transition-colors"
+            >
+              {/* Image Section */}
+              <div className="w-full sm:w-28 h-28 sm:h-auto sm:self-stretch shrink-0 bg-muted flex items-center justify-center">
+                {project.image_url ? (
+                  <img
+                    src={project.image_url}
+                    alt={project.name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <Image className="h-8 w-8 text-muted-foreground/50" />
                 )}
               </div>
 
-              {/* Footer: Members and Actions */}
-              <div className="flex items-center justify-between mt-2">
-                <div className="flex items-center gap-2">
-                  {/* Team Member Avatars */}
-                  <div className="flex -space-x-2">
-                    {displayedMembers.map((member) => (
-                      <Avatar key={member.id} className="h-7 w-7 border-2 border-background">
-                        <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                          {getInitials(member.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                    ))}
-                    {remainingCount > 0 && (
-                      <Avatar className="h-7 w-7 border-2 border-background">
-                        <AvatarFallback className="text-xs bg-muted text-muted-foreground">
-                          +{remainingCount}
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
+              {/* Content Section */}
+              <div className="flex-1 p-4 flex flex-col justify-between min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-base truncate">{project.name}</h3>
+                      <ProjectStatusBadge status={project.status} />
+                    </div>
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    {taskCount} task{taskCount !== 1 ? "s" : ""}
-                  </span>
+                  {isAdmin && (
+                    <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit?.(project);
+                        }}
+                      >
+                        <Edit className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-destructive hover:text-destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete?.(project);
+                        }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
-                <Button variant="ghost" size="sm" className="h-7 text-xs" asChild>
-                  <Link to={`/projects/${project.id}`}>
-                    View <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                  </Link>
-                </Button>
+
+                {/* Footer: Members and Task Count */}
+                <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center gap-2">
+                    {/* Team Member Avatars */}
+                    <div className="flex -space-x-2">
+                      {displayedMembers.map((member) => (
+                        <Avatar key={member.id} className="h-7 w-7 border-2 border-background">
+                          <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                            {getInitials(member.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                      ))}
+                      {remainingCount > 0 && (
+                        <Avatar className="h-7 w-7 border-2 border-background">
+                          <AvatarFallback className="text-xs bg-muted text-muted-foreground">
+                            +{remainingCount}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {taskCount} task{taskCount !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
