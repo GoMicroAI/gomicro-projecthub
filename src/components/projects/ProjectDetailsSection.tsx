@@ -40,7 +40,7 @@ export function ProjectDetailsSection({
   };
 
   return (
-    <Card className="flex flex-col max-h-[calc(100vh-220px)] overflow-hidden">
+    <Card className="flex flex-col h-full overflow-hidden">
       <CardHeader className="pb-3 shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Project Details</CardTitle>

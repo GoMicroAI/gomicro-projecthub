@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/integrations/supabase/types";
 import type { TaskAssignee } from "@/hooks/useAllTaskAssignees";
@@ -49,59 +50,61 @@ export function TeamMemberList({
   };
 
   return (
-    <div className="space-y-3">
-      {members.map((member) => {
-        const currentTask = getMemberCurrentTask(member.user_id);
-        const isSelected = selectedMemberId === member.id;
+    <ScrollArea className="h-full">
+      <div className="space-y-3 pr-4">
+        {members.map((member) => {
+          const currentTask = getMemberCurrentTask(member.user_id);
+          const isSelected = selectedMemberId === member.id;
 
-        return (
-          <Card
-            key={member.id}
-            className={cn(
-              "p-3 sm:p-4 transition-all cursor-pointer hover:border-primary/50",
-              isSelected && "border-primary bg-primary/5"
-            )}
-            onClick={() => onSelectMember(member.id)}
-          >
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-              {/* Avatar and name row */}
-              <div className="flex items-center gap-3 min-w-0">
-                <Avatar className="h-10 w-10 shrink-0">
-                  <AvatarImage src={member.avatar_url || undefined} alt={member.name} />
-                  <AvatarFallback className="text-sm bg-primary/10 text-primary">
-                    {getInitials(member.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-medium truncate">{member.name}</h3>
+          return (
+            <Card
+              key={member.id}
+              className={cn(
+                "p-3 sm:p-4 transition-all cursor-pointer hover:border-primary/50",
+                isSelected && "border-primary bg-primary/5"
+              )}
+              onClick={() => onSelectMember(member.id)}
+            >
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                {/* Avatar and name row */}
+                <div className="flex items-center gap-3 min-w-0">
+                  <Avatar className="h-10 w-10 shrink-0">
+                    <AvatarImage src={member.avatar_url || undefined} alt={member.name} />
+                    <AvatarFallback className="text-sm bg-primary/10 text-primary">
+                      {getInitials(member.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-medium truncate">{member.name}</h3>
+                  </div>
+                </div>
+
+                {/* Current task - highlighted section */}
+                <div className="flex-1 min-w-0 sm:ml-auto sm:max-w-[60%]">
+                  {currentTask ? (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-green-500/10 border border-green-500/20">
+                      <div className="shrink-0 flex items-center justify-center w-5 h-5 rounded-full bg-green-500/20">
+                        <Play className="w-3 h-3 text-green-600 fill-green-600" />
+                      </div>
+                      <span className="text-sm font-medium text-green-700 dark:text-green-400 truncate">
+                        {currentTask.title}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="px-3 py-2 rounded-md bg-muted/50">
+                      <span className="text-sm text-muted-foreground">No active task</span>
+                    </div>
+                  )}
                 </div>
               </div>
+            </Card>
+          );
+        })}
 
-              {/* Current task - highlighted section */}
-              <div className="flex-1 min-w-0 sm:ml-auto sm:max-w-[60%]">
-                {currentTask ? (
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-green-500/10 border border-green-500/20">
-                    <div className="shrink-0 flex items-center justify-center w-5 h-5 rounded-full bg-green-500/20">
-                      <Play className="w-3 h-3 text-green-600 fill-green-600" />
-                    </div>
-                    <span className="text-sm font-medium text-green-700 dark:text-green-400 truncate">
-                      {currentTask.title}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="px-3 py-2 rounded-md bg-muted/50">
-                    <span className="text-sm text-muted-foreground">No active task</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </Card>
-        );
-      })}
-
-      {members.length === 0 && (
-        <p className="text-center text-muted-foreground py-8">No team members yet.</p>
-      )}
-    </div>
+        {members.length === 0 && (
+          <p className="text-center text-muted-foreground py-8">No team members yet.</p>
+        )}
+      </div>
+    </ScrollArea>
   );
 }
