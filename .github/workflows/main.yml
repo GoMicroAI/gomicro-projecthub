@@ -5,12 +5,16 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -21,20 +25,31 @@ jobs:
 
       - name: Save build
         run: |
-          mkdir /tmp/build
+          rm -rf /tmp/build
+          mkdir -p /tmp/build
           cp -r dist/* /tmp/build/
 
-      - name: Publish to deploy branch
+      - name: Publish to deploy branch (no force)
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
+          git reset --hard
+          git clean -fd
+
           git fetch origin
-          git checkout deploy || git checkout --orphan deploy
 
+          if git ls-remote --exit-code --heads origin deploy >/dev/null 2>&1; then
+            git checkout -B deploy origin/deploy
+          else
+            git checkout --orphan deploy
+          fi
+
+          shopt -s dotglob
           rm -rf *
-          cp -r /tmp/build/* .
+          mkdir -p projecthub
+          cp -r /tmp/build/* projecthub/
 
-          git add .
+          git add -A
           git commit -m "auto deploy build" || echo "no changes"
           git push origin deploy
