@@ -31,10 +31,7 @@ jobs:
           git fetch origin
           git checkout deploy || git checkout --orphan deploy
           rm -rf *
-
-          mkdir projecthub
-          cp -r /tmp/build/* projecthub/
-
+          cp -r /tmp/build/* .
           git add .
           git commit -m "auto deploy build" || echo "no changes"
           git push origin deploy --force
