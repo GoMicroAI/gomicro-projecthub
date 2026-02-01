@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Search } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
@@ -75,53 +76,55 @@ export default function Projects() {
         )
       }
     >
-      {/* Search */}
-      <div className="mb-6">
-        <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search projects..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-      </div>
-
-      {isLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {filteredProjects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project as Project}
-              isAdmin={isAdmin}
-              teamMembers={teamMembers}
-              taskCount={getTaskCountForProject(project.id)}
-              latestMessage={latestMessages?.get(project.id)}
-              onEdit={(p) => {
-                setEditingProject(p);
-                setProjectDialogOpen(true);
-              }}
-              onDelete={(p) => setDeletingProject(p)}
+      <div className="flex flex-col h-full overflow-hidden">
+        {/* Search */}
+        <div className="mb-4 shrink-0">
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search projects..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
             />
-          ))}
+          </div>
         </div>
-      )}
 
-      {!isLoading && filteredProjects.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">
-            {search
-              ? "No projects match your search."
-              : "No projects yet. " +
-                (isAdmin ? "Create your first project to get started." : "")}
-          </p>
-        </div>
-      )}
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          </div>
+        ) : filteredProjects.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">
+              {search
+                ? "No projects match your search."
+                : "No projects yet. " +
+                  (isAdmin ? "Create your first project to get started." : "")}
+            </p>
+          </div>
+        ) : (
+          <ScrollArea className="flex-1">
+            <div className="grid grid-cols-1 gap-4 pr-4">
+              {filteredProjects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project as Project}
+                  isAdmin={isAdmin}
+                  teamMembers={teamMembers}
+                  taskCount={getTaskCountForProject(project.id)}
+                  latestMessage={latestMessages?.get(project.id)}
+                  onEdit={(p) => {
+                    setEditingProject(p);
+                    setProjectDialogOpen(true);
+                  }}
+                  onDelete={(p) => setDeletingProject(p)}
+                />
+              ))}
+            </div>
+          </ScrollArea>
+        )}
+      </div>
 
       <ProjectDialog
         open={projectDialogOpen}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Plus, FolderKanban, CheckSquare, Users, ArrowRight, Megaphone } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
@@ -82,7 +83,8 @@ export default function Dashboard() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
       ) : (
-        <div className="space-y-8">
+        <ScrollArea className="h-full">
+          <div className="space-y-8 pr-4">
           {/* Stats Overview */}
           <div className="grid grid-cols-4 gap-4">
             <Card>
@@ -270,7 +272,8 @@ export default function Dashboard() {
             </div>
             <AnnouncementsFeed />
           </div>
-        </div>
+          </div>
+        </ScrollArea>
       )}
 
       <ProjectDialog

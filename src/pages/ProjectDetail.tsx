@@ -246,7 +246,6 @@ export default function ProjectDetail() {
     return (
       <AppLayout
         title={`${project?.name || "Project"} - Chat`}
-        fixedHeight
         actions={
           <Button variant="outline" size="sm" onClick={() => setChatOpen(false)}>
             <ArrowLeft className="h-4 w-4 md:mr-2" />
@@ -254,7 +253,7 @@ export default function ProjectDetail() {
           </Button>
         }
       >
-        <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           <ProjectChat projectId={id} />
         </div>
       </AppLayout>
@@ -279,10 +278,10 @@ export default function ProjectDetail() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
       ) : (
-        <div className="space-y-4 md:space-y-6">
+        <div className="flex flex-col h-full overflow-hidden">
           {/* Project Info Card with Chat Preview */}
           {activeTab !== "details" && !isCustomTab && (
-            <Card>
+            <Card className="shrink-0 mb-4">
               <CardContent className="pt-4 md:pt-6">
                 <div className="flex flex-col gap-4">
                   {/* Project Header */}
@@ -340,8 +339,8 @@ export default function ProjectDetail() {
           )}
 
           {/* Tabs: Tasks, Files, Details, Custom Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+            <div className="shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
               {/* Mobile: Dropdown selector */}
               <div className="sm:hidden w-full">
                 <Select value={activeTab} onValueChange={setActiveTab}>
@@ -453,7 +452,7 @@ export default function ProjectDetail() {
               </div>
             </div>
 
-            <TabsContent value="tasks" className="mt-0">
+            <TabsContent value="tasks" className="mt-0 flex-1 overflow-hidden">
               {tasks.length === 0 ? (
                 <Card>
                   <CardContent className="py-12 text-center">
@@ -467,7 +466,7 @@ export default function ProjectDetail() {
                   </CardContent>
                 </Card>
               ) : (
-                <ScrollArea className="h-[calc(100dvh-320px)] md:h-[calc(100dvh-360px)]">
+                <ScrollArea className="h-full">
                   <div className="space-y-2 pr-4">
                     {tasks.map((task) => (
                       <TaskListItem
@@ -487,7 +486,7 @@ export default function ProjectDetail() {
               )}
             </TabsContent>
 
-            <TabsContent value="files" className="mt-0">
+            <TabsContent value="files" className="mt-0 flex-1 overflow-hidden">
               {files.length === 0 && folders.length === 0 ? (
                 <Card>
                   <CardContent className="py-12 text-center">
@@ -517,70 +516,80 @@ export default function ProjectDetail() {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="space-y-2">
-                  {/* Folders */}
-                  {folders.map((folder) => (
-                    <FolderItem
-                      key={folder.id}
-                      folder={folder}
-                      files={files}
-                      isAdmin={isAdmin}
-                      onDelete={(folder) => setDeletingFolder(folder)}
-                      onRename={handleRenameFolder}
-                      onUploadToFolder={handleUploadToFolder}
-                      onDeleteFile={(file) => setDeletingFile(file)}
-                    />
-                  ))}
-                  
-                  {/* Root level files (not in any folder) */}
-                  {rootFiles.length > 0 && (
-                    <>
-                      {folders.length > 0 && (
-                        <div className="pt-4 pb-2">
-                          <p className="text-sm font-medium text-muted-foreground">Other Files</p>
-                        </div>
-                      )}
-                      {rootFiles.map((file) => (
-                        <FileListItem
-                          key={file.id}
-                          file={file}
-                          isAdmin={isAdmin}
-                          onDelete={(file) => setDeletingFile(file)}
-                        />
-                      ))}
-                    </>
-                  )}
-                </div>
+                <ScrollArea className="h-full">
+                  <div className="space-y-2 pr-4">
+                    {/* Folders */}
+                    {folders.map((folder) => (
+                      <FolderItem
+                        key={folder.id}
+                        folder={folder}
+                        files={files}
+                        isAdmin={isAdmin}
+                        onDelete={(folder) => setDeletingFolder(folder)}
+                        onRename={handleRenameFolder}
+                        onUploadToFolder={handleUploadToFolder}
+                        onDeleteFile={(file) => setDeletingFile(file)}
+                      />
+                    ))}
+                    
+                    {/* Root level files (not in any folder) */}
+                    {rootFiles.length > 0 && (
+                      <>
+                        {folders.length > 0 && (
+                          <div className="pt-4 pb-2">
+                            <p className="text-sm font-medium text-muted-foreground">Other Files</p>
+                          </div>
+                        )}
+                        {rootFiles.map((file) => (
+                          <FileListItem
+                            key={file.id}
+                            file={file}
+                            isAdmin={isAdmin}
+                            onDelete={(file) => setDeletingFile(file)}
+                          />
+                        ))}
+                      </>
+                    )}
+                  </div>
+                </ScrollArea>
               )}
             </TabsContent>
 
-            <TabsContent value="details" className="mt-0">
-              {project && (
-                <ProjectDetailsSection
-                  description={project.description}
-                  isAdmin={isAdmin}
-                  onUpdate={async (description) => {
-                    await updateProject.mutateAsync({
-                      id: project.id,
-                      description,
-                    });
-                  }}
-                />
-              )}
+            <TabsContent value="details" className="mt-0 flex-1 overflow-hidden">
+              <ScrollArea className="h-full">
+                <div className="pr-4">
+                  {project && (
+                    <ProjectDetailsSection
+                      description={project.description}
+                      isAdmin={isAdmin}
+                      onUpdate={async (description) => {
+                        await updateProject.mutateAsync({
+                          id: project.id,
+                          description,
+                        });
+                      }}
+                    />
+                  )}
+                </div>
+              </ScrollArea>
             </TabsContent>
 
             {/* Custom Tab Contents */}
             {customTabs.map((tab) => (
-              <TabsContent key={tab.id} value={`custom-${tab.id}`} className="mt-0">
-                <CustomTabContent
-                  tabId={tab.id}
-                  name={tab.name}
-                  content={tab.content}
-                  isAdmin={isAdmin}
-                  onUpdate={(data) => handleUpdateCustomTab(tab.id, data)}
-                  onDelete={() => setDeletingCustomTab({ id: tab.id, name: tab.name })}
-                  isPending={updateTab.isPending}
-                />
+              <TabsContent key={tab.id} value={`custom-${tab.id}`} className="mt-0 flex-1 overflow-hidden">
+                <ScrollArea className="h-full">
+                  <div className="pr-4">
+                    <CustomTabContent
+                      tabId={tab.id}
+                      name={tab.name}
+                      content={tab.content}
+                      isAdmin={isAdmin}
+                      onUpdate={(data) => handleUpdateCustomTab(tab.id, data)}
+                      onDelete={() => setDeletingCustomTab({ id: tab.id, name: tab.name })}
+                      isPending={updateTab.isPending}
+                    />
+                  </div>
+                </ScrollArea>
               </TabsContent>
             ))}
           </Tabs>
