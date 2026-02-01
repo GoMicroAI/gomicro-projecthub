@@ -2,8 +2,7 @@ name: Build and Deploy to Branch
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 permissions:
   contents: write
@@ -20,10 +19,12 @@ jobs:
         with:
           node-version: 20
 
-      - run: npm install
-      - run: npm run build
+      - name: Install + Build
+        run: |
+          npm install
+          npm run build
 
-      - name: Save build
+      - name: Save build output
         run: |
           rm -rf /tmp/build
           mkdir -p /tmp/build
@@ -43,10 +44,12 @@ jobs:
             git checkout -B deploy origin/deploy
           else
             git checkout --orphan deploy
+            git rm -r --ignore-unmatch .
           fi
 
-          shopt -s dotglob
-          rm -rf *
+          git rm -r --ignore-unmatch .
+          git clean -fdx
+
           mkdir -p projecthub
           cp -r /tmp/build/* projecthub/
 
