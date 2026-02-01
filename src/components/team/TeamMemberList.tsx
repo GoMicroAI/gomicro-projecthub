@@ -53,20 +53,15 @@ export function TeamMemberList({
       {members.map((member) => {
         const currentTask = getMemberCurrentTask(member.user_id);
         const isSelected = selectedMemberId === member.id;
-        const isOwnProfile = member.user_id === currentUserId;
-        // Non-admins can only click on their own profile
-        const isClickable = isAdmin || isOwnProfile;
 
         return (
           <Card
             key={member.id}
             className={cn(
-              "p-3 sm:p-4 transition-all",
-              isClickable ? "cursor-pointer hover:border-primary/50" : "cursor-default opacity-80",
-              isSelected && "border-primary bg-primary/5",
-              isOwnProfile && !isAdmin && "ring-1 ring-primary/30"
+              "p-3 sm:p-4 transition-all cursor-pointer hover:border-primary/50",
+              isSelected && "border-primary bg-primary/5"
             )}
-            onClick={() => isClickable && onSelectMember(member.id)}
+            onClick={() => onSelectMember(member.id)}
           >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
               {/* Avatar and name row */}
@@ -78,12 +73,7 @@ export function TeamMemberList({
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <h3 className="font-medium truncate">
-                    {member.name}
-                    {isOwnProfile && !isAdmin && (
-                      <span className="text-xs text-muted-foreground ml-1">(You)</span>
-                    )}
-                  </h3>
+                  <h3 className="font-medium truncate">{member.name}</h3>
                 </div>
               </div>
 
