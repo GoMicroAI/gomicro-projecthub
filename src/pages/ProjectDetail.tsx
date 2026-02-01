@@ -207,9 +207,9 @@ export default function ProjectDetail() {
     setDeletingFile(undefined);
   };
 
-  const handleCreateFolder = async (name: string) => {
+  const handleCreateFolder = async (name: string, details?: string) => {
     if (!id) return;
-    await createFolder.mutateAsync({ name, projectId: id });
+    await createFolder.mutateAsync({ name, projectId: id, details });
   };
 
   const handleDeleteFolder = async () => {

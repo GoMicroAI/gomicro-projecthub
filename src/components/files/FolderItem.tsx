@@ -81,9 +81,16 @@ export function FolderItem({
               autoFocus
             />
           ) : (
-            <span className="font-medium truncate">{folder.name}</span>
+            <div className="flex flex-col min-w-0">
+              <span className="font-medium truncate">{folder.name}</span>
+              {folder.details && (
+                <span className="text-xs text-muted-foreground truncate">
+                  {folder.details}
+                </span>
+              )}
+            </div>
           )}
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-muted-foreground shrink-0">
             ({folderFiles.length} files)
           </span>
         </CollapsibleTrigger>

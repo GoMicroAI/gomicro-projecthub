@@ -33,10 +33,12 @@ export function useFolders(projectId?: string) {
       name,
       projectId,
       parentId,
+      details,
     }: {
       name: string;
       projectId: string;
       parentId?: string;
+      details?: string;
     }) => {
       const { data, error } = await supabase
         .from("folders")
@@ -45,6 +47,7 @@ export function useFolders(projectId?: string) {
           project_id: projectId,
           parent_id: parentId,
           created_by: user?.id,
+          details,
         })
         .select()
         .single();
