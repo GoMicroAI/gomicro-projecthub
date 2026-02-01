@@ -425,13 +425,11 @@ export default function ProjectDetail() {
                 {/* Files actions */}
                 {activeTab === "files" && (
                   <>
-                    {/* New Folder - Admin only */}
-                    {isAdmin && (
-                      <Button variant="outline" size="sm" onClick={() => setFolderDialogOpen(true)}>
-                        <FolderPlus className="h-4 w-4 sm:mr-2" />
-                        <span className="hidden sm:inline">New Folder</span>
-                      </Button>
-                    )}
+                    {/* New Folder - Available to all project members */}
+                    <Button variant="outline" size="sm" onClick={() => setFolderDialogOpen(true)}>
+                      <FolderPlus className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">New Folder</span>
+                    </Button>
                     {/* Upload - All users can upload */}
                     <label>
                       <Button size="sm" asChild>
