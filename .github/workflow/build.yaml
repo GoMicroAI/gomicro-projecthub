@@ -1,27 +1,76 @@
-name: Build and Deploy
+name: Build and push to deploy branch
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  DEPLOY_BRANCH: deploy
+  BUILD_DIR: build
+  GO_VERSION: "1.20"
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          node-version: 18
+          fetch-depth: 0
 
-      - run: npm install
-      - run: npm run build
-
-      - name: Deploy to deploy branch
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Set up Go
+        uses: actions/setup-go@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          publish_branch: deploy
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Build Go binaries
+        run: |
+          set -euo pipefail
+          echo "Cleaning and creating build directory: $BUILD_DIR"
+          rm -rf "$BUILD_DIR"
+          mkdir -p "$BUILD_DIR"
+          # Build - change package/flags as required
+          go build -o "$BUILD_DIR"/app ./...
+
+      - name: Prepare deploy branch and commit build output
+        env:
+          DEPLOY_BRANCH: ${{ env.DEPLOY_BRANCH }}
+          BUILD_DIR: ${{ env.BUILD_DIR }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin
+
+          # If local branch exists, switch. Else, try to check out remote branch. Else create orphan.
+          if git show-ref --quiet refs/heads/"$DEPLOY_BRANCH"; then
+            git switch "$DEPLOY_BRANCH"
+          elif git ls-remote --exit-code --heads origin "$DEPLOY_BRANCH" >/dev/null 2>&1; then
+            git checkout -b "$DEPLOY_BRANCH" origin/"$DEPLOY_BRANCH"
+          else
+            git switch --orphan "$DEPLOY_BRANCH"
+            git rm -rf .
+            git commit --allow-empty -m "Create $DEPLOY_BRANCH branch"
+          fi
+
+          # Replace branch contents with build output
+          git rm -rf . || true
+          # If build directory is empty, create a placeholder to avoid accidental empty commits
+          if [ -d "$BUILD_DIR" ] && [ "$(ls -A "$BUILD_DIR")" ]; then
+            cp -R "$BUILD_DIR"/. .
+          else
+            echo "Warning: build output is empty" > .build-empty-warning
+          fi
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to deploy branch (build unchanged)"
+          else
+            git commit -m "CI: update build from $GITHUB_SHA"
+            git push origin HEAD:"$DEPLOY_BRANCH"
+          fi
