@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
@@ -18,20 +17,50 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Download } from "lucide-react";
 import { useWorkHistory } from "@/hooks/useWorkHistory";
+import { useUserRole } from "@/hooks/useUserRole";
 import { format } from "date-fns";
+import * as XLSX from "xlsx";
 
 interface WorkHistoryTabProps {
   userId: string;
   canModify: boolean;
+  memberName?: string;
 }
 
-export function WorkHistoryTab({ userId, canModify }: WorkHistoryTabProps) {
+export function WorkHistoryTab({ userId, canModify, memberName }: WorkHistoryTabProps) {
   const { workHistory, isLoading, addEntry, updateEntry, deleteEntry } = useWorkHistory(userId);
+  const { isAdmin } = useUserRole();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<{ id: string; summary: string } | null>(null);
   const [newSummary, setNewSummary] = useState("");
+
+  const handleDownloadExcel = () => {
+    const data = workHistory.map((entry) => ({
+      Date: format(new Date(entry.date), "MMM d, yyyy"),
+      Time: entry.time.slice(0, 5),
+      "Task Summary": entry.task_summary,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Work History");
+
+    // Auto-size columns
+    const colWidths = [
+      { wch: 15 }, // Date
+      { wch: 10 }, // Time
+      { wch: 60 }, // Task Summary
+    ];
+    worksheet["!cols"] = colWidths;
+
+    const fileName = memberName
+      ? `work-history-${memberName.replace(/\s+/g, "-").toLowerCase()}.xlsx`
+      : "work-history.xlsx";
+
+    XLSX.writeFile(workbook, fileName);
+  };
 
   const handleAddEntry = async () => {
     if (!newSummary.trim()) return;
@@ -62,16 +91,24 @@ export function WorkHistoryTab({ userId, canModify }: WorkHistoryTabProps) {
     <>
       <ScrollArea className="h-full">
         <div className="p-4 space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <h3 className="font-medium text-sm text-muted-foreground">
               Daily Work Log ({workHistory.length})
             </h3>
-            {canModify && (
-              <Button size="sm" onClick={() => setIsAddDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-1" />
-                Add Entry
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {isAdmin && workHistory.length > 0 && (
+                <Button size="sm" variant="outline" onClick={handleDownloadExcel}>
+                  <Download className="h-4 w-4 mr-1" />
+                  Excel
+                </Button>
+              )}
+              {canModify && (
+                <Button size="sm" onClick={() => setIsAddDialogOpen(true)}>
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Entry
+                </Button>
+              )}
+            </div>
           </div>
 
           {workHistory.length > 0 ? (

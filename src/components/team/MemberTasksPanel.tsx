@@ -124,7 +124,7 @@ export const MemberTasksPanel = forwardRef<HTMLDivElement, MemberTasksPanelProps
               </TabsContent>
 
               <TabsContent value="worklog" className="h-full m-0">
-                <WorkHistoryTab userId={member.user_id || ""} canModify={false} />
+                <WorkHistoryTab userId={member.user_id || ""} canModify={false} memberName={member.name} />
               </TabsContent>
             </div>
           </Tabs>
