@@ -8,8 +8,9 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Briefcase,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
@@ -18,9 +19,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import logo from "@/assets/logo.png";
 
-const navItems = [
+const getNavItems = (isAdmin: boolean) => [
   { title: "Projects", url: "/projects", icon: FolderKanban },
-  { title: "Team", url: "/team", icon: Users },
+  { title: isAdmin ? "Team" : "My Work", url: "/team", icon: isAdmin ? Users : Briefcase },
   { title: "Announcements", url: "/announcements", icon: Megaphone },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
@@ -39,6 +40,8 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const currentMember = teamMembers.find((m) => m.user_id === user?.id);
   const userName = currentMember?.name || user?.email || "User";
   const avatarUrl = currentMember?.avatar_url;
+  
+  const navItems = useMemo(() => getNavItems(isAdmin), [isAdmin]);
 
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
