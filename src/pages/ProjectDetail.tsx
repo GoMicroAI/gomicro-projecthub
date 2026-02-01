@@ -4,6 +4,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, ArrowLeft, Upload, ListTodo, FolderOpen, FolderPlus, MessageSquare, Info, FileText } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
@@ -466,21 +467,23 @@ export default function ProjectDetail() {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="space-y-2">
-                  {tasks.map((task) => (
-                    <TaskListItem
-                      key={task.id}
-                      task={task}
-                      isAdmin={isAdmin}
-                      assignees={getAssigneesForTask(task.id)}
-                      onEdit={(task) => {
-                        setEditingTask(task);
-                        setTaskDialogOpen(true);
-                      }}
-                      onDelete={(task) => setDeletingTask(task)}
-                    />
-                  ))}
-                </div>
+                <ScrollArea className="h-[calc(100dvh-320px)] md:h-[calc(100dvh-360px)]">
+                  <div className="space-y-2 pr-4">
+                    {tasks.map((task) => (
+                      <TaskListItem
+                        key={task.id}
+                        task={task}
+                        isAdmin={isAdmin}
+                        assignees={getAssigneesForTask(task.id)}
+                        onEdit={(task) => {
+                          setEditingTask(task);
+                          setTaskDialogOpen(true);
+                        }}
+                        onDelete={(task) => setDeletingTask(task)}
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
               )}
             </TabsContent>
 
