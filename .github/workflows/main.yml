@@ -28,10 +28,13 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+
           git fetch origin
           git checkout deploy || git checkout --orphan deploy
+
           rm -rf *
           cp -r /tmp/build/* .
+
           git add .
           git commit -m "auto deploy build" || echo "no changes"
-          git push origin deploy --force
+          git push origin deploy
