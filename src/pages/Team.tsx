@@ -116,32 +116,11 @@ export default function Team() {
             </div>
           </div>
         ) : (
-          <div className="h-full overflow-auto">
-            <h2 className="text-sm font-medium text-muted-foreground mb-3">
+          <div className="h-full flex flex-col overflow-hidden">
+            <h2 className="text-sm font-medium text-muted-foreground mb-3 shrink-0">
               Team Members ({visibleMembers.length})
             </h2>
-            <TeamMemberList
-              members={visibleMembers}
-              tasks={tasks}
-              allAssignees={allAssignees}
-              selectedMemberId={selectedMemberId}
-              onSelectMember={handleSelectMember}
-              isAdmin={true}
-              currentUserId={user?.id}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Desktop View */}
-      <div className="hidden md:block h-full overflow-hidden">
-        <ResizablePanelGroup direction="horizontal" className="rounded-lg border">
-          {/* Team Member List */}
-          <ResizablePanel defaultSize={35} minSize={25}>
-            <div className="h-full p-4 overflow-auto">
-              <h2 className="text-sm font-medium text-muted-foreground mb-3">
-                Team Members ({visibleMembers.length})
-              </h2>
+            <div className="flex-1 overflow-hidden">
               <TeamMemberList
                 members={visibleMembers}
                 tasks={tasks}
@@ -151,6 +130,31 @@ export default function Team() {
                 isAdmin={true}
                 currentUserId={user?.id}
               />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Desktop View */}
+      <div className="hidden md:block h-full overflow-hidden">
+        <ResizablePanelGroup direction="horizontal" className="rounded-lg border">
+          {/* Team Member List */}
+          <ResizablePanel defaultSize={35} minSize={25}>
+            <div className="h-full flex flex-col p-4 overflow-hidden">
+              <h2 className="text-sm font-medium text-muted-foreground mb-3 shrink-0">
+                Team Members ({visibleMembers.length})
+              </h2>
+              <div className="flex-1 overflow-hidden">
+                <TeamMemberList
+                  members={visibleMembers}
+                  tasks={tasks}
+                  allAssignees={allAssignees}
+                  selectedMemberId={selectedMemberId}
+                  onSelectMember={handleSelectMember}
+                  isAdmin={true}
+                  currentUserId={user?.id}
+                />
+              </div>
             </div>
           </ResizablePanel>
 
