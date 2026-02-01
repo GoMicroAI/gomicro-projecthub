@@ -1,48 +1,36 @@
-name: Build and push to deploy
+name: Build and Deploy to Branch
 
 on:
   push:
     branches:
       - main
 
-permissions:
-  contents: write
-
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install dependencies
-        run: npm install
+      - run: npm install
+      - run: npm run build
 
-      - name: Build project
-        run: npm run build
-
-      - name: Push dist to deploy branch
+      - name: Save build
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
+          mkdir /tmp/build
+          cp -r dist/* /tmp/build/
+      - name: Publish to deploy branch
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
           git fetch origin
-
-          if git ls-remote --exit-code --heads origin deploy >/dev/null 2>&1; then
-            git checkout deploy
-          else
-            git checkout --orphan deploy
-          fi
-
-          git rm -rf . || true
-          cp -r dist/* .
-
+          git checkout deploy || git checkout --orphan deploy
+          rm -rf *
+          cp -r /tmp/build/* .
           git add .
-          git commit -m "auto build from main"
-          git push -f origin deploy
+          git commit -m "auto deploy build" || echo "no changes"
+          git push origin deploy --force
