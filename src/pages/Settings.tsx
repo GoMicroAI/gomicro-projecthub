@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -90,7 +91,8 @@ export default function Settings() {
 
   return (
     <AppLayout title="Settings">
-      <div className="max-w-4xl mx-auto">
+      <ScrollArea className="h-full">
+        <div className="max-w-4xl mx-auto pr-4">
         <Tabs defaultValue="profile" className="w-full">
           <TabsList className="mb-6 flex-wrap h-auto gap-1">
             <TabsTrigger value="profile" className="flex items-center gap-1.5 text-xs sm:text-sm px-2.5 sm:px-3">
@@ -178,7 +180,8 @@ export default function Settings() {
             </TabsContent>
           )}
         </Tabs>
-      </div>
+        </div>
+      </ScrollArea>
     </AppLayout>
   );
 }

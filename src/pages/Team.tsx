@@ -69,8 +69,8 @@ export default function Team() {
   // Non-admin users: Show only "My Tasks" view
   if (!isAdmin && currentUserMember) {
     return (
-      <AppLayout title="My Tasks" onRefresh={handleRefresh}>
-        <div className="h-[calc(100dvh-140px)]">
+      <AppLayout title="My Work" onRefresh={handleRefresh}>
+        <div className="h-full overflow-hidden">
           <MyTasksView
             member={currentUserMember}
             tasks={tasks}
@@ -94,14 +94,14 @@ export default function Team() {
       }
     >
       {/* Mobile View */}
-      <div className="md:hidden h-[calc(100dvh-140px)]">
+      <div className="md:hidden h-full overflow-hidden">
         {selectedMember ? (
           <div className="h-full flex flex-col">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSelectedMemberId(null)}
-              className="self-start mb-2"
+              className="self-start mb-2 shrink-0"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Team
@@ -134,7 +134,7 @@ export default function Team() {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:block h-[calc(100dvh-140px)]">
+      <div className="hidden md:block h-full overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="rounded-lg border">
           {/* Team Member List */}
           <ResizablePanel defaultSize={35} minSize={25}>
