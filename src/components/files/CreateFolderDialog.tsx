@@ -9,11 +9,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface CreateFolderDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (name: string) => Promise<void>;
+  onSubmit: (name: string, details?: string) => Promise<void>;
 }
 
 export function CreateFolderDialog({
@@ -22,6 +23,7 @@ export function CreateFolderDialog({
   onSubmit,
 }: CreateFolderDialogProps) {
   const [name, setName] = useState("");
+  const [details, setDetails] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,8 +32,9 @@ export function CreateFolderDialog({
 
     setIsSubmitting(true);
     try {
-      await onSubmit(name.trim());
+      await onSubmit(name.trim(), details.trim() || undefined);
       setName("");
+      setDetails("");
       onOpenChange(false);
     } finally {
       setIsSubmitting(false);
@@ -54,6 +57,17 @@ export function CreateFolderDialog({
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter folder name"
                 autoFocus
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="folder-details">Details (optional)</Label>
+              <Textarea
+                id="folder-details"
+                value={details}
+                onChange={(e) => setDetails(e.target.value)}
+                placeholder="Add a description or notes about this folder..."
+                rows={3}
+                className="resize-none"
               />
             </div>
           </div>
