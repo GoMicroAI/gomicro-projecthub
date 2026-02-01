@@ -116,7 +116,7 @@ export function MyTasksView({ member, tasks, allAssignees }: MyTasksViewProps) {
             </TabsContent>
 
             <TabsContent value="worklog" className="h-full m-0">
-              <WorkHistoryTab userId={member.user_id || ""} canModify={true} />
+              <WorkHistoryTab userId={member.user_id || ""} canModify={true} memberName={member.name} />
             </TabsContent>
           </div>
         </Tabs>
