@@ -11,7 +11,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { useLatestProjectMessages } from "@/hooks/useLatestProjectMessages";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { ProjectDialog } from "@/components/projects/ProjectDialog";
-import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { PasswordConfirmDeleteDialog } from "@/components/shared/PasswordConfirmDeleteDialog";
 import type { Database } from "@/integrations/supabase/types";
 
 type Project = Database["public"]["Tables"]["projects"]["Row"] & {
@@ -136,7 +136,7 @@ export default function Projects() {
         onSubmit={editingProject ? handleUpdateProject : handleCreateProject}
       />
 
-      <DeleteConfirmDialog
+      <PasswordConfirmDeleteDialog
         open={!!deletingProject}
         onOpenChange={(open) => !open && setDeletingProject(undefined)}
         title="Delete Project"
