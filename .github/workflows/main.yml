@@ -2,7 +2,8 @@ name: Build and Deploy to Branch
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -19,39 +20,31 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install + Build
-        run: |
-          npm install
-          npm run build
+      - run: npm install
+      - run: npm run build
 
-      - name: Save build output
-        run: |
-          rm -rf /tmp/build
-          mkdir -p /tmp/build
-          cp -r dist/* /tmp/build/
-
-      - name: Publish to deploy branch (no force)
+      - name: Publish dist to deploy branch (no force)
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
-          git reset --hard
-          git clean -fd
-
           git fetch origin
 
           if git ls-remote --exit-code --heads origin deploy >/dev/null 2>&1; then
-            git checkout -B deploy origin/deploy
+            git worktree add /tmp/deploy deploy
           else
             git checkout --orphan deploy
-            git rm -r --ignore-unmatch .
+            git commit --allow-empty -m "init deploy"
+            git push origin deploy
+            git checkout main
+            git worktree add /tmp/deploy deploy
           fi
 
+          cd /tmp/deploy
           git rm -r --ignore-unmatch .
           git clean -fdx
 
-          mkdir -p projecthub
-          cp -r /tmp/build/* projecthub/
+          cp -r "$GITHUB_WORKSPACE/dist/"* .
 
           git add -A
           git commit -m "auto deploy build" || echo "no changes"
