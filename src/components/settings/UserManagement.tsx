@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useAuth } from "@/contexts/AuthContext";
 import { InviteDialog } from "@/components/team/InviteDialog";
-import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { PasswordConfirmDeleteDialog } from "@/components/shared/PasswordConfirmDeleteDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -183,12 +183,13 @@ export function UserManagement() {
         onSubmit={handleInvite}
       />
 
-      <DeleteConfirmDialog
+      <PasswordConfirmDeleteDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         onConfirm={handleDeleteConfirm}
         title="Delete User"
         description={`Are you sure you want to delete ${memberToDelete?.name}? This action cannot be undone and will remove all their data.`}
+        isDeleting={deleteTeamMember.isPending}
       />
     </>
   );

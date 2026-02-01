@@ -22,7 +22,7 @@ import { TaskDialogMultiAssign } from "@/components/tasks/TaskDialogMultiAssign"
 import { FileListItem } from "@/components/files/FileListItem";
 import { FolderItem } from "@/components/files/FolderItem";
 import { CreateFolderDialog } from "@/components/files/CreateFolderDialog";
-import { DeleteConfirmDialog } from "@/components/shared/DeleteConfirmDialog";
+import { PasswordConfirmDeleteDialog } from "@/components/shared/PasswordConfirmDeleteDialog";
 import { ProjectChat } from "@/components/chat/ProjectChat";
 import { CustomTabDialog } from "@/components/projects/CustomTabDialog";
 import { CustomTabContent } from "@/components/projects/CustomTabContent";
@@ -633,7 +633,7 @@ export default function ProjectDetail() {
         isPending={createTab.isPending}
       />
 
-      <DeleteConfirmDialog
+      <PasswordConfirmDeleteDialog
         open={!!deletingTask}
         onOpenChange={(open) => !open && setDeletingTask(undefined)}
         title="Delete Task"
@@ -642,7 +642,7 @@ export default function ProjectDetail() {
         isDeleting={deleteTask.isPending}
       />
 
-      <DeleteConfirmDialog
+      <PasswordConfirmDeleteDialog
         open={!!deletingFile}
         onOpenChange={(open) => !open && setDeletingFile(undefined)}
         title="Delete File"
@@ -651,7 +651,7 @@ export default function ProjectDetail() {
         isDeleting={deleteFile.isPending}
       />
 
-      <DeleteConfirmDialog
+      <PasswordConfirmDeleteDialog
         open={!!deletingFolder}
         onOpenChange={(open) => !open && setDeletingFolder(undefined)}
         title="Delete Folder"
@@ -660,7 +660,7 @@ export default function ProjectDetail() {
         isDeleting={deleteFolder.isPending}
       />
 
-      <DeleteConfirmDialog
+      <PasswordConfirmDeleteDialog
         open={!!deletingCustomTab}
         onOpenChange={(open) => !open && setDeletingCustomTab(undefined)}
         title="Delete Tab"
