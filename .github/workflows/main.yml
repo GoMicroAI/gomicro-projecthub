@@ -8,10 +8,6 @@ on:
 permissions:
   contents: write
 
-env:
-  DEPLOY_BRANCH: deploy
-  BUILD_DIR: build
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,20 +17,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-node@v4
         with:
-          go-version: "1.20"
+          node-version: 20
 
-      - name: Build
-        run: |
-          rm -rf build
-          mkdir build
+      - name: Install dependencies
+        run: npm ci
 
-          cd backend
-          go mod download
-          go build -o ../build/app
+      - name: Build project
+        run: npm run build
 
-      - name: Push build to deploy branch
+      - name: Push dist to deploy branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -48,8 +41,8 @@ jobs:
           fi
 
           git rm -rf . || true
-          cp -r build/* .
+          cp -r dist/* .
 
           git add .
-          git commit -m "build from main"
+          git commit -m "auto build from main"
           git push -f origin deploy
