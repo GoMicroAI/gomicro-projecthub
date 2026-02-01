@@ -23,6 +23,7 @@ jobs:
         run: |
           mkdir /tmp/build
           cp -r dist/* /tmp/build/
+
       - name: Publish to deploy branch
         run: |
           git config user.name "github-actions"
@@ -30,7 +31,10 @@ jobs:
           git fetch origin
           git checkout deploy || git checkout --orphan deploy
           rm -rf *
-          cp -r /tmp/build/* .
+
+          mkdir projecthub
+          cp -r /tmp/build/* projecthub/
+
           git add .
           git commit -m "auto deploy build" || echo "no changes"
           git push origin deploy --force
