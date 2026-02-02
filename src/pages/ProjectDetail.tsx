@@ -439,36 +439,7 @@ export default function ProjectDetail() {
                     <span className="sm:inline">Add Task</span>
                   </Button>
                 )}
-                {/* Files actions */}
-                {activeTab === "files" && (
-                  <>
-                    {/* Add Link - Available to all project members */}
-                    <Button variant="outline" size="sm" onClick={() => setAddLinkDialogOpen(true)}>
-                      <Link2 className="h-4 w-4 sm:mr-2" />
-                      <span className="hidden sm:inline">Add Link</span>
-                    </Button>
-                    {/* New Folder - Available to all project members */}
-                    <Button variant="outline" size="sm" onClick={() => setFolderDialogOpen(true)}>
-                      <FolderPlus className="h-4 w-4 sm:mr-2" />
-                      <span className="hidden sm:inline">New Folder</span>
-                    </Button>
-                    {/* Upload - All users can upload */}
-                    <label>
-                      <Button size="sm" asChild>
-                        <span>
-                          <Upload className="h-4 w-4 sm:mr-2" />
-                          <span className="hidden sm:inline">Upload</span>
-                        </span>
-                      </Button>
-                      <input
-                        type="file"
-                        className="hidden"
-                        onChange={(e) => handleFileUpload(e)}
-                        disabled={uploadFile.isPending}
-                      />
-                    </label>
-                  </>
-                )}
+                {/* No action buttons here - they are inside the nested tabs now */}
               </div>
             </div>
 
@@ -507,80 +478,160 @@ export default function ProjectDetail() {
             </TabsContent>
 
             <TabsContent value="files" className="mt-0 flex-1 overflow-hidden">
-              {files.length === 0 && folders.length === 0 && links.length === 0 ? (
-                <Card>
-                  <CardContent className="py-12 text-center">
-                    <FolderOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground mb-2">No files, folders, or links yet.</p>
-                    <p className="text-xs text-muted-foreground mb-4">Max file size: 100MB</p>
-                    <div className="flex flex-wrap justify-center gap-2">
-                      <Button variant="outline" onClick={() => setAddLinkDialogOpen(true)}>
-                        <Link2 className="h-4 w-4 mr-2" /> Add Link
-                      </Button>
-                      <Button variant="outline" onClick={() => setFolderDialogOpen(true)}>
-                        <FolderPlus className="h-4 w-4 mr-2" /> Create Folder
-                      </Button>
-                      <label>
-                        <Button asChild>
-                          <span>
-                            <Upload className="h-4 w-4 mr-2" /> Upload File
-                          </span>
+              <Tabs defaultValue="file-links" className="h-full flex flex-col">
+                <div className="flex items-center justify-between mb-3 shrink-0">
+                  <TabsList>
+                    <TabsTrigger value="file-links" className="gap-2 text-sm">
+                      <Link2 className="h-4 w-4" />
+                      File Links
+                    </TabsTrigger>
+                    <TabsTrigger value="uploaded-files" className="gap-2 text-sm">
+                      <FolderOpen className="h-4 w-4" />
+                      Files
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+
+                {/* File Links Tab */}
+                <TabsContent value="file-links" className="mt-0 flex-1 overflow-hidden">
+                  <div className="mb-3">
+                    <Button size="sm" onClick={() => setAddLinkDialogOpen(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Link
+                    </Button>
+                  </div>
+                  {links.length === 0 ? (
+                    <Card>
+                      <CardContent className="py-12 text-center">
+                        <Link2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <p className="text-muted-foreground mb-4">No file links yet.</p>
+                        <Button onClick={() => setAddLinkDialogOpen(true)}>
+                          <Plus className="h-4 w-4 mr-2" /> Add First Link
                         </Button>
-                        <input
-                          type="file"
-                          className="hidden"
-                          onChange={(e) => handleFileUpload(e)}
-                          disabled={uploadFile.isPending}
-                        />
-                      </label>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                <ScrollArea className="h-full">
-                  <div className="space-y-2 pr-4">
-                    {/* File Links Section */}
-                    <FileLinksList
-                      links={links}
-                      isAdmin={isAdmin}
-                      onDelete={(linkId) => setDeletingLink(linkId)}
-                    />
-                    
-                    {/* Folders */}
-                    {folders.map((folder) => (
-                      <FolderItem
-                        key={folder.id}
-                        folder={folder}
-                        files={files}
-                        isAdmin={isAdmin}
-                        onDelete={(folder) => setDeletingFolder(folder)}
-                        onRename={handleRenameFolder}
-                        onUploadToFolder={handleUploadToFolder}
-                        onDeleteFile={(file) => setDeletingFile(file)}
-                      />
-                    ))}
-                    
-                    {/* Root level files (not in any folder) */}
-                    {rootFiles.length > 0 && (
-                      <>
-                        {folders.length > 0 && (
-                          <div className="pt-4 pb-2">
-                            <p className="text-sm font-medium text-muted-foreground">Other Files</p>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <ScrollArea className="h-[calc(100%-48px)]">
+                      <div className="space-y-1 pr-4">
+                        {links.map((link) => (
+                          <div
+                            key={link.id}
+                            className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors group"
+                          >
+                            <a
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-primary hover:underline truncate flex-1 mr-2"
+                            >
+                              {link.title}
+                            </a>
+                            {isAdmin && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+                                onClick={() => setDeletingLink(link.id)}
+                              >
+                                <span className="sr-only">Delete</span>
+                                ×
+                              </Button>
+                            )}
                           </div>
-                        )}
-                        {rootFiles.map((file) => (
-                          <FileListItem
-                            key={file.id}
-                            file={file}
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  )}
+                </TabsContent>
+
+                {/* Uploaded Files Tab */}
+                <TabsContent value="uploaded-files" className="mt-0 flex-1 overflow-hidden">
+                  <div className="flex gap-2 mb-3">
+                    <Button variant="outline" size="sm" onClick={() => setFolderDialogOpen(true)}>
+                      <FolderPlus className="h-4 w-4 mr-2" />
+                      New Folder
+                    </Button>
+                    <label>
+                      <Button size="sm" asChild>
+                        <span>
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload
+                        </span>
+                      </Button>
+                      <input
+                        type="file"
+                        className="hidden"
+                        onChange={(e) => handleFileUpload(e)}
+                        disabled={uploadFile.isPending}
+                      />
+                    </label>
+                  </div>
+                  {files.length === 0 && folders.length === 0 ? (
+                    <Card>
+                      <CardContent className="py-12 text-center">
+                        <FolderOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <p className="text-muted-foreground mb-2">No files or folders yet.</p>
+                        <p className="text-xs text-muted-foreground mb-4">Max file size: 100MB</p>
+                        <div className="flex flex-wrap justify-center gap-2">
+                          <Button variant="outline" onClick={() => setFolderDialogOpen(true)}>
+                            <FolderPlus className="h-4 w-4 mr-2" /> Create Folder
+                          </Button>
+                          <label>
+                            <Button asChild>
+                              <span>
+                                <Upload className="h-4 w-4 mr-2" /> Upload File
+                              </span>
+                            </Button>
+                            <input
+                              type="file"
+                              className="hidden"
+                              onChange={(e) => handleFileUpload(e)}
+                              disabled={uploadFile.isPending}
+                            />
+                          </label>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <ScrollArea className="h-[calc(100%-48px)]">
+                      <div className="space-y-2 pr-4">
+                        {/* Folders */}
+                        {folders.map((folder) => (
+                          <FolderItem
+                            key={folder.id}
+                            folder={folder}
+                            files={files}
                             isAdmin={isAdmin}
-                            onDelete={(file) => setDeletingFile(file)}
+                            onDelete={(folder) => setDeletingFolder(folder)}
+                            onRename={handleRenameFolder}
+                            onUploadToFolder={handleUploadToFolder}
+                            onDeleteFile={(file) => setDeletingFile(file)}
                           />
                         ))}
-                      </>
-                    )}
-                  </div>
-                </ScrollArea>
-              )}
+                        
+                        {/* Root level files (not in any folder) */}
+                        {rootFiles.length > 0 && (
+                          <>
+                            {folders.length > 0 && (
+                              <div className="pt-4 pb-2">
+                                <p className="text-sm font-medium text-muted-foreground">Other Files</p>
+                              </div>
+                            )}
+                            {rootFiles.map((file) => (
+                              <FileListItem
+                                key={file.id}
+                                file={file}
+                                isAdmin={isAdmin}
+                                onDelete={(file) => setDeletingFile(file)}
+                              />
+                            ))}
+                          </>
+                        )}
+                      </div>
+                    </ScrollArea>
+                  )}
+                </TabsContent>
+              </Tabs>
             </TabsContent>
 
             <TabsContent value="details" className="mt-0 flex-1 overflow-hidden">
