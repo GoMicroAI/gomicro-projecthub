@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowLeft } from "lucide-react";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useTasks } from "@/hooks/useTasks";
+import { useProjects } from "@/hooks/useProjects";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
@@ -21,6 +22,7 @@ import type { Database } from "@/integrations/supabase/types";
 export default function Team() {
   const { teamMembers, isLoading, refetch, inviteTeamMember } = useTeamMembers();
   const { tasks, refetch: refetchTasks } = useTasks();
+  const { projects } = useProjects();
   const { allAssignees, refetch: refetchAssignees } = useAllTaskAssigneesGlobal();
   const { isAdmin, isLoading: isRoleLoading } = useUserRole();
   const { user } = useAuth();
@@ -124,6 +126,7 @@ export default function Team() {
               <TeamMemberList
                 members={visibleMembers}
                 tasks={tasks}
+                projects={projects}
                 allAssignees={allAssignees}
                 selectedMemberId={selectedMemberId}
                 onSelectMember={handleSelectMember}
@@ -148,6 +151,7 @@ export default function Team() {
                 <TeamMemberList
                   members={visibleMembers}
                   tasks={tasks}
+                  projects={projects}
                   allAssignees={allAssignees}
                   selectedMemberId={selectedMemberId}
                   onSelectMember={handleSelectMember}
