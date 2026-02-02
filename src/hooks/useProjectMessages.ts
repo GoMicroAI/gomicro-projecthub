@@ -82,9 +82,7 @@ export function useProjectMessages(projectId?: string) {
 
   // Update allMessages when initialMessages changes
   useEffect(() => {
-    if (initialMessages.length > 0) {
-      setAllMessages(initialMessages);
-    }
+    setAllMessages(initialMessages);
   }, [initialMessages]);
 
   // Load more (older) messages
