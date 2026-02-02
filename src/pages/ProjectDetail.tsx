@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, ArrowLeft, Upload, ListTodo, FolderOpen, FolderPlus, MessageSquare, Info, FileText } from "lucide-react";
+import { Plus, ArrowLeft, Upload, ListTodo, FolderOpen, FolderPlus, MessageSquare, Info, FileText, Link2 } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
@@ -15,6 +15,7 @@ import { useFolders } from "@/hooks/useFolders";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAllTaskAssignees, useTaskAssignees } from "@/hooks/useTaskAssignees";
 import { useProjectCustomTabs } from "@/hooks/useProjectCustomTabs";
+import { useProjectLinks } from "@/hooks/useProjectLinks";
 import { ProjectStatusBadge } from "@/components/projects/ProjectStatusBadge";
 import { ProjectDetailsSection } from "@/components/projects/ProjectDetailsSection";
 import { TaskListItem } from "@/components/tasks/TaskListItem";
@@ -22,6 +23,8 @@ import { TaskDialogMultiAssign } from "@/components/tasks/TaskDialogMultiAssign"
 import { FileListItem } from "@/components/files/FileListItem";
 import { FolderItem } from "@/components/files/FolderItem";
 import { CreateFolderDialog } from "@/components/files/CreateFolderDialog";
+import { AddLinkDialog } from "@/components/files/AddLinkDialog";
+import { FileLinksList } from "@/components/files/FileLinksList";
 import { PasswordConfirmDeleteDialog } from "@/components/shared/PasswordConfirmDeleteDialog";
 import { ProjectChat } from "@/components/chat/ProjectChat";
 import { CustomTabDialog } from "@/components/projects/CustomTabDialog";
@@ -48,6 +51,7 @@ export default function ProjectDetail() {
   const { setAssignees } = useTaskAssignees();
   const { messages } = useProjectMessages(id);
   const { customTabs, createTab, updateTab, deleteTab } = useProjectCustomTabs(id);
+  const { links, createLink, deleteLink } = useProjectLinks(id);
 
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
@@ -57,7 +61,9 @@ export default function ProjectDetail() {
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [uploadTargetFolderId, setUploadTargetFolderId] = useState<string | undefined>();
   const [customTabDialogOpen, setCustomTabDialogOpen] = useState(false);
+  const [addLinkDialogOpen, setAddLinkDialogOpen] = useState(false);
   const [deletingCustomTab, setDeletingCustomTab] = useState<{ id: string; name: string } | undefined>();
+  const [deletingLink, setDeletingLink] = useState<string | undefined>();
   const [activeTab, setActiveTab] = useState(() => {
     const tab = searchParams.get("tab");
     return tab === "chat" ? "tasks" : (tab || "tasks");
@@ -239,6 +245,17 @@ export default function ProjectDetail() {
     if (activeTab === `custom-${deletingCustomTab.id}`) {
       setActiveTab("tasks");
     }
+  };
+
+  const handleAddLink = async (title: string, url: string) => {
+    if (!id) return;
+    await createLink.mutateAsync({ title, url, projectId: id });
+  };
+
+  const handleDeleteLink = async () => {
+    if (!deletingLink) return;
+    await deleteLink.mutateAsync(deletingLink);
+    setDeletingLink(undefined);
   };
 
   // Chat view
@@ -425,6 +442,11 @@ export default function ProjectDetail() {
                 {/* Files actions */}
                 {activeTab === "files" && (
                   <>
+                    {/* Add Link - Available to all project members */}
+                    <Button variant="outline" size="sm" onClick={() => setAddLinkDialogOpen(true)}>
+                      <Link2 className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Add Link</span>
+                    </Button>
                     {/* New Folder - Available to all project members */}
                     <Button variant="outline" size="sm" onClick={() => setFolderDialogOpen(true)}>
                       <FolderPlus className="h-4 w-4 sm:mr-2" />
@@ -485,18 +507,19 @@ export default function ProjectDetail() {
             </TabsContent>
 
             <TabsContent value="files" className="mt-0 flex-1 overflow-hidden">
-              {files.length === 0 && folders.length === 0 ? (
+              {files.length === 0 && folders.length === 0 && links.length === 0 ? (
                 <Card>
                   <CardContent className="py-12 text-center">
                     <FolderOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground mb-2">No files or folders yet.</p>
+                    <p className="text-muted-foreground mb-2">No files, folders, or links yet.</p>
                     <p className="text-xs text-muted-foreground mb-4">Max file size: 100MB</p>
-                    <div className="flex justify-center gap-2">
-                      {isAdmin && (
-                        <Button variant="outline" onClick={() => setFolderDialogOpen(true)}>
-                          <FolderPlus className="h-4 w-4 mr-2" /> Create Folder
-                        </Button>
-                      )}
+                    <div className="flex flex-wrap justify-center gap-2">
+                      <Button variant="outline" onClick={() => setAddLinkDialogOpen(true)}>
+                        <Link2 className="h-4 w-4 mr-2" /> Add Link
+                      </Button>
+                      <Button variant="outline" onClick={() => setFolderDialogOpen(true)}>
+                        <FolderPlus className="h-4 w-4 mr-2" /> Create Folder
+                      </Button>
                       <label>
                         <Button asChild>
                           <span>
@@ -516,6 +539,13 @@ export default function ProjectDetail() {
               ) : (
                 <ScrollArea className="h-full">
                   <div className="space-y-2 pr-4">
+                    {/* File Links Section */}
+                    <FileLinksList
+                      links={links}
+                      isAdmin={isAdmin}
+                      onDelete={(linkId) => setDeletingLink(linkId)}
+                    />
+                    
                     {/* Folders */}
                     {folders.map((folder) => (
                       <FolderItem
@@ -624,6 +654,13 @@ export default function ProjectDetail() {
         onSubmit={handleCreateFolder}
       />
 
+      <AddLinkDialog
+        open={addLinkDialogOpen}
+        onOpenChange={setAddLinkDialogOpen}
+        onSubmit={handleAddLink}
+        isPending={createLink.isPending}
+      />
+
       <CustomTabDialog
         open={customTabDialogOpen}
         onOpenChange={setCustomTabDialogOpen}
@@ -665,6 +702,15 @@ export default function ProjectDetail() {
         description={`Are you sure you want to delete the "${deletingCustomTab?.name}" tab? This action cannot be undone.`}
         onConfirm={handleDeleteCustomTab}
         isDeleting={deleteTab.isPending}
+      />
+
+      <PasswordConfirmDeleteDialog
+        open={!!deletingLink}
+        onOpenChange={(open) => !open && setDeletingLink(undefined)}
+        title="Delete Link"
+        description="Are you sure you want to delete this link? This action cannot be undone."
+        onConfirm={handleDeleteLink}
+        isDeleting={deleteLink.isPending}
       />
     </AppLayout>
   );
