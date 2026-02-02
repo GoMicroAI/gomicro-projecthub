@@ -296,64 +296,62 @@ export default function ProjectDetail() {
         </div>
       ) : (
         <div className="flex flex-col h-full overflow-hidden">
-          {/* Project Info Card with Chat Preview */}
-          {activeTab !== "details" && !isCustomTab && (
-            <Card className="shrink-0 mb-4">
-              <CardContent className="pt-4 md:pt-6">
-                <div className="flex flex-col gap-4">
-                  {/* Project Header */}
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h2 className="text-lg md:text-xl font-semibold">{project?.name}</h2>
-                      {project && <ProjectStatusBadge status={project.status} />}
-                    </div>
-                    <div className="text-left sm:text-right text-xs md:text-sm text-muted-foreground shrink-0">
-                      <p>Created {project && format(new Date(project.created_at), "MMM d, yyyy")}</p>
-                      <p>{tasks.length} tasks • {files.length} files</p>
-                    </div>
+          {/* Project Info Card with Chat Preview - Always visible */}
+          <Card className="shrink-0 mb-4">
+            <CardContent className="pt-4 md:pt-6">
+              <div className="flex flex-col gap-4">
+                {/* Project Header */}
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-lg md:text-xl font-semibold">{project?.name}</h2>
+                    {project && <ProjectStatusBadge status={project.status} />}
                   </div>
-
-                  {/* Chat Preview Bar */}
-                  <div 
-                    onClick={() => setChatOpen(true)}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border cursor-pointer hover:bg-muted transition-colors"
-                  >
-                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 shrink-0">
-                      <MessageSquare className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-sm font-medium">Project Chat</span>
-                        <span className="text-xs text-muted-foreground">
-                          {messages.length} messages
-                        </span>
-                      </div>
-                      {latestMessage ? (
-                        <div className="flex items-center gap-2">
-                          <UserAvatar 
-                            userId={latestMessage.user_id} 
-                            className="h-5 w-5"
-                            fallbackClassName="text-[10px]"
-                          />
-                          <p className="text-sm text-muted-foreground truncate">
-                            <span className="font-medium text-foreground">
-                              {latestMessageSender?.name || "Unknown"}:
-                            </span>{" "}
-                            {latestMessage.content || "Sent an attachment"}
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-muted-foreground italic">No messages yet</p>
-                      )}
-                    </div>
-                    <Button variant="ghost" size="sm" className="shrink-0">
-                      Open <MessageSquare className="ml-1 h-4 w-4" />
-                    </Button>
+                  <div className="text-left sm:text-right text-xs md:text-sm text-muted-foreground shrink-0">
+                    <p>Created {project && format(new Date(project.created_at), "MMM d, yyyy")}</p>
+                    <p>{tasks.length} tasks • {files.length} files</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+
+                {/* Chat Preview Bar */}
+                <div 
+                  onClick={() => setChatOpen(true)}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border cursor-pointer hover:bg-muted transition-colors"
+                >
+                  <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 shrink-0">
+                    <MessageSquare className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-sm font-medium">Project Chat</span>
+                      <span className="text-xs text-muted-foreground">
+                        {messages.length} messages
+                      </span>
+                    </div>
+                    {latestMessage ? (
+                      <div className="flex items-center gap-2">
+                        <UserAvatar 
+                          userId={latestMessage.user_id} 
+                          className="h-5 w-5"
+                          fallbackClassName="text-[10px]"
+                        />
+                        <p className="text-sm text-muted-foreground truncate">
+                          <span className="font-medium text-foreground">
+                            {latestMessageSender?.name || "Unknown"}:
+                          </span>{" "}
+                          {latestMessage.content || "Sent an attachment"}
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">No messages yet</p>
+                    )}
+                  </div>
+                  <Button variant="ghost" size="sm" className="shrink-0">
+                    Open <MessageSquare className="ml-1 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Tabs: Tasks, Files, Details, Custom Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
