@@ -8,10 +8,12 @@ import { Play } from "lucide-react";
 
 type TeamMember = Database["public"]["Tables"]["team_members"]["Row"];
 type Task = Database["public"]["Tables"]["tasks"]["Row"];
+type Project = Database["public"]["Tables"]["projects"]["Row"];
 
 interface TeamMemberListProps {
   members: TeamMember[];
   tasks: Task[];
+  projects: Project[];
   allAssignees: TaskAssignee[];
   selectedMemberId: string | null;
   onSelectMember: (memberId: string) => void;
@@ -22,6 +24,7 @@ interface TeamMemberListProps {
 export function TeamMemberList({
   members,
   tasks,
+  projects,
   allAssignees,
   selectedMemberId,
   onSelectMember,
@@ -47,6 +50,11 @@ export function TeamMemberList({
     return tasks.find(
       (t) => assignedTaskIds.includes(t.id) && t.status === "in_progress"
     );
+  };
+
+  const getProjectName = (projectId: string) => {
+    const project = projects.find((p) => p.id === projectId);
+    return project?.name || "Unknown Project";
   };
 
   return (
@@ -86,9 +94,14 @@ export function TeamMemberList({
                       <div className="shrink-0 flex items-center justify-center w-5 h-5 rounded-full bg-green-500/20">
                         <Play className="w-3 h-3 text-green-600 fill-green-600" />
                       </div>
-                      <span className="text-sm font-medium text-green-700 dark:text-green-400 truncate">
-                        {currentTask.title}
-                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-green-600/70 dark:text-green-400/70 truncate">
+                          {getProjectName(currentTask.project_id)}
+                        </p>
+                        <p className="text-sm font-medium text-green-700 dark:text-green-400 truncate">
+                          {currentTask.title}
+                        </p>
+                      </div>
                     </div>
                   ) : (
                     <div className="px-3 py-2 rounded-md bg-muted/50">
