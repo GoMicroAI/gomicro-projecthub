@@ -160,6 +160,43 @@ export function useProjectMessages(projectId?: string) {
       if (error) throw error;
       return data;
     },
+    onSuccess: async (data) => {
+      // Optimistically add the message immediately
+      const senderInfo = memberCache.get(data.user_id);
+      
+      // If not in cache, fetch sender info
+      let sender_name = senderInfo?.name || "Unknown";
+      let sender_email = senderInfo?.email || "";
+      let sender_avatar_url = senderInfo?.avatar_url || null;
+      
+      if (!senderInfo) {
+        const { data: member } = await supabase
+          .from("team_members")
+          .select("name, email, avatar_url")
+          .eq("user_id", data.user_id)
+          .single();
+        
+        if (member) {
+          sender_name = member.name;
+          sender_email = member.email;
+          sender_avatar_url = member.avatar_url;
+          memberCache.set(data.user_id, member);
+        }
+      }
+
+      const enrichedMsg: ProjectMessage = {
+        ...data,
+        sender_name,
+        sender_email,
+        sender_avatar_url,
+      };
+
+      setAllMessages((prev) => {
+        // Avoid duplicates (in case realtime already added it)
+        if (prev.some((m) => m.id === enrichedMsg.id)) return prev;
+        return [...prev, enrichedMsg];
+      });
+    },
     onError: (error) => {
       toast({
         title: "Failed to send message",
