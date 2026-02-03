@@ -135,8 +135,8 @@ export default function Team() {
 
       {/* Desktop View */}
       <div className="hidden md:flex h-full overflow-hidden rounded-lg border">
-        {/* Team Member List - Fixed 30% width */}
-        <div className="w-[30%] min-w-[280px] h-full flex flex-col p-4 overflow-hidden border-r">
+        {/* Team Member List - Fixed 40% width for better content visibility */}
+        <div className="w-[40%] min-w-[320px] max-w-[420px] h-full flex flex-col p-4 overflow-hidden border-r">
           <h2 className="text-sm font-medium text-muted-foreground mb-3 shrink-0">
             Team Members ({visibleMembers.length})
           </h2>
@@ -154,8 +154,8 @@ export default function Team() {
           </div>
         </div>
 
-        {/* Member Tasks Panel - Fixed 70% width */}
-        <div className="w-[70%] h-full overflow-hidden">
+        {/* Member Tasks Panel - Flexible width */}
+        <div className="flex-1 h-full overflow-hidden">
           {selectedMember ? (
             <MemberTasksPanel
               member={selectedMember}

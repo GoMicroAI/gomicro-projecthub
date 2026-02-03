@@ -88,9 +88,9 @@ export function TeamMemberList({
                 </div>
 
                 {/* Current task - highlighted section */}
-                <div className="flex-1 min-w-0 mt-2 sm:mt-0 sm:ml-auto sm:max-w-[55%]">
+                <div className="min-w-0 mt-1.5 sm:mt-0 sm:ml-2 sm:flex-1">
                   {currentTask ? (
-                    <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-green-500/10 border border-green-500/20">
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-green-500/10 border border-green-500/20">
                       <div className="shrink-0 flex items-center justify-center w-4 h-4 rounded-full bg-green-500/20">
                         <Play className="w-2.5 h-2.5 text-green-600 fill-green-600" />
                       </div>
@@ -104,7 +104,7 @@ export function TeamMemberList({
                       </div>
                     </div>
                   ) : (
-                    <div className="px-2 py-1.5 rounded-md bg-muted/50">
+                    <div className="px-2 py-1 rounded-md bg-muted/50 inline-block">
                       <span className="text-xs text-muted-foreground">No active task</span>
                     </div>
                   )}
