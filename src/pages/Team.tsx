@@ -134,42 +134,40 @@ export default function Team() {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:block h-full overflow-hidden">
-        <div className="flex h-full rounded-lg border">
-          {/* Team Member List - Fixed 35% width */}
-          <div className="w-[35%] h-full flex flex-col p-4 overflow-hidden border-r">
-            <h2 className="text-sm font-medium text-muted-foreground mb-3 shrink-0">
-              Team Members ({visibleMembers.length})
-            </h2>
-            <div className="flex-1 overflow-hidden">
-              <TeamMemberList
-                members={visibleMembers}
-                tasks={tasks}
-                projects={projects}
-                allAssignees={allAssignees}
-                selectedMemberId={selectedMemberId}
-                onSelectMember={handleSelectMember}
-                isAdmin={true}
-                currentUserId={user?.id}
-              />
-            </div>
+      <div className="hidden md:flex h-full overflow-hidden rounded-lg border">
+        {/* Team Member List - Fixed 30% width */}
+        <div className="w-[30%] min-w-[280px] h-full flex flex-col p-4 overflow-hidden border-r">
+          <h2 className="text-sm font-medium text-muted-foreground mb-3 shrink-0">
+            Team Members ({visibleMembers.length})
+          </h2>
+          <div className="flex-1 overflow-hidden">
+            <TeamMemberList
+              members={visibleMembers}
+              tasks={tasks}
+              projects={projects}
+              allAssignees={allAssignees}
+              selectedMemberId={selectedMemberId}
+              onSelectMember={handleSelectMember}
+              isAdmin={true}
+              currentUserId={user?.id}
+            />
           </div>
+        </div>
 
-          {/* Member Tasks Panel - Fixed 65% width */}
-          <div className="w-[65%] h-full">
-            {selectedMember ? (
-              <MemberTasksPanel
-                member={selectedMember}
-                tasks={tasks}
-                allAssignees={allAssignees}
-                onClose={() => setSelectedMemberId(null)}
-              />
-            ) : (
-              <div className="h-full flex items-center justify-center text-muted-foreground">
-                <p>Select a team member to view their tasks</p>
-              </div>
-            )}
-          </div>
+        {/* Member Tasks Panel - Fixed 70% width */}
+        <div className="w-[70%] h-full overflow-hidden">
+          {selectedMember ? (
+            <MemberTasksPanel
+              member={selectedMember}
+              tasks={tasks}
+              allAssignees={allAssignees}
+              onClose={() => setSelectedMemberId(null)}
+            />
+          ) : (
+            <div className="h-full flex items-center justify-center text-muted-foreground">
+              <p>Select a team member to view their tasks</p>
+            </div>
+          )}
         </div>
       </div>
 
