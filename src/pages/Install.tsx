@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Smartphone, Monitor, Share, Plus, Apple, RefreshCw, CheckCircle2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Download, Smartphone, Monitor, Share, Plus, Apple, CheckCircle2 } from "lucide-react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -12,8 +11,6 @@ interface BeforeInstallPromptEvent extends Event {
 export default function InstallAppSection() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     // Check if already installed
@@ -52,111 +49,23 @@ export default function InstallAppSection() {
     setDeferredPrompt(null);
   };
 
-  const handleUpdateApp = async () => {
-    setIsUpdating(true);
-    
-    try {
-      // Unregister all service workers
-      if ('serviceWorker' in navigator) {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        
-        for (const registration of registrations) {
-          // Try to update the service worker first
-          await registration.update();
-          // Then unregister to force a fresh install
-          await registration.unregister();
-        }
-      }
-
-      // Clear all caches
-      if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        await Promise.all(
-          cacheNames.map(cacheName => caches.delete(cacheName))
-        );
-      }
-
-      toast({
-        title: "Update Complete",
-        description: "App will reload with the latest version...",
-      });
-
-      // Small delay to show the toast, then reload
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-
-    } catch (error) {
-      console.error("Update failed:", error);
-      toast({
-        title: "Update Failed",
-        description: "Please try again or reinstall the app.",
-        variant: "destructive",
-      });
-      setIsUpdating(false);
-    }
-  };
-
   if (isInstalled) {
     return (
-      <div className="space-y-4">
-        {/* App Installed Status */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">App Installed!</CardTitle>
-                <CardDescription>
-                  GoMicro ProjectHUB is installed on your device.
-                </CardDescription>
-              </div>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+              <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
-          </CardHeader>
-        </Card>
-
-        {/* Update App Section */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <RefreshCw className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">Update App</CardTitle>
-                <CardDescription>
-                  Force update to get the latest version of the app.
-                </CardDescription>
-              </div>
+            <div>
+              <CardTitle className="text-lg">App Installed!</CardTitle>
+              <CardDescription>
+                GoMicro ProjectHUB is installed on your device. The app automatically updates to the latest version.
+              </CardDescription>
             </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              If the app isn't showing the latest features or content, tap the button below to clear the cache and reload with the newest version.
-            </p>
-            <Button 
-              onClick={handleUpdateApp} 
-              disabled={isUpdating}
-              className="w-full"
-              variant="outline"
-            >
-              {isUpdating ? (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Check for Updates & Reload
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardHeader>
+      </Card>
     );
   }
 
