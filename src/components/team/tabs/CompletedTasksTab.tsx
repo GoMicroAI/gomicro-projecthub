@@ -1,4 +1,5 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -7,6 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useProjects } from "@/hooks/useProjects";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
@@ -19,6 +22,7 @@ interface CompletedTasksTabProps {
 
 export function CompletedTasksTab({ tasks }: CompletedTasksTabProps) {
   const { projects } = useProjects();
+  const navigate = useNavigate();
 
   const getProjectName = (projectId: string) => {
     const project = projects.find((p) => p.id === projectId);
@@ -48,7 +52,15 @@ export function CompletedTasksTab({ tasks }: CompletedTasksTabProps) {
                   <TableRow key={task.id}>
                     <TableCell className="font-medium">{task.title}</TableCell>
                     <TableCell className="text-muted-foreground text-sm">
-                      {getProjectName(task.project_id)}
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="h-auto p-0 text-muted-foreground hover:text-foreground"
+                        onClick={() => navigate(`/projects/${task.project_id}`)}
+                      >
+                        {getProjectName(task.project_id)}
+                        <ExternalLink className="h-3 w-3 ml-1" />
+                      </Button>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
                       {format(new Date(task.updated_at), "MMM d, yyyy")}

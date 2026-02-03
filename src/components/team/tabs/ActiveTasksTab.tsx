@@ -22,7 +22,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Play, FileText } from "lucide-react";
+import { Play, FileText, ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useTasks } from "@/hooks/useTasks";
 import { useProjects } from "@/hooks/useProjects";
 import { format } from "date-fns";
@@ -48,6 +49,7 @@ export function ActiveTasksTab({ tasks, memberAssignees, canModify }: ActiveTask
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const { updateTask } = useTasks();
   const { projects } = useProjects();
+  const navigate = useNavigate();
 
   const getProjectName = (projectId: string) => {
     const project = projects.find((p) => p.id === projectId);
@@ -153,7 +155,15 @@ export function ActiveTasksTab({ tasks, memberAssignees, canModify }: ActiveTask
                             </div>
                           </TableCell>
                           <TableCell className="text-muted-foreground text-sm">
-                            {getProjectName(task.project_id)}
+                            <Button
+                              variant="link"
+                              size="sm"
+                              className="h-auto p-0 text-muted-foreground hover:text-foreground"
+                              onClick={() => navigate(`/projects/${task.project_id}`)}
+                            >
+                              {getProjectName(task.project_id)}
+                              <ExternalLink className="h-3 w-3 ml-1" />
+                            </Button>
                           </TableCell>
                           <TableCell className="text-muted-foreground text-sm">
                             {formatStatusDate(task)}
