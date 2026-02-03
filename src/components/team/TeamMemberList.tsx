@@ -94,11 +94,11 @@ export function TeamMemberList({
                       <div className="shrink-0 flex items-center justify-center w-4 h-4 rounded-full bg-green-500/20">
                         <Play className="w-2.5 h-2.5 text-green-600 fill-green-600" />
                       </div>
-                      <div className="min-w-0 flex-1">
+                      <div className="min-w-0 flex-1 overflow-hidden">
                         <p className="text-[10px] text-green-600/70 dark:text-green-400/70 truncate leading-tight">
                           {getProjectName(currentTask.project_id)}
                         </p>
-                        <p className="text-xs font-medium text-green-700 dark:text-green-400 truncate leading-tight">
+                        <p className="text-xs font-medium text-green-700 dark:text-green-400 truncate leading-tight max-w-full">
                           {currentTask.title}
                         </p>
                       </div>
