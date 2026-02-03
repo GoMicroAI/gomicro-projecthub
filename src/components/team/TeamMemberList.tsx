@@ -40,6 +40,12 @@ export function TeamMemberList({
       .slice(0, 2);
   };
 
+  const truncateToWords = (text: string, maxWords: number) => {
+    const words = text.split(" ");
+    if (words.length <= maxWords) return text;
+    return words.slice(0, maxWords).join(" ") + "...";
+  };
+
   const getMemberCurrentTask = (userId: string | null) => {
     if (!userId) return null;
     // Find task IDs assigned to this user via junction table
@@ -73,43 +79,36 @@ export function TeamMemberList({
               )}
               onClick={() => onSelectMember(member.id)}
             >
-              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
-                {/* Avatar and name row */}
-                <div className="flex items-center gap-2 min-w-0">
-                  <Avatar className="h-8 w-8 shrink-0">
-                    <AvatarImage src={member.avatar_url || undefined} alt={member.name} />
-                    <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                      {getInitials(member.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-medium truncate">{member.name}</h3>
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8 shrink-0">
+                  <AvatarImage src={member.avatar_url || undefined} alt={member.name} />
+                  <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                    {getInitials(member.name)}
+                  </AvatarFallback>
+                </Avatar>
+                <h3 className="text-sm font-medium truncate">{member.name}</h3>
+              </div>
+
+              {/* Current task - stacked below name */}
+              {currentTask ? (
+                <div className="flex items-start gap-1.5 px-2 py-1.5 rounded-md bg-green-500/10 border border-green-500/20 mt-2">
+                  <div className="shrink-0 flex items-center justify-center w-4 h-4 rounded-full bg-green-500/20 mt-0.5">
+                    <Play className="w-2.5 h-2.5 text-green-600 fill-green-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-green-600/70 dark:text-green-400/70 leading-tight">
+                      {getProjectName(currentTask.project_id)}
+                    </p>
+                    <p className="text-xs font-medium text-green-700 dark:text-green-400 leading-tight">
+                      {truncateToWords(currentTask.title, 3)}
+                    </p>
                   </div>
                 </div>
-
-                {/* Current task - highlighted section */}
-                <div className="min-w-0 mt-1.5 sm:mt-0 sm:ml-2 sm:flex-1">
-                  {currentTask ? (
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-green-500/10 border border-green-500/20">
-                      <div className="shrink-0 flex items-center justify-center w-4 h-4 rounded-full bg-green-500/20">
-                        <Play className="w-2.5 h-2.5 text-green-600 fill-green-600" />
-                      </div>
-                      <div className="min-w-0 flex-1 overflow-hidden">
-                        <p className="text-[10px] text-green-600/70 dark:text-green-400/70 truncate leading-tight">
-                          {getProjectName(currentTask.project_id)}
-                        </p>
-                        <p className="text-xs font-medium text-green-700 dark:text-green-400 truncate leading-tight max-w-full">
-                          {currentTask.title}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="px-2 py-1 rounded-md bg-muted/50 inline-block">
-                      <span className="text-xs text-muted-foreground">No active task</span>
-                    </div>
-                  )}
+              ) : (
+                <div className="px-2 py-1 rounded-md bg-muted/50 mt-2 inline-block">
+                  <span className="text-xs text-muted-foreground">No active task</span>
                 </div>
-              </div>
+              )}
             </Card>
           );
         })}
