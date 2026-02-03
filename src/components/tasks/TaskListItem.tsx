@@ -2,8 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { PriorityBadge } from "./PriorityBadge";
 import { TaskStatusBadge } from "./TaskStatusBadge";
-import { Edit, Trash2, Calendar } from "lucide-react";
+import { Edit, Trash2, Calendar, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
 
 type Task = Database["public"]["Tables"]["tasks"]["Row"];
@@ -15,6 +16,8 @@ interface TaskListItemProps {
   assignees: TeamMember[];
   onEdit?: (task: Task) => void;
   onDelete?: (task: Task) => void;
+  showProjectLink?: boolean;
+  projectName?: string;
 }
 
 export function TaskListItem({
@@ -23,7 +26,11 @@ export function TaskListItem({
   assignees,
   onEdit,
   onDelete,
+  showProjectLink = false,
+  projectName,
 }: TaskListItemProps) {
+  const navigate = useNavigate();
+  
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -105,6 +112,19 @@ export function TaskListItem({
           </div>
         )}
 
+        {showProjectLink && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 text-xs text-muted-foreground hover:text-foreground"
+            onClick={() => navigate(`/projects/${task.project_id}`)}
+            title={projectName ? `Go to ${projectName}` : "Go to project"}
+          >
+            <ExternalLink className="h-3.5 w-3.5 mr-1" />
+            {projectName || "Project"}
+          </Button>
+        )}
+
         {isAdmin && (
           <div className="flex gap-1">
             <Button
@@ -128,26 +148,39 @@ export function TaskListItem({
       </div>
 
       {/* Mobile: Action buttons */}
-      {isAdmin && (
-        <div className="flex sm:hidden gap-1 self-end">
+      <div className="flex sm:hidden gap-1 self-end">
+        {showProjectLink && (
           <Button
             variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => onEdit?.(task)}
+            size="sm"
+            className="h-8 text-xs"
+            onClick={() => navigate(`/projects/${task.project_id}`)}
           >
-            <Edit className="h-4 w-4" />
+            <ExternalLink className="h-3.5 w-3.5 mr-1" />
+            Project
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-destructive hover:text-destructive"
-            onClick={() => onDelete?.(task)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
+        )}
+        {isAdmin && (
+          <>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => onEdit?.(task)}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-destructive hover:text-destructive"
+              onClick={() => onDelete?.(task)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </>
+        )}
+      </div>
     </div>
   );
 }

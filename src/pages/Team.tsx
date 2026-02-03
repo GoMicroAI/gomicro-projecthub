@@ -12,11 +12,6 @@ import { InviteDialog } from "@/components/team/InviteDialog";
 import { TeamMemberList } from "@/components/team/TeamMemberList";
 import { MemberTasksPanel } from "@/components/team/MemberTasksPanel";
 import { MyTasksView } from "@/components/team/MyTasksView";
-import {
-  ResizablePanelGroup,
-  ResizablePanel,
-  ResizableHandle,
-} from "@/components/ui/resizable";
 import type { Database } from "@/integrations/supabase/types";
 
 export default function Team() {
@@ -140,48 +135,42 @@ export default function Team() {
 
       {/* Desktop View */}
       <div className="hidden md:block h-full overflow-hidden">
-        <ResizablePanelGroup direction="horizontal" className="rounded-lg border">
-          {/* Team Member List */}
-          <ResizablePanel defaultSize={35} minSize={25}>
-            <div className="h-full flex flex-col p-4 overflow-hidden">
-              <h2 className="text-sm font-medium text-muted-foreground mb-3 shrink-0">
-                Team Members ({visibleMembers.length})
-              </h2>
-              <div className="flex-1 overflow-hidden">
-                <TeamMemberList
-                  members={visibleMembers}
-                  tasks={tasks}
-                  projects={projects}
-                  allAssignees={allAssignees}
-                  selectedMemberId={selectedMemberId}
-                  onSelectMember={handleSelectMember}
-                  isAdmin={true}
-                  currentUserId={user?.id}
-                />
+        <div className="flex h-full rounded-lg border">
+          {/* Team Member List - Fixed 35% width */}
+          <div className="w-[35%] h-full flex flex-col p-4 overflow-hidden border-r">
+            <h2 className="text-sm font-medium text-muted-foreground mb-3 shrink-0">
+              Team Members ({visibleMembers.length})
+            </h2>
+            <div className="flex-1 overflow-hidden">
+              <TeamMemberList
+                members={visibleMembers}
+                tasks={tasks}
+                projects={projects}
+                allAssignees={allAssignees}
+                selectedMemberId={selectedMemberId}
+                onSelectMember={handleSelectMember}
+                isAdmin={true}
+                currentUserId={user?.id}
+              />
+            </div>
+          </div>
+
+          {/* Member Tasks Panel - Fixed 65% width */}
+          <div className="w-[65%] h-full">
+            {selectedMember ? (
+              <MemberTasksPanel
+                member={selectedMember}
+                tasks={tasks}
+                allAssignees={allAssignees}
+                onClose={() => setSelectedMemberId(null)}
+              />
+            ) : (
+              <div className="h-full flex items-center justify-center text-muted-foreground">
+                <p>Select a team member to view their tasks</p>
               </div>
-            </div>
-          </ResizablePanel>
-
-          <ResizableHandle withHandle />
-
-          {/* Member Tasks Panel */}
-          <ResizablePanel defaultSize={65} minSize={40}>
-            <div className="h-full">
-              {selectedMember ? (
-                <MemberTasksPanel
-                  member={selectedMember}
-                  tasks={tasks}
-                  allAssignees={allAssignees}
-                  onClose={() => setSelectedMemberId(null)}
-                />
-              ) : (
-                <div className="h-full flex items-center justify-center text-muted-foreground">
-                  <p>Select a team member to view their tasks</p>
-                </div>
-              )}
-            </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+            )}
+          </div>
+        </div>
       </div>
 
       <InviteDialog
