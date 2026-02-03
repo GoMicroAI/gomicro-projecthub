@@ -64,9 +64,14 @@ export default function Projects() {
     setDeletingProject(undefined);
   };
 
+  const handleRefresh = () => {
+    refetch();
+  };
+
   return (
     <AppLayout
       title="Projects"
+      onRefresh={handleRefresh}
       actions={
         isAdmin && (
           <Button onClick={() => setProjectDialogOpen(true)} size="sm" className="md:size-default">
