@@ -29,6 +29,8 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
+import { FlaskConical, Code } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
 type Task = Database["public"]["Tables"]["tasks"]["Row"];
@@ -212,17 +214,22 @@ export function TaskDialogMultiAssign({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Task Type</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30">
+                      <div className={`flex items-center gap-2 transition-colors ${field.value === "development" ? "text-foreground" : "text-muted-foreground"}`}>
+                        <Code className="h-4 w-4" />
+                        <span className="text-sm font-medium">Development</span>
+                      </div>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
+                        <Switch
+                          checked={field.value === "rnd"}
+                          onCheckedChange={(checked) => field.onChange(checked ? "rnd" : "development")}
+                        />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="development">Development</SelectItem>
-                        <SelectItem value="rnd">R&D</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <div className={`flex items-center gap-2 transition-colors ${field.value === "rnd" ? "text-foreground" : "text-muted-foreground"}`}>
+                        <FlaskConical className="h-4 w-4" />
+                        <span className="text-sm font-medium">R&D</span>
+                      </div>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
