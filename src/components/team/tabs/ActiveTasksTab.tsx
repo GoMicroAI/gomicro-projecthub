@@ -23,9 +23,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Play, FileText, ExternalLink } from "lucide-react";
+import { UserCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTasks } from "@/hooks/useTasks";
 import { useProjects } from "@/hooks/useProjects";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { useAllTaskReporters } from "@/hooks/useTaskReporters";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -49,6 +52,8 @@ export function ActiveTasksTab({ tasks, memberAssignees, canModify }: ActiveTask
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const { updateTask } = useTasks();
   const { projects } = useProjects();
+  const { teamMembers } = useTeamMembers();
+  const { getReportersForTask } = useAllTaskReporters();
   const navigate = useNavigate();
 
   const getProjectName = (projectId: string) => {
@@ -94,6 +99,13 @@ export function ActiveTasksTab({ tasks, memberAssignees, canModify }: ActiveTask
     await updateTask.mutateAsync({ id: taskId, status: "in_progress" });
   };
 
+  const getReporterNames = (taskId: string) => {
+    const reporterIds = getReportersForTask(taskId);
+    return reporterIds
+      .map((id) => teamMembers.find((m) => m.user_id === id)?.name)
+      .filter(Boolean);
+  };
+
   // Filter active tasks (exclude done)
   const activeTasks = tasks.filter((t) => t.status !== "done");
 
@@ -130,10 +142,11 @@ export function ActiveTasksTab({ tasks, memberAssignees, canModify }: ActiveTask
                       <TableRow className="bg-muted/50">
                         <TableHead className="w-[35%]">Task</TableHead>
                         <TableHead className="w-[20%]">Project</TableHead>
+                      <TableHead className="w-[15%]">Report To</TableHead>
                         <TableHead className="w-[15%]">
                           {section.key === "in_progress" ? "Date" : getDateLabel(section.key)}
                         </TableHead>
-                        <TableHead className="w-[30%] text-right">Actions</TableHead>
+                      <TableHead className="w-[15%] text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -165,6 +178,16 @@ export function ActiveTasksTab({ tasks, memberAssignees, canModify }: ActiveTask
                               <ExternalLink className="h-3 w-3 ml-1" />
                             </Button>
                           </TableCell>
+                        <TableCell>
+                          {getReporterNames(task.id).length > 0 ? (
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <UserCheck className="h-3 w-3" />
+                              <span>{getReporterNames(task.id).join(", ")}</span>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
                           <TableCell className="text-muted-foreground text-sm">
                             {formatStatusDate(task)}
                           </TableCell>

@@ -26,10 +26,12 @@
  import { useRndTasks } from "@/hooks/useRndTasks";
  import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
+import { useAllTaskReporters } from "@/hooks/useTaskReporters";
+import { useTaskReporters } from "@/hooks/useTaskReporters";
  import { useProjects } from "@/hooks/useProjects";
  import { useUserRole } from "@/hooks/useUserRole";
  import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval } from "date-fns";
- import { Download, RefreshCw, FlaskConical, Edit, Trash2 } from "lucide-react";
+import { Download, RefreshCw, FlaskConical, Edit, Trash2, UserCheck } from "lucide-react";
  import { Navigate } from "react-router-dom";
  import * as XLSX from "xlsx";
  import { ExportDialog } from "@/components/rnd/ExportDialog";
@@ -43,6 +45,8 @@ import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
    const { teamMembers } = useTeamMembers();
    const { projects } = useProjects();
   const { allAssignees } = useAllTaskAssigneesGlobal();
+  const { allReporters, getReportersForTask } = useAllTaskReporters();
+  const { setReporters } = useTaskReporters();
  
    const [dateFilter, setDateFilter] = useState<string>("all");
    const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -172,6 +176,7 @@ import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
     task_type?: string;
      due_date?: string;
      assignees: string[];
+    reporters: string[];
    }) => {
      if (!editingTask) return;
      await updateTask.mutateAsync({ 
@@ -183,6 +188,12 @@ import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
       task_type: (data.task_type || editingTask.task_type) as Task["task_type"],
        due_date: data.due_date || null,
      });
+    
+    await setReporters.mutateAsync({
+      taskId: editingTask.id,
+      userIds: data.reporters,
+    });
+    
      setEditingTask(null);
    };
  
@@ -279,6 +290,7 @@ import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
                      <TableHead className="w-[150px]">Project</TableHead>
                      <TableHead className="min-w-[200px]">Task</TableHead>
                      <TableHead className="w-[150px]">Assigned To</TableHead>
+                      <TableHead className="w-[120px]">Report To</TableHead>
                      <TableHead className="w-[100px]">Status</TableHead>
                      <TableHead className="w-[80px]">Priority</TableHead>
                      <TableHead className="w-[80px] text-right">Actions</TableHead>
@@ -290,6 +302,10 @@ import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
                      const assignees = assigneeIds
                        .map((id) => teamMembers.find((m) => m.user_id === id))
                        .filter(Boolean);
+                      const reporterIds = getReportersForTask(task.id);
+                      const reporters = reporterIds
+                        .map((id) => teamMembers.find((m) => m.user_id === id))
+                        .filter(Boolean);
  
                      return (
                        <TableRow key={task.id}>
@@ -336,6 +352,18 @@ import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
                              <span className="text-xs text-muted-foreground">Unassigned</span>
                            )}
                          </TableCell>
+                          <TableCell>
+                            {reporters.length > 0 ? (
+                              <div className="flex items-center gap-1 text-xs">
+                                <UserCheck className="h-3 w-3 text-muted-foreground" />
+                                <span className="text-muted-foreground">
+                                  {reporters.map((r) => r!.name).join(", ")}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
                          <TableCell>
                            <TaskStatusBadge status={task.status} />
                          </TableCell>
@@ -381,6 +409,7 @@ import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
            projectId={editingTask.project_id}
            teamMembers={teamMembers}
            currentAssignees={assigneesByTaskId[editingTask.id] || []}
+            currentReporters={getReportersForTask(editingTask.id)}
            onSubmit={handleUpdateTask}
          />
        )}

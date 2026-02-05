@@ -32,6 +32,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Cpu } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import { Badge } from "@/components/ui/badge";
 
 type Task = Database["public"]["Tables"]["tasks"]["Row"];
 type TeamMember = Database["public"]["Tables"]["team_members"]["Row"];
@@ -54,7 +55,8 @@ interface TaskDialogMultiAssignProps {
   projectId: string;
   teamMembers: TeamMember[];
   currentAssignees?: string[];
-  onSubmit: (data: TaskFormData & { assignees: string[] }) => Promise<void>;
+  currentReporters?: string[];
+  onSubmit: (data: TaskFormData & { assignees: string[]; reporters: string[] }) => Promise<void>;
 }
 
 export function TaskDialogMultiAssign({
@@ -64,10 +66,12 @@ export function TaskDialogMultiAssign({
   projectId: _projectId,
   teamMembers,
   currentAssignees = [],
+  currentReporters = [],
   onSubmit,
 }: TaskDialogMultiAssignProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>(currentAssignees);
+  const [selectedReporters, setSelectedReporters] = useState<string[]>(currentReporters);
 
   const form = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
@@ -93,15 +97,17 @@ export function TaskDialogMultiAssign({
         due_date: task?.due_date || undefined,
       });
       setSelectedAssignees(currentAssignees);
+      setSelectedReporters(currentReporters);
     }
-  }, [open, task, form, currentAssignees]);
+  }, [open, task, form, currentAssignees, currentReporters]);
 
   const handleSubmit = async (data: TaskFormData) => {
     setIsSubmitting(true);
     try {
-      await onSubmit({ ...data, assignees: selectedAssignees });
+      await onSubmit({ ...data, assignees: selectedAssignees, reporters: selectedReporters });
       form.reset();
       setSelectedAssignees([]);
+      setSelectedReporters([]);
       onOpenChange(false);
     } finally {
       setIsSubmitting(false);
@@ -116,7 +122,16 @@ export function TaskDialogMultiAssign({
     );
   };
 
+  const toggleReporter = (userId: string) => {
+    setSelectedReporters((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
   const activeMembers = teamMembers.filter((m) => m.status === "active");
+  const adminMembers = activeMembers.filter((m) => m.role === "admin");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -265,6 +280,39 @@ export function TaskDialogMultiAssign({
                               className="text-sm font-medium leading-none cursor-pointer"
                             >
                               {member.name}
+                            </label>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Report To</Label>
+                <ScrollArea className="h-[100px] border rounded-md p-3">
+                  <div className="space-y-2">
+                    {adminMembers.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No admins available</p>
+                    ) : (
+                      adminMembers.map((member) => {
+                        const memberId = member.user_id || member.id;
+                        return (
+                          <div key={member.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`reporter-${member.id}`}
+                              checked={selectedReporters.includes(memberId)}
+                              onCheckedChange={() => toggleReporter(memberId)}
+                            />
+                            <label
+                              htmlFor={`reporter-${member.id}`}
+                              className="text-sm font-medium leading-none cursor-pointer flex items-center gap-2"
+                            >
+                              {member.name}
+                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                Admin
+                              </Badge>
                             </label>
                           </div>
                         );

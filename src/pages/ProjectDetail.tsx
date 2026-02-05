@@ -14,6 +14,7 @@ import { useFiles } from "@/hooks/useFiles";
 import { useFolders } from "@/hooks/useFolders";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAllTaskAssignees, useTaskAssignees } from "@/hooks/useTaskAssignees";
+import { useAllTaskReporters, useTaskReporters } from "@/hooks/useTaskReporters";
 import { useProjectCustomTabs } from "@/hooks/useProjectCustomTabs";
 import { useProjectLinks } from "@/hooks/useProjectLinks";
 import { ProjectStatusBadge } from "@/components/projects/ProjectStatusBadge";
@@ -49,6 +50,8 @@ export default function ProjectDetail() {
   const { isAdmin } = useUserRole();
   const { assigneesByTask } = useAllTaskAssignees(id);
   const { setAssignees } = useTaskAssignees();
+  const { allReporters, getReportersForTask } = useAllTaskReporters();
+  const { setReporters } = useTaskReporters();
   const { messages } = useProjectMessages(id);
   const { customTabs, createTab, updateTab, deleteTab } = useProjectCustomTabs(id);
   const { links, createLink, deleteLink } = useProjectLinks(id);
@@ -136,6 +139,11 @@ export default function ProjectDetail() {
     return taskAssignees.map((a) => a.user_id);
   };
 
+  const getReportersForTaskMembers = (taskId: string) => {
+    const reporterIds = getReportersForTask(taskId);
+    return teamMembers.filter((m) => reporterIds.includes(m.user_id || m.id));
+  };
+
   const handleCreateTask = async (data: {
     title: string;
     description?: string;
@@ -144,6 +152,7 @@ export default function ProjectDetail() {
     task_type?: Database["public"]["Enums"]["task_type"];
     due_date?: string;
     assignees: string[];
+    reporters: string[];
   }) => {
     if (!id) return;
     const result = await createTask.mutateAsync({
@@ -162,6 +171,13 @@ export default function ProjectDetail() {
         userIds: data.assignees,
       });
     }
+    
+    if (data.reporters.length > 0) {
+      await setReporters.mutateAsync({
+        taskId: result.id,
+        userIds: data.reporters,
+      });
+    }
   };
 
   const handleUpdateTask = async (data: {
@@ -172,6 +188,7 @@ export default function ProjectDetail() {
     task_type?: Database["public"]["Enums"]["task_type"];
     due_date?: string;
     assignees: string[];
+    reporters: string[];
   }) => {
     if (!editingTask) return;
     await updateTask.mutateAsync({
@@ -187,6 +204,11 @@ export default function ProjectDetail() {
     await setAssignees.mutateAsync({
       taskId: editingTask.id,
       userIds: data.assignees,
+    });
+    
+    await setReporters.mutateAsync({
+      taskId: editingTask.id,
+      userIds: data.reporters,
     });
     
     setEditingTask(undefined);
@@ -467,6 +489,7 @@ export default function ProjectDetail() {
                         task={task}
                         isAdmin={isAdmin}
                         assignees={getAssigneesForTask(task.id)}
+                        reporters={getReportersForTaskMembers(task.id)}
                         onEdit={(task) => {
                           setEditingTask(task);
                           setTaskDialogOpen(true);
@@ -697,6 +720,7 @@ export default function ProjectDetail() {
           projectId={id}
           teamMembers={teamMembers}
           currentAssignees={editingTask ? getAssigneeIdsForTask(editingTask.id) : []}
+          currentReporters={editingTask ? getReportersForTask(editingTask.id) : []}
           onSubmit={editingTask ? handleUpdateTask : handleCreateTask}
         />
       )}
