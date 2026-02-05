@@ -10,6 +10,7 @@ type TaskInsert = Database["public"]["Tables"]["tasks"]["Insert"];
 type TaskUpdate = Database["public"]["Tables"]["tasks"]["Update"];
 type TaskStatus = Database["public"]["Enums"]["task_status"];
 type TaskPriority = Database["public"]["Enums"]["task_priority"];
+type TaskType = Database["public"]["Enums"]["task_type"];
 
 export function useTasks(projectId?: string) {
   const { user } = useAuth();
@@ -70,6 +71,7 @@ export function useTasks(projectId?: string) {
       status?: TaskStatus;
       priority?: TaskPriority;
       assigned_to?: string;
+      task_type?: TaskType;
       due_date?: string;
     }) => {
       const { data, error } = await supabase
@@ -81,6 +83,7 @@ export function useTasks(projectId?: string) {
           status: task.status || "todo",
           priority: task.priority || "medium",
           assigned_to: task.assigned_to,
+          task_type: task.task_type || "development",
           due_date: task.due_date,
         })
         .select()

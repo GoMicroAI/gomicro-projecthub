@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { PriorityBadge } from "./PriorityBadge";
 import { TaskStatusBadge } from "./TaskStatusBadge";
-import { Edit, Trash2, Calendar, ExternalLink } from "lucide-react";
+import { Edit, Trash2, Calendar, ExternalLink, FlaskConical, Code } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
@@ -45,6 +46,17 @@ export function TaskListItem({
       {/* Task Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
+          {task.task_type === "rnd" ? (
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-purple-500/10 text-purple-600 border-purple-300">
+              <FlaskConical className="h-2.5 w-2.5 mr-0.5" />
+              R&D
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-blue-500/10 text-blue-600 border-blue-300">
+              <Code className="h-2.5 w-2.5 mr-0.5" />
+              Dev
+            </Badge>
+          )}
           <h4 className="font-medium truncate text-sm sm:text-base">{task.title}</h4>
           <TaskStatusBadge status={task.status} />
           <PriorityBadge priority={task.priority} />

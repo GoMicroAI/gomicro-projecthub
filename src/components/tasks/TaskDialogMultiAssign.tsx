@@ -32,8 +32,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Database } from "@/integrations/supabase/types";
 
 type Task = Database["public"]["Tables"]["tasks"]["Row"];
-type TaskStatus = Database["public"]["Enums"]["task_status"];
-type TaskPriority = Database["public"]["Enums"]["task_priority"];
 type TeamMember = Database["public"]["Tables"]["team_members"]["Row"];
 
 const taskSchema = z.object({
@@ -41,6 +39,7 @@ const taskSchema = z.object({
   description: z.string().max(1000).optional(),
   status: z.enum(["todo", "in_progress", "blocked", "done"]),
   priority: z.enum(["low", "medium", "high", "urgent"]),
+  task_type: z.enum(["development", "rnd"]),
   due_date: z.string().optional(),
 });
 
@@ -60,7 +59,7 @@ export function TaskDialogMultiAssign({
   open,
   onOpenChange,
   task,
-  projectId,
+  projectId: _projectId,
   teamMembers,
   currentAssignees = [],
   onSubmit,
@@ -75,6 +74,7 @@ export function TaskDialogMultiAssign({
       description: task?.description || "",
       status: task?.status || "todo",
       priority: task?.priority || "medium",
+      task_type: task?.task_type || "development",
       due_date: task?.due_date || undefined,
     },
   });
@@ -87,6 +87,7 @@ export function TaskDialogMultiAssign({
         description: task?.description || "",
         status: task?.status || "todo",
         priority: task?.priority || "medium",
+        task_type: task?.task_type || "development",
         due_date: task?.due_date || undefined,
       });
       setSelectedAssignees(currentAssignees);
@@ -204,6 +205,28 @@ export function TaskDialogMultiAssign({
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="task_type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Task Type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="development">Development</SelectItem>
+                        <SelectItem value="rnd">R&D</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}

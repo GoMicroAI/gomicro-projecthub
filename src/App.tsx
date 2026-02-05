@@ -11,6 +11,7 @@ import Team from "./pages/Team";
 import Announcements from "./pages/Announcements";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import RndWork from "./pages/RndWork";
 
 const queryClient = new QueryClient();
 
@@ -110,6 +111,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Settings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/rnd-work"
+        element={
+          <ProtectedRoute>
+            <RndWork />
           </ProtectedRoute>
         }
       />
