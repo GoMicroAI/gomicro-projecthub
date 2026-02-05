@@ -22,8 +22,8 @@ import logo from "@/assets/logo.png";
 
 const getNavItems = (isAdmin: boolean) => [
   { title: "Projects", url: "/projects", icon: FolderKanban },
-  ...(isAdmin ? [{ title: "R&D Work", url: "/rnd-work", icon: Cpu }] : []),
   { title: isAdmin ? "Team" : "My Work", url: "/team", icon: isAdmin ? Users : Briefcase },
+  ...(isAdmin ? [{ title: "R&D Work", url: "/rnd-work", icon: Cpu }] : []),
   { title: "Announcements", url: "/announcements", icon: Megaphone },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
