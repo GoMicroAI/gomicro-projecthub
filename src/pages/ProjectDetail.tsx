@@ -141,6 +141,7 @@ export default function ProjectDetail() {
     description?: string;
     status?: Database["public"]["Enums"]["task_status"];
     priority?: Database["public"]["Enums"]["task_priority"];
+    task_type?: Database["public"]["Enums"]["task_type"];
     due_date?: string;
     assignees: string[];
   }) => {
@@ -151,6 +152,7 @@ export default function ProjectDetail() {
       description: data.description,
       status: data.status,
       priority: data.priority,
+      task_type: data.task_type,
       due_date: data.due_date || undefined,
     });
     
@@ -167,6 +169,7 @@ export default function ProjectDetail() {
     description?: string;
     status?: Database["public"]["Enums"]["task_status"];
     priority?: Database["public"]["Enums"]["task_priority"];
+    task_type?: Database["public"]["Enums"]["task_type"];
     due_date?: string;
     assignees: string[];
   }) => {
@@ -177,6 +180,7 @@ export default function ProjectDetail() {
       description: data.description,
       status: data.status,
       priority: data.priority,
+      task_type: data.task_type,
       due_date: data.due_date || null,
     });
     
