@@ -47,7 +47,7 @@ export function AddLinkDialog({ open, onOpenChange, onSubmit, isPending }: AddLi
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[95vw] sm:w-full sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add Link</DialogTitle>
         </DialogHeader>

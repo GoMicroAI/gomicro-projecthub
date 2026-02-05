@@ -137,7 +137,8 @@ export function ActiveTasksTab({ tasks, memberAssignees, canModify }: ActiveTask
                   {section.title} ({sectionTasks.length})
                 </h3>
                 <div className="border rounded-md overflow-hidden">
-                  <Table>
+                  <div className="overflow-x-auto">
+                    <Table className="min-w-[600px]">
                     <TableHeader>
                       <TableRow className="bg-muted/50">
                         <TableHead className="w-[35%]">Task</TableHead>
@@ -226,7 +227,8 @@ export function ActiveTasksTab({ tasks, memberAssignees, canModify }: ActiveTask
                         </TableRow>
                       ))}
                     </TableBody>
-                  </Table>
+                    </Table>
+                  </div>
                 </div>
               </div>
             );

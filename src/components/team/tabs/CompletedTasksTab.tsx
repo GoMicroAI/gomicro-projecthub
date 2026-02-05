@@ -39,7 +39,8 @@ export function CompletedTasksTab({ tasks }: CompletedTasksTabProps) {
         </h3>
         {doneTasks.length > 0 ? (
           <div className="border rounded-md overflow-hidden">
-            <Table>
+            <div className="overflow-x-auto">
+              <Table className="min-w-[500px]">
               <TableHeader>
                 <TableRow className="bg-muted/50">
                   <TableHead className="w-[45%]">Task</TableHead>
@@ -68,7 +69,8 @@ export function CompletedTasksTab({ tasks }: CompletedTasksTabProps) {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+              </Table>
+            </div>
           </div>
         ) : (
           <p className="text-center text-muted-foreground py-8">

@@ -135,13 +135,13 @@ export function TaskDialogMultiAssign({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-lg max-h-[90vh] flex flex-col w-[95vw] sm:w-full">
         <DialogHeader>
           <DialogTitle>{task ? "Edit Task" : "Add Task"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 flex-1 overflow-hidden flex flex-col">
-            <div className="space-y-4 flex-1 overflow-auto">
+            <div className="space-y-4 flex-1 overflow-auto px-1">
               <FormField
                 control={form.control}
                 name="title"
@@ -174,7 +174,7 @@ export function TaskDialogMultiAssign({
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FormField
                   control={form.control}
                   name="status"
@@ -261,7 +261,7 @@ export function TaskDialogMultiAssign({
 
               <div className="space-y-2">
                 <Label>Assign Members</Label>
-                <ScrollArea className="h-[120px] border rounded-md p-3">
+                <ScrollArea className="h-[100px] sm:h-[120px] border rounded-md p-2 sm:p-3">
                   <div className="space-y-2">
                     {activeMembers.length === 0 ? (
                       <p className="text-sm text-muted-foreground">No team members available</p>
@@ -291,7 +291,7 @@ export function TaskDialogMultiAssign({
 
               <div className="space-y-2">
                 <Label>Report To</Label>
-                <ScrollArea className="h-[100px] border rounded-md p-3">
+                <ScrollArea className="h-[80px] sm:h-[100px] border rounded-md p-2 sm:p-3">
                   <div className="space-y-2">
                     {adminMembers.length === 0 ? (
                       <p className="text-sm text-muted-foreground">No admins available</p>
