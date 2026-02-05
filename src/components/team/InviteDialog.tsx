@@ -69,7 +69,7 @@ export function InviteDialog({ open, onOpenChange, onSubmit }: InviteDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="w-[95vw] sm:w-full max-w-md">
         <DialogHeader>
           <DialogTitle>Create Team Member</DialogTitle>
           <DialogDescription>

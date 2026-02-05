@@ -45,7 +45,7 @@ import { Download, RefreshCw, FlaskConical, Edit, Trash2, UserCheck } from "luci
    const { teamMembers } = useTeamMembers();
    const { projects } = useProjects();
   const { allAssignees } = useAllTaskAssigneesGlobal();
-  const { allReporters, getReportersForTask } = useAllTaskReporters();
+  const { getReportersForTask } = useAllTaskReporters();
   const { setReporters } = useTaskReporters();
  
    const [dateFilter, setDateFilter] = useState<string>("all");
@@ -270,7 +270,7 @@ import { Download, RefreshCw, FlaskConical, Edit, Trash2, UserCheck } from "luci
          </div>
  
          {/* Task Table */}
-         <div className="flex-1 border rounded-lg overflow-hidden">
+         <div className="flex-1 border rounded-lg overflow-hidden min-h-0">
            {isLoading ? (
              <div className="flex items-center justify-center h-full">
                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
@@ -282,8 +282,9 @@ import { Download, RefreshCw, FlaskConical, Edit, Trash2, UserCheck } from "luci
                <p className="text-sm">R&D tasks from projects will appear here</p>
              </div>
            ) : (
-             <ScrollArea className="h-full">
-               <Table>
+             <div className="h-full overflow-auto">
+               <div className="min-w-[900px]">
+                 <Table>
                  <TableHeader>
                    <TableRow className="bg-muted/50">
                      <TableHead className="w-[120px]">Date & Time</TableHead>
@@ -394,8 +395,9 @@ import { Download, RefreshCw, FlaskConical, Edit, Trash2, UserCheck } from "luci
                      );
                    })}
                  </TableBody>
-               </Table>
-             </ScrollArea>
+                 </Table>
+               </div>
+             </div>
            )}
          </div>
        </div>

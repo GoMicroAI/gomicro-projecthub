@@ -74,7 +74,7 @@
  
    return (
      <Dialog open={open} onOpenChange={onOpenChange}>
-       <DialogContent className="sm:max-w-md">
+        <DialogContent className="w-[95vw] sm:w-full sm:max-w-md">
          <DialogHeader>
            <DialogTitle>Export R&D Work Log</DialogTitle>
          </DialogHeader>
@@ -113,7 +113,7 @@
            )}
  
            {exportType === "range" && (
-             <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                <div className="space-y-2">
                  <Label>Start Date</Label>
                  <Popover>

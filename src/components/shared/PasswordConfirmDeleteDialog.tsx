@@ -86,7 +86,7 @@ export function PasswordConfirmDeleteDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={handleClose}>
-      <AlertDialogContent>
+      <AlertDialogContent className="w-[95vw] sm:w-full max-w-md">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <Lock className="h-5 w-5 text-destructive" />
