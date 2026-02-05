@@ -28,10 +28,11 @@
 import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
  import { useProjects } from "@/hooks/useProjects";
  import { useUserRole } from "@/hooks/useUserRole";
- import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
+ import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval } from "date-fns";
  import { Download, RefreshCw, FlaskConical, Edit, Trash2 } from "lucide-react";
  import { Navigate } from "react-router-dom";
  import * as XLSX from "xlsx";
+ import { ExportDialog } from "@/components/rnd/ExportDialog";
  import type { Database } from "@/integrations/supabase/types";
  
  type Task = Database["public"]["Tables"]["tasks"]["Row"];
@@ -46,6 +47,7 @@ import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
    const [dateFilter, setDateFilter] = useState<string>("all");
    const [editingTask, setEditingTask] = useState<Task | null>(null);
    const [deletingTask, setDeletingTask] = useState<Task | null>(null);
+   const [showExportDialog, setShowExportDialog] = useState(false);
 
   // Build assignees by task ID map
   const assigneesByTaskId = useMemo(() => {
@@ -110,8 +112,22 @@ import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
        .slice(0, 2);
    };
  
-   const handleExportExcel = () => {
-     const data = filteredTasks.map((task) => ({
+   const handleExportExcel = (startDate: Date | null, endDate: Date | null) => {
+     let tasksToExport = rndTasks;
+ 
+     // Filter by date range if specified
+     if (startDate && endDate) {
+       tasksToExport = rndTasks.filter((task) => {
+         const taskDate = new Date(task.created_at);
+         return isWithinInterval(taskDate, { start: startDate, end: endDate });
+       });
+     }
+ 
+     if (tasksToExport.length === 0) {
+       return;
+     }
+ 
+     const data = tasksToExport.map((task) => ({
        "Date": format(new Date(task.created_at), "MMM d, yyyy"),
        "Time": format(new Date(task.created_at), "HH:mm"),
        "Project": getProjectName(task.project_id),
@@ -140,9 +156,10 @@ import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
      ];
      worksheet["!cols"] = colWidths;
  
-     const fileName = dateFilter === "all" 
-       ? "rnd-work-log-all.xlsx" 
-       : `rnd-work-log-${dateFilter}.xlsx`;
+     let fileName = "rnd-work-log-all.xlsx";
+     if (startDate && endDate) {
+       fileName = `rnd-work-log-${format(startDate, "yyyy-MM-dd")}-to-${format(endDate, "yyyy-MM-dd")}.xlsx`;
+     }
  
      XLSX.writeFile(workbook, fileName);
    };
@@ -235,7 +252,7 @@ import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
              </Badge>
            </div>
  
-           <Button onClick={handleExportExcel} disabled={filteredTasks.length === 0}>
+           <Button onClick={() => setShowExportDialog(true)} disabled={rndTasks.length === 0}>
              <Download className="h-4 w-4 mr-2" />
              Export to Excel
            </Button>
@@ -375,6 +392,13 @@ import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
          title="Delete Task"
          description={`Are you sure you want to delete "${deletingTask?.title}"? This action cannot be undone.`}
          onConfirm={handleDeleteTask}
+       />
+       
+       {/* Export Dialog */}
+       <ExportDialog
+         open={showExportDialog}
+         onOpenChange={setShowExportDialog}
+         onExport={handleExportExcel}
        />
      </AppLayout>
    );
