@@ -9,7 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Briefcase,
-  FlaskConical,
+  Cpu,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,7 +22,7 @@ import logo from "@/assets/logo.png";
 
 const getNavItems = (isAdmin: boolean) => [
   { title: "Projects", url: "/projects", icon: FolderKanban },
-  ...(isAdmin ? [{ title: "R&D Work", url: "/rnd-work", icon: FlaskConical }] : []),
+  ...(isAdmin ? [{ title: "R&D Work", url: "/rnd-work", icon: Cpu }] : []),
   { title: isAdmin ? "Team" : "My Work", url: "/team", icon: isAdmin ? Users : Briefcase },
   { title: "Announcements", url: "/announcements", icon: Megaphone },
   { title: "Settings", url: "/settings", icon: Settings },
