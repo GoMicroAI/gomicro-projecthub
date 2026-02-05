@@ -30,7 +30,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
-import { FlaskConical, Code } from "lucide-react";
+import { Cpu, Code } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
 type Task = Database["public"]["Tables"]["tasks"]["Row"];
@@ -226,7 +226,7 @@ export function TaskDialogMultiAssign({
                         />
                       </FormControl>
                       <div className={`flex items-center gap-2 transition-colors ${field.value === "rnd" ? "text-foreground" : "text-muted-foreground"}`}>
-                        <FlaskConical className="h-4 w-4" />
+                        <Cpu className="h-4 w-4" />
                         <span className="text-sm font-medium">R&D</span>
                       </div>
                     </div>

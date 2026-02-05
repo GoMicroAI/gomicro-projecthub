@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { PriorityBadge } from "./PriorityBadge";
-import { Edit, Trash2, Calendar, FlaskConical, Code } from "lucide-react";
+import { Edit, Trash2, Calendar, Cpu, Code } from "lucide-react";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -47,7 +47,7 @@ export function TaskCard({
             <div className="flex items-center gap-1.5 mb-1">
               {task.task_type === "rnd" ? (
                 <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-purple-500/10 text-purple-600 border-purple-300">
-                  <FlaskConical className="h-2.5 w-2.5 mr-0.5" />
+                  <Cpu className="h-2.5 w-2.5 mr-0.5" />
                   R&D
                 </Badge>
               ) : (
