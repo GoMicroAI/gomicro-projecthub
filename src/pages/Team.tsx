@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowLeft } from "lucide-react";
@@ -27,6 +27,13 @@ export default function Team() {
 
   // Filter out only the main admin (sivam.common@gmail.com) from the team list
   const visibleMembers = teamMembers.filter((m) => m.email !== "sivam.common@gmail.com");
+
+  // Auto-select first member when page loads (admin view only)
+  useEffect(() => {
+    if (isAdmin && !selectedMemberId && visibleMembers.length > 0) {
+      setSelectedMemberId(visibleMembers[0].id);
+    }
+  }, [isAdmin, visibleMembers, selectedMemberId]);
 
   // Find current user's team member record
   const currentUserMember = teamMembers.find((m) => m.user_id === user?.id);
