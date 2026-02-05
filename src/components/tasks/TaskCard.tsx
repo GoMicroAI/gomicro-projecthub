@@ -1,9 +1,8 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { PriorityBadge } from "./PriorityBadge";
-import { Edit, Trash2, Calendar, Cpu } from "lucide-react";
+import { Edit, Trash2, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -44,14 +43,6 @@ export function TaskCard({
       <CardHeader className="p-3 pb-2">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            {task.task_type === "rnd" && (
-              <div className="flex items-center gap-1.5 mb-1">
-                <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-purple-500/10 text-purple-600 border-purple-300">
-                  <Cpu className="h-2.5 w-2.5 mr-0.5" />
-                  R&D
-                </Badge>
-              </div>
-            )}
             <h4 className="text-sm font-medium line-clamp-2">{task.title}</h4>
           </div>
           {isAdmin && (
