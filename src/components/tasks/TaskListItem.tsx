@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { PriorityBadge } from "./PriorityBadge";
 import { TaskStatusBadge } from "./TaskStatusBadge";
-import { Edit, Trash2, Calendar, ExternalLink } from "lucide-react";
+import { Edit, Trash2, Calendar, ExternalLink, UserCheck } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
@@ -14,6 +14,7 @@ interface TaskListItemProps {
   task: Task;
   isAdmin: boolean;
   assignees: TeamMember[];
+  reporters?: TeamMember[];
   onEdit?: (task: Task) => void;
   onDelete?: (task: Task) => void;
   showProjectLink?: boolean;
@@ -24,6 +25,7 @@ export function TaskListItem({
   task,
   isAdmin,
   assignees,
+  reporters = [],
   onEdit,
   onDelete,
   showProjectLink = false,
@@ -53,6 +55,14 @@ export function TaskListItem({
           <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
             {task.description}
           </p>
+        )}
+        
+        {/* Report To info */}
+        {reporters.length > 0 && (
+          <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
+            <UserCheck className="h-3 w-3" />
+            <span>Report to: {reporters.map(r => r.name).join(", ")}</span>
+          </div>
         )}
         
         {/* Mobile: Due date and assignees */}
