@@ -86,7 +86,9 @@ export function TeamMemberList({
                     {getInitials(member.name)}
                   </AvatarFallback>
                 </Avatar>
-                <h3 className="text-sm font-medium truncate">{member.name}</h3>
+                <h3 className="text-sm font-medium truncate">
+                  {member.user_id === currentUserId ? "My Work" : member.name}
+                </h3>
               </div>
 
               {/* Current task - stacked below name */}
