@@ -110,7 +110,7 @@ export default function Settings() {
             {isAdmin && (
               <TabsTrigger value="users" className="flex items-center gap-1.5 text-xs sm:text-sm px-2.5 sm:px-3">
                 <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span className="hidden xs:inline">User</span> <span>Management</span>
+                <span className="hidden sm:inline">User</span> <span>Management</span>
               </TabsTrigger>
             )}
           </TabsList>

@@ -40,7 +40,7 @@ export function CompletedTasksTab({ tasks }: CompletedTasksTabProps) {
         {doneTasks.length > 0 ? (
           <div className="border rounded-md overflow-hidden">
             <div className="overflow-x-auto">
-              <Table className="min-w-[500px]">
+              <Table className="min-w-[400px] sm:min-w-[500px]">
               <TableHeader>
                 <TableRow className="bg-muted/50">
                   <TableHead className="w-[45%]">Task</TableHead>
@@ -51,19 +51,19 @@ export function CompletedTasksTab({ tasks }: CompletedTasksTabProps) {
               <TableBody>
                 {doneTasks.map((task) => (
                   <TableRow key={task.id}>
-                    <TableCell className="font-medium">{task.title}</TableCell>
+                    <TableCell className="font-medium truncate max-w-[150px] sm:max-w-[220px]">{task.title}</TableCell>
                     <TableCell className="text-muted-foreground text-sm">
                       <Button
                         variant="link"
                         size="sm"
-                        className="h-auto p-0 text-muted-foreground hover:text-foreground"
+                        className="h-auto p-0 text-muted-foreground hover:text-foreground truncate max-w-[120px] sm:max-w-[180px]"
                         onClick={() => navigate(`/projects/${task.project_id}`)}
                       >
                         {getProjectName(task.project_id)}
-                        <ExternalLink className="h-3 w-3 ml-1" />
+                        <ExternalLink className="h-3 w-3 ml-1 shrink-0" />
                       </Button>
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
+                    <TableCell className="text-muted-foreground text-sm whitespace-nowrap">
                       {format(new Date(task.updated_at), "MMM d, yyyy")}
                     </TableCell>
                   </TableRow>

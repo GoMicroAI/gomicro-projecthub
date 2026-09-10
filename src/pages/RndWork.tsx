@@ -31,7 +31,7 @@ import { useTaskReporters } from "@/hooks/useTaskReporters";
  import { useProjects } from "@/hooks/useProjects";
  import { useUserRole } from "@/hooks/useUserRole";
  import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval } from "date-fns";
-import { Download, RefreshCw, FlaskConical, Edit, Trash2, UserCheck } from "lucide-react";
+import { Download, RefreshCw, Cpu, Edit, Trash2, UserCheck } from "lucide-react";
  import { Navigate } from "react-router-dom";
  import * as XLSX from "xlsx";
  import { ExportDialog } from "@/components/rnd/ExportDialog";
@@ -223,25 +223,25 @@ import { Download, RefreshCw, FlaskConical, Edit, Trash2, UserCheck } from "luci
       <div className="h-full flex flex-col">
          {/* Header */}
          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center">
-              <FlaskConical className="h-5 w-5 text-accent-foreground" />
-             </div>
-             <div>
-               <h1 className="text-2xl font-bold">R&D Work Log</h1>
-               <p className="text-sm text-muted-foreground">
-                 Track and manage all R&D tasks across projects
-               </p>
-             </div>
-           </div>
-           
-           <div className="flex items-center gap-2">
-             <Button variant="outline" size="sm" onClick={() => refetch()}>
-               <RefreshCw className="h-4 w-4 mr-1" />
-               Refresh
-             </Button>
-           </div>
-         </div>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
+                <Cpu className="h-5 w-5 text-accent-foreground" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold truncate">R&D Work Log</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Track and manage all R&D tasks across projects
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
+                <RefreshCw className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
+            </div>
+          </div>
  
          {/* Filters and Export */}
          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
@@ -275,130 +275,130 @@ import { Download, RefreshCw, FlaskConical, Edit, Trash2, UserCheck } from "luci
              <div className="flex items-center justify-center h-full">
                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
              </div>
-           ) : filteredTasks.length === 0 ? (
-             <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-               <FlaskConical className="h-12 w-12 mb-4 opacity-50" />
-               <p className="text-lg font-medium">No R&D tasks found</p>
-               <p className="text-sm">R&D tasks from projects will appear here</p>
-             </div>
-           ) : (
-             <div className="h-full overflow-auto">
-               <div className="min-w-[900px]">
-                 <Table>
-                 <TableHeader>
-                   <TableRow className="bg-muted/50">
-                     <TableHead className="w-[120px]">Date & Time</TableHead>
-                     <TableHead className="w-[150px]">Project</TableHead>
-                     <TableHead className="min-w-[200px]">Task</TableHead>
-                     <TableHead className="w-[150px]">Assigned To</TableHead>
-                      <TableHead className="w-[120px]">Report To</TableHead>
-                     <TableHead className="w-[100px]">Status</TableHead>
-                     <TableHead className="w-[80px]">Priority</TableHead>
-                     <TableHead className="w-[80px] text-right">Actions</TableHead>
-                   </TableRow>
-                 </TableHeader>
-                 <TableBody>
-                   {filteredTasks.map((task) => {
-                     const assigneeIds = assigneesByTaskId[task.id] || [];
-                     const assignees = assigneeIds
-                       .map((id) => teamMembers.find((m) => m.user_id === id))
-                       .filter(Boolean);
-                      const reporterIds = getReportersForTask(task.id);
-                      const reporters = reporterIds
+            ) : filteredTasks.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground px-4 text-center">
+                <Cpu className="h-12 w-12 mb-4 opacity-50" />
+                <p className="text-lg font-medium">No R&D tasks found</p>
+                <p className="text-sm">R&D tasks from projects will appear here</p>
+              </div>
+            ) : (
+              <div className="h-full overflow-auto">
+                <div className="min-w-[700px] sm:min-w-[900px]">
+                  <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="w-[100px] sm:w-[120px]">Date & Time</TableHead>
+                      <TableHead className="w-[130px] sm:w-[150px]">Project</TableHead>
+                      <TableHead className="min-w-[180px] sm:min-w-[200px]">Task</TableHead>
+                      <TableHead className="w-[130px] sm:w-[150px]">Assigned To</TableHead>
+                       <TableHead className="w-[100px] sm:w-[120px]">Report To</TableHead>
+                      <TableHead className="w-[90px] sm:w-[100px]">Status</TableHead>
+                      <TableHead className="w-[70px] sm:w-[80px]">Priority</TableHead>
+                      <TableHead className="w-[70px] sm:w-[80px] text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredTasks.map((task) => {
+                      const assigneeIds = assigneesByTaskId[task.id] || [];
+                      const assignees = assigneeIds
                         .map((id) => teamMembers.find((m) => m.user_id === id))
                         .filter(Boolean);
- 
-                     return (
-                       <TableRow key={task.id}>
-                         <TableCell className="text-sm">
-                           <div className="font-medium">
-                             {format(new Date(task.created_at), "MMM d, yyyy")}
-                           </div>
-                           <div className="text-xs text-muted-foreground">
-                             {format(new Date(task.created_at), "HH:mm")}
-                           </div>
-                         </TableCell>
-                         <TableCell>
-                           <Badge variant="outline" className="text-xs">
-                             {getProjectName(task.project_id)}
-                           </Badge>
-                         </TableCell>
-                         <TableCell>
-                           <div className="font-medium">{task.title}</div>
-                           {task.description && (
-                             <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
-                               {task.description}
-                             </p>
-                           )}
-                         </TableCell>
-                         <TableCell>
-                           {assignees.length > 0 ? (
-                             <div className="flex items-center gap-1">
-                               <div className="flex -space-x-2">
-                                 {assignees.slice(0, 3).map((member) => (
-                                   <Avatar key={member!.id} className="h-6 w-6 border-2 border-background">
-                                     <AvatarFallback className="text-[10px] bg-primary text-primary-foreground">
-                                       {getInitials(member!.name)}
-                                     </AvatarFallback>
-                                   </Avatar>
-                                 ))}
-                               </div>
-                               {assignees.length > 3 && (
-                                 <span className="text-xs text-muted-foreground">
-                                   +{assignees.length - 3}
-                                 </span>
-                               )}
-                             </div>
-                           ) : (
-                             <span className="text-xs text-muted-foreground">Unassigned</span>
-                           )}
-                         </TableCell>
+                       const reporterIds = getReportersForTask(task.id);
+                       const reporters = reporterIds
+                         .map((id) => teamMembers.find((m) => m.user_id === id))
+                         .filter(Boolean);
+
+                      return (
+                        <TableRow key={task.id}>
+                          <TableCell className="text-sm whitespace-nowrap">
+                            <div className="font-medium">
+                              {format(new Date(task.created_at), "MMM d, yyyy")}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {format(new Date(task.created_at), "HH:mm")}
+                            </div>
+                          </TableCell>
                           <TableCell>
-                            {reporters.length > 0 ? (
-                              <div className="flex items-center gap-1 text-xs">
-                                <UserCheck className="h-3 w-3 text-muted-foreground" />
-                                <span className="text-muted-foreground">
-                                  {reporters.map((r) => r!.name).join(", ")}
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="text-xs text-muted-foreground">—</span>
+                            <Badge variant="outline" className="text-xs truncate max-w-[110px] sm:max-w-[140px]">
+                              {getProjectName(task.project_id)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="font-medium truncate max-w-[170px] sm:max-w-[220px]">{task.title}</div>
+                            {task.description && (
+                              <p className="text-xs text-muted-foreground line-clamp-2 mt-1 max-w-[170px] sm:max-w-[220px]">
+                                {task.description}
+                              </p>
                             )}
                           </TableCell>
-                         <TableCell>
-                           <TaskStatusBadge status={task.status} />
-                         </TableCell>
-                         <TableCell>
-                           <PriorityBadge priority={task.priority} />
-                         </TableCell>
-                         <TableCell className="text-right">
-                           <div className="flex items-center justify-end gap-1">
-                             <Button
-                               variant="ghost"
-                               size="icon"
-                               className="h-7 w-7"
-                               onClick={() => setEditingTask(task)}
-                             >
-                               <Edit className="h-3.5 w-3.5" />
-                             </Button>
-                             <Button
-                               variant="ghost"
-                               size="icon"
-                               className="h-7 w-7 text-destructive hover:text-destructive"
-                               onClick={() => setDeletingTask(task)}
-                             >
-                               <Trash2 className="h-3.5 w-3.5" />
-                             </Button>
-                           </div>
-                         </TableCell>
-                       </TableRow>
-                     );
-                   })}
-                 </TableBody>
-                 </Table>
-               </div>
-             </div>
-           )}
+                          <TableCell>
+                            {assignees.length > 0 ? (
+                              <div className="flex items-center gap-1">
+                                <div className="flex -space-x-2">
+                                  {assignees.slice(0, 3).map((member) => (
+                                    <Avatar key={member!.id} className="h-6 w-6 border-2 border-background">
+                                      <AvatarFallback className="text-[10px] bg-primary text-primary-foreground">
+                                        {getInitials(member!.name)}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  ))}
+                                </div>
+                                {assignees.length > 3 && (
+                                  <span className="text-xs text-muted-foreground">
+                                    +{assignees.length - 3}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">Unassigned</span>
+                            )}
+                          </TableCell>
+                           <TableCell>
+                             {reporters.length > 0 ? (
+                               <div className="flex items-center gap-1 text-xs min-w-0">
+                                 <UserCheck className="h-3 w-3 text-muted-foreground shrink-0" />
+                                 <span className="text-muted-foreground truncate max-w-[80px] sm:max-w-[110px]">
+                                   {reporters.map((r) => r!.name).join(", ")}
+                                 </span>
+                               </div>
+                             ) : (
+                               <span className="text-xs text-muted-foreground">—</span>
+                             )}
+                           </TableCell>
+                          <TableCell>
+                            <TaskStatusBadge status={task.status} />
+                          </TableCell>
+                          <TableCell>
+                            <PriorityBadge priority={task.priority} />
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() => setEditingTask(task)}
+                              >
+                                <Edit className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-destructive hover:text-destructive"
+                                onClick={() => setDeletingTask(task)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
          </div>
        </div>
  

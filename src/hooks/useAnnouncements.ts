@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -45,6 +45,7 @@ export function useAnnouncements() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const channelRef = useRef<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [allAnnouncements, setAllAnnouncements] = useState<Announcement[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -193,8 +194,12 @@ export function useAnnouncements() {
   useEffect(() => {
     if (!user) return;
 
+    // Use a unique channel name per mount to avoid React StrictMode reuse issues
+    const channelName = `announcements-realtime-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    channelRef.current = channelName;
+
     const channel = supabase
-      .channel("announcements-realtime")
+      .channel(channelName)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "announcements" },
@@ -206,6 +211,7 @@ export function useAnnouncements() {
 
     return () => {
       supabase.removeChannel(channel);
+      channelRef.current = null;
     };
   }, [user, queryClient]);
 

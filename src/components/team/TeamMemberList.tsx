@@ -65,7 +65,7 @@ export function TeamMemberList({
 
   return (
     <ScrollArea className="h-full">
-      <div className="space-y-2 pr-2">
+      <div className="space-y-2 pr-2 pb-2">
         {members.map((member) => {
           const currentTask = getMemberCurrentTask(member.user_id);
           const isSelected = selectedMemberId === member.id;
@@ -79,14 +79,14 @@ export function TeamMemberList({
               )}
               onClick={() => onSelectMember(member.id)}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 <Avatar className="h-8 w-8 shrink-0">
                   <AvatarImage src={member.avatar_url || undefined} alt={member.name} />
                   <AvatarFallback className="text-xs bg-primary/10 text-primary">
                     {getInitials(member.name)}
                   </AvatarFallback>
                 </Avatar>
-                <h3 className="text-sm font-medium truncate">
+                <h3 className="text-sm font-medium truncate min-w-0 flex-1">
                   {member.user_id === currentUserId ? "My Work" : member.name}
                 </h3>
               </div>
@@ -97,8 +97,8 @@ export function TeamMemberList({
                   <div className="shrink-0 flex items-center justify-center w-4 h-4 rounded-full bg-green-500/20 mt-0.5">
                     <Play className="w-2.5 h-2.5 text-green-600 fill-green-600" />
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-[10px] text-green-600/70 dark:text-green-400/70 leading-tight">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] text-green-600/70 dark:text-green-400/70 leading-tight truncate">
                       {getProjectName(currentTask.project_id)}
                     </p>
                     <p className="text-xs font-medium text-green-700 dark:text-green-400 leading-tight">

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,6 +14,7 @@ export function useProjects() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const channelRef = useRef<string | null>(null);
 
   const { data: projects = [], isLoading, refetch } = useQuery({
     queryKey: ["projects"],
@@ -36,8 +37,12 @@ export function useProjects() {
   useEffect(() => {
     if (!user) return;
 
+    // Use a unique channel name per mount to avoid React StrictMode reuse issues
+    const channelName = `projects-realtime-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    channelRef.current = channelName;
+
     const channel = supabase
-      .channel("projects-realtime")
+      .channel(channelName)
       .on(
         "postgres_changes",
         {
@@ -53,6 +58,7 @@ export function useProjects() {
 
     return () => {
       supabase.removeChannel(channel);
+      channelRef.current = null;
     };
   }, [user, queryClient]);
 

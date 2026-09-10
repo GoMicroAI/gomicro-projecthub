@@ -8,6 +8,7 @@ import { useProjects } from "@/hooks/useProjects";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { InviteDialog } from "@/components/team/InviteDialog";
 import { TeamMemberList } from "@/components/team/TeamMemberList";
 import { MemberTasksPanel } from "@/components/team/MemberTasksPanel";
@@ -24,16 +25,18 @@ export default function Team() {
 
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   // Filter out only the main admin (sivam.common@gmail.com) from the team list
   const visibleMembers = teamMembers.filter((m) => m.email !== "sivam.common@gmail.com");
 
-  // Auto-select first member when page loads (admin view only)
+  // Auto-select first member when page loads on desktop (admin view only)
+  // Mobile keeps the list visible first so the user can choose a member
   useEffect(() => {
-    if (isAdmin && !selectedMemberId && visibleMembers.length > 0) {
+    if (isAdmin && !isMobile && !selectedMemberId && visibleMembers.length > 0) {
       setSelectedMemberId(visibleMembers[0].id);
     }
-  }, [isAdmin, visibleMembers, selectedMemberId]);
+  }, [isAdmin, isMobile, visibleMembers, selectedMemberId]);
 
   // Find current user's team member record
   const currentUserMember = teamMembers.find((m) => m.user_id === user?.id);
@@ -98,9 +101,9 @@ export default function Team() {
       }
     >
       {/* Mobile View */}
-      <div className="md:hidden h-full overflow-hidden">
+      <div className="md:hidden h-full min-h-0 overflow-hidden">
         {selectedMember ? (
-          <div className="h-full flex flex-col">
+          <div className="h-full min-h-0 flex flex-col">
             <Button
               variant="ghost"
               size="sm"
@@ -110,7 +113,7 @@ export default function Team() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Team
             </Button>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-hidden">
               <MemberTasksPanel
                 member={selectedMember}
                 tasks={tasks}
@@ -120,11 +123,11 @@ export default function Team() {
             </div>
           </div>
         ) : (
-          <div className="h-full flex flex-col overflow-hidden">
+          <div className="h-full min-h-0 flex flex-col overflow-hidden">
             <h2 className="text-sm font-medium text-muted-foreground mb-3 shrink-0">
               Team Members ({visibleMembers.length})
             </h2>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-hidden">
               <TeamMemberList
                 members={visibleMembers}
                 tasks={tasks}
@@ -141,13 +144,13 @@ export default function Team() {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:flex h-full overflow-hidden rounded-lg border">
+      <div className="hidden md:flex h-full min-h-0 overflow-hidden rounded-lg border">
         {/* Team Member List - Narrower width with vertical card layout */}
-        <div className="w-[280px] min-w-[260px] h-full flex flex-col p-4 overflow-hidden border-r">
+        <div className="w-[280px] min-w-[260px] h-full min-h-0 flex flex-col p-4 overflow-hidden border-r">
           <h2 className="text-sm font-medium text-muted-foreground mb-3 shrink-0">
             Team Members ({visibleMembers.length})
           </h2>
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-hidden">
             <TeamMemberList
               members={visibleMembers}
               tasks={tasks}
@@ -162,7 +165,7 @@ export default function Team() {
         </div>
 
         {/* Member Tasks Panel - Flexible width */}
-        <div className="flex-1 h-full overflow-hidden">
+        <div className="flex-1 h-full min-h-0 overflow-hidden">
           {selectedMember ? (
             <MemberTasksPanel
               member={selectedMember}

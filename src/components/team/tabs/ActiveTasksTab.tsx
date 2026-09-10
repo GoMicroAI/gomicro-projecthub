@@ -138,7 +138,7 @@ export function ActiveTasksTab({ tasks, memberAssignees, canModify }: ActiveTask
                 </h3>
                 <div className="border rounded-md overflow-hidden">
                   <div className="overflow-x-auto">
-                    <Table className="min-w-[600px]">
+                    <Table className="min-w-[520px] sm:min-w-[600px]">
                     <TableHeader>
                       <TableRow className="bg-muted/50">
                         <TableHead className="w-[35%]">Task</TableHead>
@@ -154,13 +154,13 @@ export function ActiveTasksTab({ tasks, memberAssignees, canModify }: ActiveTask
                       {sectionTasks.map((task) => (
                         <TableRow key={task.id}>
                           <TableCell>
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">{task.title}</span>
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="font-medium truncate">{task.title}</span>
                               {task.description && (
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-6 w-6"
+                                  className="h-6 w-6 shrink-0"
                                   onClick={() => setSelectedTask(task)}
                                 >
                                   <FileText className="h-3 w-3 text-muted-foreground" />
@@ -172,35 +172,35 @@ export function ActiveTasksTab({ tasks, memberAssignees, canModify }: ActiveTask
                             <Button
                               variant="link"
                               size="sm"
-                              className="h-auto p-0 text-muted-foreground hover:text-foreground"
+                              className="h-auto p-0 text-muted-foreground hover:text-foreground truncate max-w-[120px] sm:max-w-[160px]"
                               onClick={() => navigate(`/projects/${task.project_id}`)}
                             >
                               {getProjectName(task.project_id)}
-                              <ExternalLink className="h-3 w-3 ml-1" />
+                              <ExternalLink className="h-3 w-3 ml-1 shrink-0" />
                             </Button>
                           </TableCell>
                         <TableCell>
                           {getReporterNames(task.id).length > 0 ? (
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <UserCheck className="h-3 w-3" />
-                              <span>{getReporterNames(task.id).join(", ")}</span>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground min-w-0">
+                              <UserCheck className="h-3 w-3 shrink-0" />
+                              <span className="truncate max-w-[80px] sm:max-w-[120px]">{getReporterNames(task.id).join(", ")}</span>
                             </div>
                           ) : (
                             <span className="text-xs text-muted-foreground">—</span>
                           )}
                         </TableCell>
-                          <TableCell className="text-muted-foreground text-sm">
+                          <TableCell className="text-muted-foreground text-sm whitespace-nowrap">
                             {formatStatusDate(task)}
                           </TableCell>
                           <TableCell className="text-right">
                             {canModify && (
-                              <div className="flex items-center justify-end gap-2">
+                              <div className="flex items-center justify-end gap-1 sm:gap-2">
                                 {section.key !== "in_progress" && (
                                   <Button
                                     size="sm"
                                     variant="ghost"
                                     onClick={() => handleMakeCurrentTask(task.id)}
-                                    className="h-7 px-2"
+                                    className="h-7 px-1.5 sm:px-2"
                                   >
                                     <Play className="h-3 w-3" />
                                   </Button>
@@ -211,7 +211,7 @@ export function ActiveTasksTab({ tasks, memberAssignees, canModify }: ActiveTask
                                     handleStatusChange(task.id, value as TaskStatus)
                                   }
                                 >
-                                  <SelectTrigger className="w-[100px] h-7 text-xs">
+                                  <SelectTrigger className="w-[90px] sm:w-[100px] h-7 text-xs">
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
