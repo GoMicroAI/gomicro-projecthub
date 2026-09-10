@@ -275,13 +275,13 @@ import { Download, RefreshCw, Cpu, Edit, Trash2, UserCheck } from "lucide-react"
              <div className="flex items-center justify-center h-full">
                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
              </div>
-           ) : filteredTasks.length === 0 ? (
-             <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-               <FlaskConical className="h-12 w-12 mb-4 opacity-50" />
-               <p className="text-lg font-medium">No R&D tasks found</p>
-               <p className="text-sm">R&D tasks from projects will appear here</p>
-             </div>
-           ) : (
+            ) : filteredTasks.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground px-4 text-center">
+                <Cpu className="h-12 w-12 mb-4 opacity-50" />
+                <p className="text-lg font-medium">No R&D tasks found</p>
+                <p className="text-sm">R&D tasks from projects will appear here</p>
+              </div>
+            ) : (
              <div className="h-full overflow-auto">
                <div className="min-w-[900px]">
                  <Table>
