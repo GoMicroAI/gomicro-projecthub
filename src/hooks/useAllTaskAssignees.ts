@@ -32,8 +32,12 @@ export function useAllTaskAssigneesGlobal() {
   useEffect(() => {
     if (!user) return;
 
+    // Use a unique channel name per mount to avoid React StrictMode reuse issues
+    const channelName = `task-assignees-realtime-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    channelRef.current = channelName;
+
     const channel = supabase
-      .channel("task-assignees-realtime")
+      .channel(channelName)
       .on(
         "postgres_changes",
         {
@@ -49,6 +53,7 @@ export function useAllTaskAssigneesGlobal() {
 
     return () => {
       supabase.removeChannel(channel);
+      channelRef.current = null;
     };
   }, [user, queryClient]);
 
