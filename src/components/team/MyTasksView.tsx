@@ -51,18 +51,18 @@ export function MyTasksView({ member, tasks, allAssignees }: MyTasksViewProps) {
   ];
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="border-b shrink-0">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-12 w-12">
+    <Card className="h-full flex flex-col rounded-none md:rounded-lg border-0 md:border">
+      <CardHeader className="border-b shrink-0 py-3 md:py-6 px-3 md:px-6">
+        <div className="flex items-center gap-2 md:gap-3 min-w-0">
+          <Avatar className="h-9 w-9 md:h-12 md:w-12 shrink-0">
             <AvatarImage src={member.avatar_url || undefined} alt={member.name} />
-            <AvatarFallback className="text-lg bg-primary/10 text-primary">
+            <AvatarFallback className="text-sm md:text-lg bg-primary/10 text-primary">
               {getInitials(member.name)}
             </AvatarFallback>
           </Avatar>
-          <div>
-            <CardTitle className="text-lg">My Tasks</CardTitle>
-            <p className="text-sm text-muted-foreground">{member.email}</p>
+          <div className="min-w-0">
+            <CardTitle className="text-base md:text-lg truncate">My Work</CardTitle>
+            <p className="text-xs md:text-sm text-muted-foreground truncate">{member.email}</p>
           </div>
         </div>
       </CardHeader>
