@@ -178,7 +178,7 @@ export default function Dashboard() {
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {projects.slice(0, 4).map((project) => (
                       <ProjectCard
                         key={project.id}
