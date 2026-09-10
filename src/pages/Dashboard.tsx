@@ -145,19 +145,19 @@ export default function Dashboard() {
 
           {/* Task Status Summary */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Task Summary</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base sm:text-lg">Task Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 {taskStats.map((stat) => (
                   <div
                     key={stat.status}
-                    className="flex items-center justify-between p-4 rounded-lg bg-muted/50"
+                    className="flex items-center justify-between p-3 sm:p-4 rounded-lg bg-muted/50"
                   >
                     <div>
-                      <TaskStatusBadge status={stat.status} />
-                      <p className="text-2xl font-bold mt-2">{stat.count}</p>
+                      <TaskStatusBadge status={stat.status} className="text-xs" />
+                      <p className="text-xl sm:text-2xl font-bold mt-1 sm:mt-2">{stat.count}</p>
                     </div>
                   </div>
                 ))}
@@ -165,9 +165,9 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Projects */}
-            <div className="col-span-2">
+            <div className="lg:col-span-2">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="text-lg">Recent Projects</CardTitle>
