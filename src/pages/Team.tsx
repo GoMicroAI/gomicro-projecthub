@@ -144,13 +144,13 @@ export default function Team() {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:flex h-full overflow-hidden rounded-lg border">
+      <div className="hidden md:flex h-full min-h-0 overflow-hidden rounded-lg border">
         {/* Team Member List - Narrower width with vertical card layout */}
-        <div className="w-[280px] min-w-[260px] h-full flex flex-col p-4 overflow-hidden border-r">
+        <div className="w-[280px] min-w-[260px] h-full min-h-0 flex flex-col p-4 overflow-hidden border-r">
           <h2 className="text-sm font-medium text-muted-foreground mb-3 shrink-0">
             Team Members ({visibleMembers.length})
           </h2>
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-hidden">
             <TeamMemberList
               members={visibleMembers}
               tasks={tasks}
@@ -165,7 +165,7 @@ export default function Team() {
         </div>
 
         {/* Member Tasks Panel - Flexible width */}
-        <div className="flex-1 h-full overflow-hidden">
+        <div className="flex-1 h-full min-h-0 overflow-hidden">
           {selectedMember ? (
             <MemberTasksPanel
               member={selectedMember}
