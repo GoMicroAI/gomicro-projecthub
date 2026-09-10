@@ -113,55 +113,57 @@ export function WorkHistoryTab({ userId, canModify, memberName }: WorkHistoryTab
 
           {workHistory.length > 0 ? (
             <div className="border rounded-md overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="w-[20%]">Date</TableHead>
-                    <TableHead className="w-[15%]">Time</TableHead>
-                    <TableHead className="w-[50%]">Task Summary</TableHead>
-                    {canModify && <TableHead className="w-[15%] text-right">Actions</TableHead>}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {workHistory.map((entry) => (
-                    <TableRow key={entry.id}>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {format(new Date(entry.date), "MMM d, yyyy")}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {entry.time.slice(0, 5)}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        <p className="whitespace-pre-wrap">{entry.task_summary}</p>
-                      </TableCell>
-                      {canModify && (
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() =>
-                                setEditingEntry({ id: entry.id, summary: entry.task_summary })
-                              }
-                            >
-                              <Pencil className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-destructive hover:text-destructive"
-                              onClick={() => handleDeleteEntry(entry.id)}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      )}
+              <div className="overflow-x-auto">
+                <Table className="min-w-[400px] sm:min-w-[500px]">
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="w-[20%]">Date</TableHead>
+                      <TableHead className="w-[15%]">Time</TableHead>
+                      <TableHead className="w-[50%]">Task Summary</TableHead>
+                      {canModify && <TableHead className="w-[15%] text-right">Actions</TableHead>}
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {workHistory.map((entry) => (
+                      <TableRow key={entry.id}>
+                        <TableCell className="text-muted-foreground text-sm whitespace-nowrap">
+                          {format(new Date(entry.date), "MMM d, yyyy")}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm whitespace-nowrap">
+                          {entry.time.slice(0, 5)}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          <p className="whitespace-pre-wrap text-sm">{entry.task_summary}</p>
+                        </TableCell>
+                        {canModify && (
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() =>
+                                  setEditingEntry({ id: entry.id, summary: entry.task_summary })
+                                }
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-destructive hover:text-destructive"
+                                onClick={() => handleDeleteEntry(entry.id)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           ) : (
             <p className="text-center text-muted-foreground py-8">
