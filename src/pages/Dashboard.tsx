@@ -86,57 +86,57 @@ export default function Dashboard() {
         <ScrollArea className="h-full">
           <div className="space-y-8 pr-4">
           {/* Stats Overview */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-full bg-primary/10">
-                    <FolderKanban className="h-6 w-6 text-primary" />
+              <CardContent className="pt-4 sm:pt-6">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="p-2 sm:p-3 rounded-full bg-primary/10">
+                    <FolderKanban className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{projects.length}</p>
-                    <p className="text-sm text-muted-foreground">Projects</p>
+                    <p className="text-xl sm:text-2xl font-bold">{projects.length}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Projects</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-full bg-status-in-progress/10">
-                    <CheckSquare className="h-6 w-6 text-status-in-progress" />
+              <CardContent className="pt-4 sm:pt-6">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="p-2 sm:p-3 rounded-full bg-status-in-progress/10">
+                    <CheckSquare className="h-5 w-5 sm:h-6 sm:w-6 text-status-in-progress" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{tasks.length}</p>
-                    <p className="text-sm text-muted-foreground">Total Tasks</p>
+                    <p className="text-xl sm:text-2xl font-bold">{tasks.length}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Total Tasks</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-full bg-status-done/10">
-                    <CheckSquare className="h-6 w-6 text-status-done" />
+              <CardContent className="pt-4 sm:pt-6">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="p-2 sm:p-3 rounded-full bg-status-done/10">
+                    <CheckSquare className="h-5 w-5 sm:h-6 sm:w-6 text-status-done" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{tasksByStatus.done.length}</p>
-                    <p className="text-sm text-muted-foreground">Completed</p>
+                    <p className="text-xl sm:text-2xl font-bold">{tasksByStatus.done.length}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Completed</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-full bg-muted">
-                    <Users className="h-6 w-6 text-muted-foreground" />
+              <CardContent className="pt-4 sm:pt-6">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="p-2 sm:p-3 rounded-full bg-muted">
+                    <Users className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">
+                    <p className="text-xl sm:text-2xl font-bold">
                       {teamMembers.filter((m) => m.status === "active").length}
                     </p>
-                    <p className="text-sm text-muted-foreground">Active Members</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Active Members</p>
                   </div>
                 </div>
               </CardContent>
