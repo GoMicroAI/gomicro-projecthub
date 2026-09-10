@@ -35,8 +35,12 @@ export function useTeamMembers() {
   useEffect(() => {
     if (!user) return;
 
+    // Use a unique channel name per mount to avoid React StrictMode reuse issues
+    const channelName = `team-members-realtime-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    channelRef.current = channelName;
+
     const channel = supabase
-      .channel("team-members-realtime")
+      .channel(channelName)
       .on(
         "postgres_changes",
         {
@@ -52,6 +56,7 @@ export function useTeamMembers() {
 
     return () => {
       supabase.removeChannel(channel);
+      channelRef.current = null;
     };
   }, [user, queryClient]);
 
