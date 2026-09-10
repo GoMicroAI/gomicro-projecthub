@@ -194,8 +194,12 @@ export function useAnnouncements() {
   useEffect(() => {
     if (!user) return;
 
+    // Use a unique channel name per mount to avoid React StrictMode reuse issues
+    const channelName = `announcements-realtime-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    channelRef.current = channelName;
+
     const channel = supabase
-      .channel("announcements-realtime")
+      .channel(channelName)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "announcements" },
@@ -207,6 +211,7 @@ export function useAnnouncements() {
 
     return () => {
       supabase.removeChannel(channel);
+      channelRef.current = null;
     };
   }, [user, queryClient]);
 
