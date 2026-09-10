@@ -13,6 +13,7 @@ export interface TaskAssignee {
 export function useAllTaskAssigneesGlobal() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const channelRef = useRef<string | null>(null);
 
   const { data: allAssignees = [], isLoading, refetch } = useQuery({
     queryKey: ["all_task_assignees_global"],
