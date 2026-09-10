@@ -45,6 +45,7 @@ export function useAnnouncements() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const channelRef = useRef<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [allAnnouncements, setAllAnnouncements] = useState<Announcement[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
