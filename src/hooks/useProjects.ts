@@ -14,6 +14,7 @@ export function useProjects() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const channelRef = useRef<string | null>(null);
 
   const { data: projects = [], isLoading, refetch } = useQuery({
     queryKey: ["projects"],
