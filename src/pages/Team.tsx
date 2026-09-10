@@ -101,9 +101,9 @@ export default function Team() {
       }
     >
       {/* Mobile View */}
-      <div className="md:hidden h-full overflow-hidden">
+      <div className="md:hidden h-full min-h-0 overflow-hidden">
         {selectedMember ? (
-          <div className="h-full flex flex-col">
+          <div className="h-full min-h-0 flex flex-col">
             <Button
               variant="ghost"
               size="sm"
@@ -113,7 +113,7 @@ export default function Team() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Team
             </Button>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-hidden">
               <MemberTasksPanel
                 member={selectedMember}
                 tasks={tasks}
@@ -123,11 +123,11 @@ export default function Team() {
             </div>
           </div>
         ) : (
-          <div className="h-full flex flex-col overflow-hidden">
+          <div className="h-full min-h-0 flex flex-col overflow-hidden">
             <h2 className="text-sm font-medium text-muted-foreground mb-3 shrink-0">
               Team Members ({visibleMembers.length})
             </h2>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-hidden">
               <TeamMemberList
                 members={visibleMembers}
                 tasks={tasks}
