@@ -8,6 +8,7 @@ import { useProjects } from "@/hooks/useProjects";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAllTaskAssigneesGlobal } from "@/hooks/useAllTaskAssignees";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { InviteDialog } from "@/components/team/InviteDialog";
 import { TeamMemberList } from "@/components/team/TeamMemberList";
 import { MemberTasksPanel } from "@/components/team/MemberTasksPanel";
