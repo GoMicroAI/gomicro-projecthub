@@ -223,25 +223,25 @@ import { Download, RefreshCw, Cpu, Edit, Trash2, UserCheck } from "lucide-react"
       <div className="h-full flex flex-col">
          {/* Header */}
          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center">
-              <FlaskConical className="h-5 w-5 text-accent-foreground" />
-             </div>
-             <div>
-               <h1 className="text-2xl font-bold">R&D Work Log</h1>
-               <p className="text-sm text-muted-foreground">
-                 Track and manage all R&D tasks across projects
-               </p>
-             </div>
-           </div>
-           
-           <div className="flex items-center gap-2">
-             <Button variant="outline" size="sm" onClick={() => refetch()}>
-               <RefreshCw className="h-4 w-4 mr-1" />
-               Refresh
-             </Button>
-           </div>
-         </div>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
+                <Cpu className="h-5 w-5 text-accent-foreground" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold truncate">R&D Work Log</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Track and manage all R&D tasks across projects
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
+                <RefreshCw className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
+            </div>
+          </div>
  
          {/* Filters and Export */}
          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
