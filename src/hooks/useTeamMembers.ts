@@ -12,6 +12,7 @@ export function useTeamMembers() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const channelRef = useRef<string | null>(null);
 
   const { data: teamMembers = [], isLoading, refetch } = useQuery({
     queryKey: ["teamMembers"],
