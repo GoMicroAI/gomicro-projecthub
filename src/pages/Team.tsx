@@ -25,16 +25,18 @@ export default function Team() {
 
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   // Filter out only the main admin (sivam.common@gmail.com) from the team list
   const visibleMembers = teamMembers.filter((m) => m.email !== "sivam.common@gmail.com");
 
-  // Auto-select first member when page loads (admin view only)
+  // Auto-select first member when page loads on desktop (admin view only)
+  // Mobile keeps the list visible first so the user can choose a member
   useEffect(() => {
-    if (isAdmin && !selectedMemberId && visibleMembers.length > 0) {
+    if (isAdmin && !isMobile && !selectedMemberId && visibleMembers.length > 0) {
       setSelectedMemberId(visibleMembers[0].id);
     }
-  }, [isAdmin, visibleMembers, selectedMemberId]);
+  }, [isAdmin, isMobile, visibleMembers, selectedMemberId]);
 
   // Find current user's team member record
   const currentUserMember = teamMembers.find((m) => m.user_id === user?.id);
