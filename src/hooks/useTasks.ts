@@ -16,6 +16,7 @@ export function useTasks(projectId?: string) {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const channelRef = useRef<string | null>(null);
 
   const { data: tasks = [], isLoading, refetch } = useQuery({
     queryKey: ["tasks", projectId],
