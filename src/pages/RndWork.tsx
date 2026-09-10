@@ -31,7 +31,7 @@ import { useTaskReporters } from "@/hooks/useTaskReporters";
  import { useProjects } from "@/hooks/useProjects";
  import { useUserRole } from "@/hooks/useUserRole";
  import { format, startOfMonth, endOfMonth, subMonths, isWithinInterval } from "date-fns";
-import { Download, RefreshCw, FlaskConical, Edit, Trash2, UserCheck } from "lucide-react";
+import { Download, RefreshCw, Cpu, Edit, Trash2, UserCheck } from "lucide-react";
  import { Navigate } from "react-router-dom";
  import * as XLSX from "xlsx";
  import { ExportDialog } from "@/components/rnd/ExportDialog";
